@@ -1,3 +1,14 @@
 <resources>
     <string name="app_name">Qfinder-Android</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <string name="text1RegUsuario">Registra tus datos</string>
+    <string name="text2RegUsuario">Créate una cuenta</string>
+    <string name="txtNombre">Nombres:</string>
+    <string name="txtApellido">Apellidos:</string>
+    <string name="txtCorreo">Correo electrónico:</string>
+    <string name="txtTelefono">Número telefonico:</string>
+    <string name="txtIdent">Identificación:</string>
+    <string name="txtDirreccion">Dirección:</string>
 </resources>
