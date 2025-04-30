@@ -10,13 +10,12 @@ import com.sena.qfinder.R;
 public class DashboardFragment extends Fragment {
 
     public DashboardFragment() {
-        // Constructor vacío requerido
+        // Required empty public constructor
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Infla el layout
         return inflater.inflate(R.layout.fragment_dashboard, container, false);
     }
 }

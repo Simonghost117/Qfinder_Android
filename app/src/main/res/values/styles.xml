@@ -1,0 +1,25 @@
+<resources>
+    <!-- Estilo para encabezados de tabla -->
+    <style name="TableHeaderStyle">
+        <item name="android:textColor">#000000</item>
+        <item name="android:background">#EEEEEE</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:padding">8dp</item>
+        <item name="android:gravity">center</item>
+    </style>
+
+    <!-- Estilo para filas de tabla -->
+    <style name="TableRowStyle">
+        <item name="android:textColor">#444444</item>
+        <item name="android:padding">8dp</item>
+        <item name="android:background">@android:color/white</item>
+    </style>
+
+    <!-- Estilo para tablas -->
+    <style name="MyTableStyle">
+        <item name="android:layout_marginTop">16dp</item>
+        <item name="android:layout_marginBottom">16dp</item>
+        <item name="android:stretchColumns">*</item>
+        <item name="android:shrinkColumns">*</item>
+    </style>
+</resources>
