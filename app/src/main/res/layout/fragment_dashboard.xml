@@ -2,8 +2,8 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F5F8FF"
-    android:padding="16dp">
+    android:background="@drawable/bg_fragment"
+    android:padding="35dp">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -21,9 +21,8 @@
             <ImageView
                 android:layout_width="40dp"
                 android:layout_height="40dp"
-                android:src="@drawable/perfil"
-                android:layout_marginEnd="8dp"
-                android:background="@drawable/circle_bg" />
+                android:src="@drawable/perfil_familiar"
+                android:layout_marginEnd="8dp" />
 
             <TextView
                 android:layout_width="0dp"
@@ -37,18 +36,14 @@
             <ImageView
                 android:layout_width="24dp"
                 android:layout_height="24dp"
-                android:src="@drawable/ic_launcher_foreground"
-                android:layout_marginEnd="8dp"/>
-
-            <ImageView
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:src="@drawable/ic_launcher_foreground"/>
+                android:src="@drawable/logo_qfinder"/>
         </LinearLayout>
 
-        <!-- PACIENTES -->
+
+        <!-- SECCIÓN PACIENTES -->
         <TextView
-            android:layout_width="wrap_content"
+            android:id="@+id/tvPatientSectionTitle"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Pacientes"
             android:textStyle="bold"
@@ -62,11 +57,12 @@
             android:scrollbars="none">
 
             <LinearLayout
+                android:id="@+id/patientsContainer"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
 
-                <!-- Tarjeta 1 -->
+                <!-- Tarjeta de paciente dinámica (se poblará desde código) -->
                 <LinearLayout
                     android:layout_width="180dp"
                     android:layout_height="wrap_content"
@@ -76,44 +72,64 @@
                     android:background="@drawable/card_background"
                     android:elevation="2dp">
 
-                    <ImageView
-                        android:layout_width="48dp"
-                        android:layout_height="48dp"
-                        android:src="@drawable/perfil"
-                        android:layout_gravity="center_horizontal"
-                        android:background="@drawable/circle_bg" />
-
                     <TextView
+                        android:id="@+id/tvPatientName"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Juan Carlos"
                         android:textStyle="bold"
                         android:gravity="center"
                         android:layout_marginTop="8dp"/>
 
+
+                    <ImageView
+                        android:id="@+id/ivPatientProfile"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:layout_gravity="center_horizontal"
+                        android:background="@drawable/circle_bg"
+                        android:src="@drawable/perfil_paciente" />
+
                     <TextView
+                        android:id="@+id/tvPatientRelation"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Sobrino"
                         android:textSize="12sp"
                         android:gravity="center"/>
 
                     <TextView
+                        android:id="@+id/tvPatientConditions"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="- Enfermedades\n- Alzheimer\n- Sindrome de down"
                         android:textSize="12sp"
                         android:layout_marginTop="4dp"/>
                 </LinearLayout>
 
-                <!-- Repite más tarjetas si deseas -->
+                <LinearLayout
+                    android:layout_width="180dp"
+                    android:layout_height="match_parent"
+                    android:layout_marginEnd="8dp"
+                    android:background="@drawable/card_background"
+                    android:elevation="2dp"
+                    android:orientation="vertical"
+                    android:padding="12dp">
+
+
+                    <ImageView
+                        android:id="@+id/ivPatientAdd"
+                        android:layout_width="48dp"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_horizontal"
+                        android:src="@drawable/add" />
+
+                </LinearLayout>
 
             </LinearLayout>
         </HorizontalScrollView>
 
-        <!-- ACTIVIDADES -->
+        <!-- SECCIÓN ACTIVIDADES -->
         <TextView
-            android:layout_width="wrap_content"
+            android:id="@+id/tvActivitiesSectionTitle"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Actividades"
             android:textStyle="bold"
@@ -121,6 +137,7 @@
             android:layout_marginBottom="8dp"/>
 
         <LinearLayout
+            android:id="@+id/activitiesContainer"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
@@ -129,12 +146,13 @@
             android:layout_marginBottom="16dp">
 
             <TextView
+                android:id="@+id/tvActivitiesTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Juan Carlos:"
                 android:textStyle="bold"/>
 
             <LinearLayout
+                android:id="@+id/activityDetails"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
@@ -142,15 +160,15 @@
                 android:layout_marginTop="4dp">
 
                 <TextView
+                    android:id="@+id/tvActivityDescription"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="• Caminata de 3 km."/>
+                    android:layout_weight="1"/>
 
                 <TextView
+                    android:id="@+id/tvActivityStatus"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="hecha"
                     android:padding="4dp"
                     android:textSize="12sp"
                     android:background="@drawable/green_bg"
@@ -158,47 +176,31 @@
                     android:layout_marginEnd="8dp"/>
 
                 <TextView
+                    android:id="@+id/tvActivityTime"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="8:00 AM"
                     android:background="@drawable/green_bg"
                     android:padding="4dp"
                     android:textSize="12sp"/>
             </LinearLayout>
         </LinearLayout>
 
-        <!-- MEDICAMENTOS -->
+        <!-- SECCIÓN MEDICAMENTOS -->
         <TextView
-            android:layout_width="wrap_content"
+            android:id="@+id/tvMedicationsSectionTitle"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Medicamentos"
             android:textStyle="bold"
             android:textSize="18sp"
             android:layout_marginBottom="8dp"/>
 
-        <TableLayout
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvMedications"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:stretchColumns="*"
             android:background="#EAF2FF"
-            android:padding="8dp">
+            android:padding="8dp"/>
 
-<!--            <TableRow>-->
-<!--                <TextView text="Paciente" style="@style/TableHeader"/>-->
-<!--                <TextView text="Fecha" style="@style/TableHeader"/>-->
-<!--                <TextView text="Hora" style="@style/TableHeader"/>-->
-<!--                <TextView text="Medicamento" style="@style/TableHeader"/>-->
-<!--            </TableRow>-->
-
-            <TableRow>
-                <TextView text="Juan Carlos"/>
-                <TextView text="30 abril"/>
-                <TextView text="10:00 am"/>
-                <TextView text="Somazina 500g\n1 unidad"/>
-            </TableRow>
-
-            <!-- Puedes agregar más filas -->
-
-        </TableLayout>
     </LinearLayout>
 </ScrollView>
