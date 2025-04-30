@@ -4,10 +4,17 @@
     <selectionStates>
       <SelectionState runConfigName="app">
         <option name="selectionMode" value="DROPDOWN" />
+<<<<<<< HEAD
         <DropdownSelection timestamp="2025-04-30T01:12:10.891597300Z">
           <Target type="DEFAULT_BOOT">
             <handle>
               <DeviceId pluginId="LocalEmulator" identifier="path=C:\Users\sebas\.android\avd\Pixel_8_API_Baklava.avd" />
+=======
+        <DropdownSelection timestamp="2025-04-30T02:20:50.294978900Z">
+          <Target type="DEFAULT_BOOT">
+            <handle>
+              <DeviceId pluginId="PhysicalDevice" identifier="serial=R58R50NT0YT" />
+>>>>>>> origin/Alison
             </handle>
           </Target>
         </DropdownSelection>

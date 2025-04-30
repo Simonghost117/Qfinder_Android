@@ -1,0 +1,38 @@
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <WebView
+            android:id="@+id/webViewTerminos"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            >
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnAceptarTerminos"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingHorizontal="100dp"
+                android:paddingVertical="15dp"
+                android:backgroundTint="@color/azulClaro"
+                android:textColor="@color/white"
+                android:text="Aceptar"
+                android:textSize="15sp"
+                />
+
+        </LinearLayout>
+
+
+    </LinearLayout>
+</ScrollView>

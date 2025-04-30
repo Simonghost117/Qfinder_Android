@@ -1,0 +1,24 @@
+package com.sena.qfinder.controller;
+
+import android.os.Bundle;
+import androidx.appcompat.app.AppCompatActivity;
+import com.sena.qfinder.R;
+import com.sena.qfinder.RegistroUsuario;
+
+public class MainActivity extends AppCompatActivity {
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        // Solo una transacción de fragment
+        if (savedInstanceState == null) {
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .setReorderingAllowed(true)
+                    .replace(R.id.contenedor_fragmentos, new RegistroUsuario(), "TAG_REGISTRO")
+                    .commit();
+        }
+    }
+}
