@@ -6,8 +6,8 @@
     <corners android:radius="10dp" />
 
     <stroke
-        android:width="3dp"
-        android:color="#1989F1" /> <!-- borde azul fuerte -->
+        android:width="2dp"
+        android:color="#63BAF6" /> <!-- borde azul fuerte -->
 
     <padding
         android:left="8dp"
