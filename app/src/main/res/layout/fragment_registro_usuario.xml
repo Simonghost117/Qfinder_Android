@@ -86,7 +86,6 @@
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:background="@drawable/edittext_azul"
-
                             android:id="@+id/edtNombre"
                             android:layout_width="match_parent"
                             android:layout_height="50dp"
@@ -123,6 +122,7 @@
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/edtApellido"
                             android:layout_width="match_parent"
+                            android:background="@drawable/edittext_azul"
                             android:layout_height="50dp"
                             android:inputType="text"
                             android:textColor="@color/black"
