@@ -8,7 +8,7 @@ import com.google.android.material.navigation.NavigationBarView;
 import com.sena.qfinder.R;
 import com.sena.qfinder.ui.home.DashboardFragment;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivityDash extends AppCompatActivity {
 
     private BottomNavigationView bottomNavigation;
 
@@ -50,6 +50,6 @@ public class MainActivity extends AppCompatActivity {
                             .replace(R.id.fragment_container, selectedFragment)
                             .commit();
                 }
-                return true; // <-- Mover fuera del bloque if
-            }; // <-- Punto y coma correcto aquí
+                return true;
+            };
 }
