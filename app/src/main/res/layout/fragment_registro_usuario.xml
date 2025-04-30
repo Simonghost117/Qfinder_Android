@@ -76,7 +76,6 @@
                     <com.google.android.material.textfield.TextInputLayout
                         android:layout_width="155dp"
                         android:layout_height="wrap_content"
-                        app:boxBackgroundColor="@color/azulClaro2"
                         app:boxCornerRadiusTopStart="15dp"
                         app:boxCornerRadiusTopEnd="15dp"
                         app:boxCornerRadiusBottomStart="15dp"
@@ -86,6 +85,8 @@
                         >
 
                         <com.google.android.material.textfield.TextInputEditText
+                            android:background="@drawable/edittext_azul"
+
                             android:id="@+id/edtNombre"
                             android:layout_width="match_parent"
                             android:layout_height="50dp"
