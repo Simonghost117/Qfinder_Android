@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="8dp">
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <!-- Pacientes -->
+        <TextView
+            android:text="Pacientes"
+            android:textStyle="bold"
+            android:textSize="18sp"
+            android:layout_marginTop="8dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+        <HorizontalScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginVertical="8dp">
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+
+                <!-- Card Paciente -->
+                <LinearLayout
+                    android:orientation="vertical"
+                    android:padding="8dp"
+                    android:layout_marginEnd="8dp"
+                    android:background="@drawable/card_background"
+                    android:layout_width="150dp"
+                    android:layout_height="wrap_content">
+
+<!--                    <ImageView-->
+<!--                        android:src="@drawable/ic_person"-->
+<!--                        android:layout_width="80dp"-->
+<!--                        android:layout_height="80dp"-->
+<!--                        android:layout_gravity="center"/>-->
+
+                    <TextView
+                        android:text="Juan Carlos"
+                        android:textStyle="bold"
+                        android:layout_marginTop="4dp"
+                        android:gravity="center"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"/>
+
+                    <TextView
+                        android:text="Alzheimer"
+                        android:gravity="center"
+                        android:textSize="12sp"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"/>
+
+                    <TextView
+                        android:text="- Pérdida de memoria\n- Necesita recordatorios"
+                        android:textSize="12sp"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"/>
+                </LinearLayout>
+
+            </LinearLayout>
+        </HorizontalScrollView>
+
+        <!-- Actividades físicas -->
+        <TextView
+            android:text="Actividades físicas"
+            android:textStyle="bold"
+            android:textSize="18sp"
+            android:layout_marginTop="8dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_marginVertical="8dp"
+            android:background="@drawable/card_background"
+            android:padding="8dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:text="Juan Carlos: Caminata de 3 km."
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:text="Hecha"
+                    android:background="@drawable/status_background"
+                    android:padding="4dp"
+                    android:textSize="12sp"
+                    android:layout_marginEnd="8dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+
+                <TextView
+                    android:text="8:00 AM"
+                    android:textSize="12sp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- Medicamentos -->
+        <TextView
+            android:text="Medicamentos"
+            android:textStyle="bold"
+            android:textSize="18sp"
+            android:layout_marginTop="8dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+        <TableLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:stretchColumns="*"
+            android:background="@drawable/card_background"
+            android:padding="8dp">
+
+            <TableRow>
+                <TextView android:text="Paciente" android:textStyle="bold"/>
+                <TextView android:text="Fecha" android:textStyle="bold"/>
+                <TextView android:text="Hora" android:textStyle="bold"/>
+                <TextView android:text="Medicamento" android:textStyle="bold"/>
+            </TableRow>
+
+            <TableRow>
+                <TextView android:text="Juan Carlos"/>
+                <TextView android:text="30 Abril"/>
+                <TextView android:text="10:00 AM"/>
+                <TextView android:text="Somazina 500g\n1 unidad"/>
+            </TableRow>
+
+        </TableLayout>
+
+    </LinearLayout>
+</ScrollView>
