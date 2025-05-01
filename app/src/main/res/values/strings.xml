@@ -66,4 +66,7 @@
 Correo electrónico: QfindeR@gmail.com
 Teléfono: 31022589685
 </string>
+    <string name="Qfinder">Qfinder</string>
+    <string name="correo">Correo</string>
+    <string name="contraseña">Contraseña</string>
 </resources>

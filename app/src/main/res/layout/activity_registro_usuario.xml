@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/fragment_container"
+    android:id="@+id/contenedor_fragmentos"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/white"
-    tools:context=".controller.MainActivity">
+    tools:context=".controller.Registro_usuario">
 
-    <!-- Solo un FrameLayout como contenedor principal -->
+  <!-- Solo un FrameLayout como contenedor principal -->
 
 </FrameLayout>
