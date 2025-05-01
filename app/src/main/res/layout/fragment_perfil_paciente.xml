@@ -102,18 +102,33 @@
                 android:layout_marginTop="10dp"
                 android:layout_marginLeft="50dp"
                 android:layout_marginBottom="12dp">
-
                 <ImageView
                     android:layout_width="24dp"
                     android:layout_height="24dp"
                     android:src="@drawable/img_2" />
-
-                <TextView
-                    android:layout_width="wrap_content"
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="12dp"
-                    android:text="FECHA DE NACIMIENTO: 12/02/2000"
-                    android:textStyle="bold" />
+                    android:orientation="horizontal"
+                    android:gravity="left|center_vertical">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="12dp"
+                        android:text="FECHA DE NACIMIENTO:"
+                        android:textStyle="bold" />
+                    <TextView
+                        android:id="@+id/tvFechaNacimiento"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="12dp"
+                        android:text=""
+                        android:textStyle="bold" />
+                </LinearLayout>
+
+
+
+
             </LinearLayout>
 
             <LinearLayout
@@ -129,12 +144,25 @@
                     android:layout_height="24dp"
                     android:src="@drawable/img_3" />
 
-                <TextView
-                    android:layout_width="wrap_content"
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="12dp"
-                    android:text="SEXO: Masculino"
-                    android:textStyle="bold"/>
+                    android:orientation="horizontal"
+                    android:gravity="left|center_vertical">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="12dp"
+                        android:text="SEXO:"
+                        android:textStyle="bold" />
+                    <TextView
+                        android:id="@+id/tvSexo"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="12dp"
+                        android:text=""
+                        android:textStyle="bold" />
+                </LinearLayout>
             </LinearLayout>
 
             <LinearLayout
@@ -150,12 +178,25 @@
                     android:layout_height="24dp"
                     android:src="@drawable/img_4" />
 
-                <TextView
-                    android:layout_width="wrap_content"
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="12dp"
-                    android:text="DIAGNÓSTICO: Alzheimer"
-                    android:textStyle="bold"/>
+                    android:orientation="horizontal"
+                    android:gravity="left|center_vertical">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="12dp"
+                        android:text="DIAGNÓSTICO:"
+                        android:textStyle="bold" />
+                    <TextView
+                        android:id="@+id/tvDiagnostico"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="12dp"
+                        android:text=""
+                        android:textStyle="bold" />
+                </LinearLayout>
             </LinearLayout>
 
             <LinearLayout
@@ -171,12 +212,25 @@
                     android:layout_height="24dp"
                     android:src="@drawable/img_5" />
 
-                <TextView
-                    android:layout_width="wrap_content"
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="12dp"
-                    android:text="IDENTIFICACIÓN: 1059245993"
-                    android:textStyle="bold"/>
+                    android:orientation="horizontal"
+                    android:gravity="left|center_vertical">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="12dp"
+                        android:text="IDENTIFICACIÓN:"
+                        android:textStyle="bold" />
+                    <TextView
+                        android:id="@+id/tvIdentificacion"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="12dp"
+                        android:text=""
+                        android:textStyle="bold" />
+                </LinearLayout>
             </LinearLayout>
 
             <LinearLayout
@@ -275,8 +329,8 @@
                         android:layout_width="20dp"
                         android:layout_height="20dp"
                         android:src="@drawable/img_1"
-                    android:layout_marginLeft="10dp"
-                    android:tint="@color/black" />
+                        android:layout_marginLeft="10dp"
+                        android:tint="@color/black" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
         </LinearLayout>
@@ -319,8 +373,8 @@
                         android:layout_width="20dp"
                         android:layout_height="20dp"
                         android:src="@drawable/img_1"
-                    android:layout_marginLeft="10dp"
-                    android:tint="@color/black" />
+                        android:layout_marginLeft="10dp"
+                        android:tint="@color/black" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
         </LinearLayout>
