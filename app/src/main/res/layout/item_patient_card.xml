@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="180dp"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="12dp"
+    android:layout_marginEnd="8dp"
+    android:background="@drawable/card_background"
+    android:elevation="2dp">
+
+    <TextView
+        android:id="@+id/tvPatientName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:text="Nombre"
+        android:layout_marginTop="8dp" />
+
+    <ImageView
+        android:id="@+id/ivPatientProfile"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_gravity="center_horizontal"
+        android:background="@drawable/circle_bg"
+        android:src="@drawable/perfil_paciente" />
+
+    <TextView
+        android:id="@+id/tvPatientRelation"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="12sp"
+        android:gravity="center"
+        android:text="Relación" />
+
+    <TextView
+        android:id="@+id/tvPatientConditions"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="12sp"
+        android:text="Condiciones"
+        android:layout_marginTop="4dp" />
+</LinearLayout>
