@@ -4,36 +4,48 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 import android.widget.Toast;
-
-import com.sena.qfinder.model.DbHelper;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 public class ManagerDB {
     private DbHelper dbHelper;
-    private Context context;
     private SQLiteDatabase db;
+    private Context context;
 
     public ManagerDB(Context context) {
         this.context = context;
         this.dbHelper = new DbHelper(context);
     }
 
-    private void openDBWr() {
-        this.db = this.dbHelper.getWritableDatabase();
+    // Métodos para apertura/cierre de conexión
+    public void openWritable() {
+        if (db == null || !db.isOpen()) {
+            db = dbHelper.getWritableDatabase();
+        }
     }
 
-    public SQLiteDatabase getWritableDatabase() {
-        return dbHelper.getWritableDatabase();
+    public void openReadable() {
+        if (db == null || !db.isOpen()) {
+            db = dbHelper.getReadableDatabase();
+        }
     }
 
+    public void close() {
+        if (db != null && db.isOpen()) {
+            db.close();
+        }
+    }
 
+    // ==================== OPERACIONES PARA USUARIO ====================
+    public long crearUsuario(String nombres, String apellidos, String identificacion,
+                             String direccion, String telefono, String email, String password) {
+        openWritable();
 
-    public long crearUsuario(String nombres, String apellidos, String identificacion, String direccion, String telefono, String email, String password) {
-        openDBWr();
-        // Verificar si el correo ya está registrado
         if (correoExiste(email)) {
-            Toast.makeText(context, "Este correo ya está registrado, intenta con otro.", Toast.LENGTH_SHORT).show();
-            return -1; // Retorna un valor negativo para indicar que la inserción falló
+            Toast.makeText(context, "Este correo ya está registrado", Toast.LENGTH_SHORT).show();
+            return -1;
         }
 
         ContentValues valores = new ContentValues();
@@ -44,21 +56,97 @@ public class ManagerDB {
         valores.put("telefono_usuario", telefono);
         valores.put("correo_usuario", email);
         valores.put("contraseña_usuario", password);
+
         long result = db.insert("usuario", null, valores);
+        close();
         return result;
     }
+
     public boolean correoExiste(String correo) {
-        SQLiteDatabase db = this.getWritableDatabase();
-        Cursor cursor = db.rawQuery("SELECT correo_usuario FROM usuario WHERE correo_usuario = ?", new String[]{correo});
+        openReadable();
+        Cursor cursor = db.rawQuery(
+                "SELECT correo_usuario FROM usuario WHERE correo_usuario = ?",
+                new String[]{correo}
+        );
 
         boolean existe = cursor.getCount() > 0;
         cursor.close();
-
         return existe;
     }
 
+    // ==================== OPERACIONES PARA PACIENTE ====================
+    public long insertarPaciente(String nombres, String apellidos, String fechaNacimiento,
+                                 String sexo, String diagnostico, int identificacion) {
+        openWritable();
 
+        // Generar ID autoincremental
+        Cursor cursor = db.rawQuery("SELECT MAX(id) FROM Paciente", null);
+        int id = 1;
+        if (cursor.moveToFirst() && !cursor.isNull(0)) {
+            id = cursor.getInt(0) + 1;
+        }
+        cursor.close();
 
+        ContentValues values = new ContentValues();
+        values.put("id", id);
+        values.put("nombres", nombres);
+        values.put("apellidos", apellidos);
+        values.put("fechaNacimiento", fechaNacimiento);
+        values.put("sexo", sexo);
+        values.put("diagnostico", diagnostico);
+        values.put("identificacion", identificacion);
 
+        long resultado = db.insert("Paciente", null, values);
+        close();
+        return resultado;
+    }
+
+    public ArrayList<HashMap<String, String>> obtenerPacientes() {
+        openReadable();
+        ArrayList<HashMap<String, String>> pacientesLista = new ArrayList<>();
+        Cursor cursor = db.rawQuery("SELECT * FROM Paciente", null);
+
+        if (cursor.moveToFirst()) {
+            do {
+                HashMap<String, String> paciente = new HashMap<>();
+                paciente.put("id", cursor.getString(cursor.getColumnIndexOrThrow("id")));
+                paciente.put("nombres", cursor.getString(cursor.getColumnIndexOrThrow("nombres")));
+                paciente.put("apellidos", cursor.getString(cursor.getColumnIndexOrThrow("apellidos")));
+                paciente.put("fechaNacimiento", cursor.getString(cursor.getColumnIndexOrThrow("fechaNacimiento")));
+                paciente.put("sexo", cursor.getString(cursor.getColumnIndexOrThrow("sexo")));
+                paciente.put("diagnostico", cursor.getString(cursor.getColumnIndexOrThrow("diagnostico")));
+                paciente.put("identificacion", cursor.getString(cursor.getColumnIndexOrThrow("identificacion")));
+                pacientesLista.add(paciente);
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+        close();
+        return pacientesLista;
+    }
+
+    public HashMap<String, String> obtenerPaciente(int id) {
+        openReadable();
+        HashMap<String, String> paciente = null;
+        Cursor cursor = db.query(
+                "Paciente",
+                new String[]{"id", "nombres", "apellidos", "fechaNacimiento", "sexo", "diagnostico", "identificacion"},
+                "id = ?",
+                new String[]{String.valueOf(id)},
+                null, null, null
+        );
+
+        if (cursor != null && cursor.moveToFirst()) {
+            paciente = new HashMap<>();
+            paciente.put("id", cursor.getString(cursor.getColumnIndexOrThrow("id")));
+            paciente.put("nombres", cursor.getString(cursor.getColumnIndexOrThrow("nombres")));
+            paciente.put("apellidos", cursor.getString(cursor.getColumnIndexOrThrow("apellidos")));
+            paciente.put("fechaNacimiento", cursor.getString(cursor.getColumnIndexOrThrow("fechaNacimiento")));
+            paciente.put("sexo", cursor.getString(cursor.getColumnIndexOrThrow("sexo")));
+            paciente.put("diagnostico", cursor.getString(cursor.getColumnIndexOrThrow("diagnostico")));
+            paciente.put("identificacion", cursor.getString(cursor.getColumnIndexOrThrow("identificacion")));
+        }
+        if (cursor != null) cursor.close();
+        close();
+        return paciente;
+    }
 }
-

@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@android:color/white">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="90dp"
+        android:background="#4B9AF6"
+        android:orientation="horizontal"
+        android:padding="12dp"
+        android:gravity="center_vertical">
+
+        <FrameLayout
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginEnd="8dp">
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/circle_white" />
+            <ImageView
+                android:id="@+id/btnBack"
+                android:layout_width="15dp"
+                android:layout_height="15dp"
+                android:layout_gravity="center"
+                android:src="@drawable/img"
+                android:tint="@color/black"
+                android:contentDescription="Volver" />
+        </FrameLayout>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="32dp"
+            android:text="Registrar Datos Paciente"
+            android:textColor="@color/black"
+            android:textSize="20sp"
+            android:fontFamily="sans-serif-thin"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:padding="24dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tvTituloFormulario"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="20dp"
+                android:text="Registrar tu familiar"
+                android:textColor="@color/black"
+                android:textSize="30sp"
+                android:fontFamily="sans-serif-thin"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tvNombres"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Nombres y apellidos"
+                android:layout_marginTop="20dp"
+                android:layout_marginBottom="8dp"
+                android:textColor="@color/black"
+                android:fontFamily="sans-serif-medium"
+                android:textSize="14sp"/>
+            <EditText
+                android:id="@+id/etNombresApellidos"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/edittext_azul"
+                android:padding="12dp"
+                android:textColor="@android:color/black"
+                android:textColorHint="#808080"
+                android:fontFamily="sans-serif"
+                android:textSize="14sp"
+                android:layout_marginBottom="16dp"/>
+
+            <TextView
+                android:id="@+id/tvFechaNacimiento"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Fecha de Nacimiento"
+                android:textColor="@color/black"
+                android:fontFamily="sans-serif-medium"
+                android:textSize="14sp"/>
+            <EditText
+                android:id="@+id/etFechaNacimiento"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/edittext_azul"
+                android:inputType="date"
+                android:padding="12dp"
+                android:textColor="@android:color/black"
+                android:textColorHint="#808080"
+                android:fontFamily="sans-serif"
+                android:textSize="14sp"
+                android:layout_marginBottom="16dp"/>
+
+            <TextView
+                android:id="@+id/tvSexo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Sexo"
+                android:textColor="@color/black"
+                android:fontFamily="sans-serif-medium"
+                android:textSize="14sp"/>
+            <EditText
+                android:id="@+id/etSexo"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/edittext_azul"
+                android:padding="12dp"
+                android:textColor="@android:color/black"
+                android:textColorHint="#808080"
+                android:fontFamily="sans-serif"
+                android:textSize="14sp"
+                android:layout_marginBottom="16dp"/>
+
+            <TextView
+                android:id="@+id/tvDiagnostico"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Diagnóstico"
+                android:textColor="@color/black"
+                android:fontFamily="sans-serif-medium"
+                android:textSize="14sp"/>
+            <EditText
+                android:id="@+id/etDiagnostico"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/edittext_azul"
+                android:padding="12dp"
+                android:textColor="@android:color/black"
+                android:textColorHint="#808080"
+                android:fontFamily="sans-serif"
+                android:textSize="14sp"
+                android:layout_marginBottom="16dp"/>
+
+            <TextView
+                android:id="@+id/tvIdentificacion"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Identificación"
+                android:textColor="@color/black"
+                android:fontFamily="sans-serif-medium"
+                android:textSize="14sp"/>
+            <EditText
+                android:id="@+id/etIdentificacion"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="number"
+                android:background="@drawable/edittext_azul"
+                android:padding="12dp"
+                android:textColor="@android:color/black"
+                android:textColorHint="#808080"
+                android:fontFamily="sans-serif"
+                android:textSize="14sp"
+                android:layout_marginBottom="24dp"/>
+        </LinearLayout>
+    </ScrollView>
+
+    <Button
+        android:id="@+id/btnRegistrar"
+        android:layout_width="325dp"
+        android:layout_height="52dp"
+        android:layout_marginHorizontal="24dp"
+        android:layout_gravity="center"
+        android:layout_marginBottom="24dp"
+        android:layout_marginTop="8dp"
+        android:text="Registrar"
+        android:backgroundTint="@color/azulito"
+        android:textColor="@color/white"
+        android:fontFamily="sans-serif-medium"
+        android:textSize="16sp"
+        android:elevation="4dp" />
+</LinearLayout>

@@ -1,5 +1,4 @@
 package com.sena.qfinder.model;
-
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -15,13 +14,17 @@ public class DbHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
         db.execSQL(Constantes.SENTENCIA_CREAR_USUARIO);
+        db.execSQL(Constantes.SENTENCIA_TABLA_PACIENTE);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        db.execSQL("DROP TABLE IF EXISTS usuario");
+        // Eliminar ambas tablas si existen
+        db.execSQL("DROP TABLE IF EXISTS Usuario");
+        db.execSQL("DROP TABLE IF EXISTS Paciente"); // Asegúrate que el nombre coincida con el usado en la creación
 
+        // Volver a crear las tablas
+        onCreate(db);
     }
-
 
 }

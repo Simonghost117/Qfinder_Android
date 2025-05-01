@@ -7,7 +7,11 @@
     <color name="azulClaro">#A6218AFB</color>
     <color name="azulClaro2">#0772B8F8</color>
     <color name="azulBorder">#08053989</color>
-    <color name="azulitoInput">#3F0066FF</color>
+<!--    <color name="azulitoInput">#3F0066FF</color>-->
     <color name="azul_link">#2196F3</color>
+    <color name="azulitoInput">#72B8F8</color>
+    <color name="azulito">#18A0FB</color>
+    <color name="azulitoVolver">#99C8FF</color>
+    <color name="azulitoPrincipio">#4B9AF6</color>
 
 </resources>
