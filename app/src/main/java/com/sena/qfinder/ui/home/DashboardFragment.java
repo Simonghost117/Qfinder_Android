@@ -1,5 +1,7 @@
 package com.sena.qfinder.ui.home;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,42 +12,73 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.sena.qfinder.R;
+import com.sena.qfinder.RegistrarPaciente;
+import com.sena.qfinder.model.ManagerDB;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class DashboardFragment extends Fragment {
 
     private LinearLayout patientsContainer, activitiesContainer;
     private RecyclerView rvMedications;
+    private ManagerDB managerDB;
+    private SharedPreferences sharedPreferences;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.fragment_dashboard, container, false);
 
-        // Nombre del usuario
-        TextView tvUserName = root.findViewById(R.id.tvUserName);
-        tvUserName.setText("Carlos Loaiza");
+        managerDB = new ManagerDB(requireContext());
+        sharedPreferences = requireContext().getSharedPreferences("prefs_qfinder", Context.MODE_PRIVATE);
 
-        // PACIENTES
+        setupUserInfo(root);
+        setupPatientsSection(inflater, root);
+        setupActivitiesSection(inflater, root);
+        setupMedicationsSection(root);
+
+        return root;
+    }
+
+    private void setupUserInfo(View root) {
+        TextView tvUserName = root.findViewById(R.id.tvUserName);
+        String userEmail = sharedPreferences.getString("email_usuario", "");
+
+        HashMap<String, String> usuario = managerDB.obtenerUsuarioPorEmail(userEmail);
+        if (usuario != null && !usuario.isEmpty()) {
+            String nombreCompleto = usuario.get("nombre") + " " + usuario.get("apellido");
+            tvUserName.setText(nombreCompleto);
+        }
+    }
+
+    private void setupPatientsSection(LayoutInflater inflater, View root) {
         patientsContainer = root.findViewById(R.id.patientsContainer);
         patientsContainer.removeAllViews();
 
-        addPatientCard(inflater, "Juan Pérez", "Hijo", "Asma, Hipertensión", R.drawable.perfil_paciente);
-        addPatientCard(inflater, "Laura Gómez", "Madre", "Diabetes tipo 2", R.drawable.perfil_paciente);
+        ArrayList<HashMap<String, String>> pacientes = managerDB.obtenerPacientes();
+        for (HashMap<String, String> paciente : pacientes) {
+            String nombreCompleto = paciente.get("nombres") + " " + paciente.get("apellidos");
+            String diagnostico = paciente.get("diagnostico");
+            addPatientCard(inflater, nombreCompleto, "Paciente", diagnostico, R.drawable.perfil_paciente);
+        }
 
-        // Agregar manualmente la tarjeta de "Agregar Paciente"
-          View addCard = inflater.inflate(R.layout.item_add_patient_card, patientsContainer, false);
-          patientsContainer.addView(addCard);
+        // Botón Agregar Paciente
+        View addCard = inflater.inflate(R.layout.item_add_patient_card, patientsContainer, false);
+        addCard.setOnClickListener(v -> navigateToAddPatient());
+        patientsContainer.addView(addCard);
+    }
 
-        // ACTIVIDADES
+    private void setupActivitiesSection(LayoutInflater inflater, View root) {
         activitiesContainer = root.findViewById(R.id.activitiesContainer);
         activitiesContainer.removeAllViews();
 
+        // Datos quemados de actividades
         List<Activity> activities = new ArrayList<>();
         activities.add(new Activity("Cita médica", "Revisión mensual con el pediatra", "Pendiente", "10:30 AM"));
         activities.add(new Activity("Examen de sangre", "Laboratorio clínico", "Completado", "08:00 AM"));
@@ -61,11 +94,13 @@ public class DashboardFragment extends Fragment {
             ((TextView) actView.findViewById(R.id.tvActivityTime)).setText(act.time);
             activitiesContainer.addView(actView);
         }
+    }
 
-        // MEDICAMENTOS
+    private void setupMedicationsSection(View root) {
         rvMedications = root.findViewById(R.id.rvMedications);
         rvMedications.setLayoutManager(new LinearLayoutManager(getContext()));
 
+        // Datos quemados de medicamentos
         List<Medication> medications = new ArrayList<>();
         medications.add(new Medication("Paracetamol", "500mg", "Cada 8 horas"));
         medications.add(new Medication("Loratadina", "10mg", "Una vez al día"));
@@ -74,8 +109,6 @@ public class DashboardFragment extends Fragment {
         medications.add(new Medication("Omeprazol", "20mg", "Antes del desayuno"));
 
         rvMedications.setAdapter(new MedicationAdapter(medications));
-
-        return root;
     }
 
     private void addPatientCard(LayoutInflater inflater, String name, String relation, String conditions, int imageResId) {
@@ -94,6 +127,15 @@ public class DashboardFragment extends Fragment {
         patientsContainer.addView(patientCard);
     }
 
+    private void navigateToAddPatient() {
+        // Navegación al contenedor principal de la Activity
+        FragmentTransaction transaction = getParentFragmentManager().beginTransaction();
+        transaction.replace(R.id.fragment_container, new RegistrarPaciente());
+        transaction.addToBackStack("dashboard");
+        transaction.commit();
+    }
+
+    // Clases internas
     static class Activity {
         String title, description, status, time;
 

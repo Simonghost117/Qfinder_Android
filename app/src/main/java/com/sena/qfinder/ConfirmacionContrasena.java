@@ -117,10 +117,10 @@ public class ConfirmacionContrasena extends Fragment {
             long result = managerDB.crearUsuario(
                     args.getString("nombre"),
                     args.getString("apellido"),
-                    args.getString("correo"),
                     args.getString("identificacion"),
                     args.getString("direccion"),
                     args.getString("telefono"),
+                    args.getString("correo"),
                     contrasena
             );
 

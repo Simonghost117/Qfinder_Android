@@ -52,17 +52,18 @@ public class RegistroUsuario extends Fragment {
                 Bundle args = new Bundle();
                 args.putString("nombre", edtNombre.getText().toString());
                 args.putString("apellido", edtApellido.getText().toString());
-                args.putString("correo", edtCorreo.getText().toString());
                 args.putString("identificacion", edtIdentificacion.getText().toString());
                 args.putString("direccion", edtDirrecion.getText().toString());
                 args.putString("telefono", edtTelefono.getText().toString());
+                args.putString("correo", edtCorreo.getText().toString());
+
 
                 // Navegar al Fragment de confirmación de contraseña
                 Fragment fragment = new ConfirmacionContrasena();
                 fragment.setArguments(args);
 
                 getParentFragmentManager().beginTransaction()
-                        .replace(R.id.contenedor_fragmentos, fragment) // Usa el mismo ID que en activity_main
+                        .replace(R.id.fragment_container, fragment) // Usa el mismo ID que en activity_main
                         .addToBackStack(null)
                         .commit();
             }

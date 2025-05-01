@@ -1,64 +1,122 @@
 package com.sena.qfinder;
 
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
-
 import androidx.fragment.app.Fragment;
-
+import androidx.fragment.app.FragmentTransaction;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.TextView;
+import android.widget.Toast;
+import com.sena.qfinder.RegistroUsuario;
+import com.sena.qfinder.controller.MainActivityDash;
+import com.sena.qfinder.model.ManagerDB;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link Login#newInstance} factory method to
- * create an instance of this fragment.
- */
 public class Login extends Fragment {
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
+    private EditText emailEditText;
+    private EditText passwordEditText;
+    private ManagerDB managerDB;
+    private SharedPreferences sharedPreferences;
 
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
+    public Login() {}
 
-    public Login() {
-        // Required empty public constructor
-    }
-
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment Login.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static Login newInstance(String param1, String param2) {
-        Login fragment = new Login();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
+    public static Login newInstance() {
+        return new Login();
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        return inflater.inflate(R.layout.fragment_login, container, false);
+    }
+
+    @Override
+    public void onViewCreated(View view, Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        managerDB = new ManagerDB(requireContext());
+        sharedPreferences = requireContext().getSharedPreferences("prefs_qfinder", Context.MODE_PRIVATE);
+
+        initializeViews(view);
+        setupClickListeners(view); // Se pasa la vista como parámetro
+    }
+
+    private void initializeViews(View view) {
+        emailEditText = view.findViewById(R.id.emailEditText);
+        passwordEditText = view.findViewById(R.id.passwordEditText);
+        Button loginButton = view.findViewById(R.id.loginButton);
+        TextView registerLink = view.findViewById(R.id.registerLink);
+        TextView forgotPassword = view.findViewById(R.id.forgotPassword);
+    }
+
+    // Método modificado para recibir la vista como parámetro
+    private void setupClickListeners(View view) {
+        view.findViewById(R.id.loginButton).setOnClickListener(v -> validarYLogin());
+        view.findViewById(R.id.registerLink).setOnClickListener(v -> navegarARegistro());
+        view.findViewById(R.id.forgotPassword).setOnClickListener(v -> mostrarToast("Función en desarrollo"));
+    }
+
+    private void validarYLogin() {
+        String email = emailEditText.getText().toString().trim();
+        String password = passwordEditText.getText().toString().trim();
+
+        if (validarCampos(email, password)) {
+            if (validarCredenciales(email, password)) {
+                guardarEmailUsuario(email);
+                iniciarSesionExitoso();
+            } else {
+                mostrarToast("Credenciales incorrectas");
+            }
         }
     }
 
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_login, container, false);
+    private boolean validarCampos(String email, String password) {
+        if (email.isEmpty() || password.isEmpty()) {
+            mostrarToast("Todos los campos son obligatorios");
+            return false;
+        }
+
+        if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+            mostrarToast("Formato de email inválido");
+            return false;
+        }
+
+        return true;
+    }
+
+    private boolean validarCredenciales(String email, String password) {
+        managerDB.openReadable();
+        boolean credencialesValidas = managerDB.validarUsuario(email, password);
+        managerDB.close();
+        return credencialesValidas;
+    }
+
+    private void guardarEmailUsuario(String email) {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString("email_usuario", email);
+        editor.apply();
+    }
+
+    private void iniciarSesionExitoso() {
+        mostrarToast("Bienvenido!");
+        Intent intent = new Intent(requireContext(), MainActivityDash.class);
+        startActivity(intent);
+        requireActivity().finish();
+    }
+
+    private void navegarARegistro() {
+        FragmentTransaction transaction = getParentFragmentManager().beginTransaction();
+        transaction.replace(R.id.fragment_container, new RegistroUsuario());
+        transaction.addToBackStack(null);
+        transaction.commit();
+    }
+
+    private void mostrarToast(String mensaje) {
+        Toast.makeText(requireContext(), mensaje, Toast.LENGTH_SHORT).show();
     }
 }

@@ -7,6 +7,7 @@ import androidx.fragment.app.FragmentTransaction;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 public class Inicio extends Fragment {
 
@@ -26,12 +27,18 @@ public class Inicio extends Fragment {
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        // Retraso para cambiar al fragmento Login
         new Handler().postDelayed(() -> {
-            FragmentTransaction transaction = requireActivity()
-                    .getSupportFragmentManager()
-                    .beginTransaction();
-            transaction.replace(R.id.fragment_container, new Login());
-            transaction.commit();
+            if (isAdded() && getActivity() != null) { // Verifica que el fragmento esté adjunto
+                FragmentTransaction transaction = requireActivity()
+                        .getSupportFragmentManager()
+                        .beginTransaction();
+                transaction.replace(R.id.fragment_container, new Login());
+                transaction.commit();
+            }
         }, 2000);
+
+
+
     }
 }

@@ -37,7 +37,24 @@ public class ManagerDB {
             db.close();
         }
     }
+    public HashMap<String, String> obtenerUsuarioPorEmail(String email) {
+        openReadable();
+        HashMap<String, String> usuario = new HashMap<>();
 
+        Cursor cursor = db.rawQuery(
+                "SELECT nombre_usuario, apellido_usuario FROM usuario WHERE correo_usuario = ?",
+                new String[]{email}
+        );
+
+        if (cursor.moveToFirst()) {
+            usuario.put("nombre", cursor.getString(0));
+            usuario.put("apellido", cursor.getString(1));
+        }
+
+        cursor.close();
+        close();
+        return usuario;
+    }
     // ==================== OPERACIONES PARA USUARIO ====================
     public long crearUsuario(String nombres, String apellidos, String identificacion,
                              String direccion, String telefono, String email, String password) {
@@ -123,7 +140,21 @@ public class ManagerDB {
         close();
         return pacientesLista;
     }
+    // Dentro de tu clase ManagerDB
+    public boolean validarUsuario(String email, String password) {
+        openReadable();
 
+        Cursor cursor = db.rawQuery(
+                "SELECT * FROM usuario WHERE correo_usuario = ? AND contraseña_usuario = ?",
+                new String[]{email, password}
+        );
+
+        boolean credencialesValidas = cursor.getCount() > 0;
+        cursor.close();
+        close();
+
+        return credencialesValidas;
+    }
     public HashMap<String, String> obtenerPaciente(int id) {
         openReadable();
         HashMap<String, String> paciente = null;
