@@ -2,4 +2,7 @@
     <string name="app_name">Qfinder-Android</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="Qfinder">Qfinder</string>
+    <string name="correo">Correo</string>
+    <string name="contraseña">Contraseña</string>
 </resources>
