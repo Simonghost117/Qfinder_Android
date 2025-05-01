@@ -11,7 +11,7 @@ android {
         minSdk = 24
         targetSdk = 35
         versionCode = 1
-        versionName = "1.0"
+        versionName = "1.5" // Puedes personalizar la versión
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -24,7 +24,14 @@ android {
                 "proguard-rules.pro"
             )
         }
+        debug {
+            // Nombre personalizado para el APK debug
+            applicationIdSuffix = ".debug"
+        }
     }
+
+
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
