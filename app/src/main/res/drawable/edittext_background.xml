@@ -6,6 +6,6 @@
     <corners android:radius="25dp" /> <!-- Bordes redondeados -->
 
     <stroke
-        android:width="4dp"
+        android:width="3dp"
         android:color="#4CA7FB" /> <!-- Borde azul más fuerte -->
 </shape>
