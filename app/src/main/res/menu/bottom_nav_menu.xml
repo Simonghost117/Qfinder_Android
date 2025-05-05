@@ -15,7 +15,7 @@
 
     <!-- Ítem Comunidad -->
     <item
-        android:id="@+id/nav_community"
+        android:id="@+id/nav_comunidad"
         android:icon="@drawable/comunidad"
         android:title="Comunidad"/>
 
