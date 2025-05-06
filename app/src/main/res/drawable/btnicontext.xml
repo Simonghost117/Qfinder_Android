@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:drawable="@drawable/masicono"
+        android:gravity="center_horizontal|top"
+        android:width="38dp" android:height="38dp" />
+    <item android:drawable="@drawable/textunirme"
+        android:gravity="center_horizontal|bottom"
+        android:top="35dp" />
+
+</layer-list>
