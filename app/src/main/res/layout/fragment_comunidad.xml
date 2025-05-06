@@ -7,7 +7,6 @@
     android:background="#F9F9F9"
     tools:context=".Comunidad">
 
-    <!-- Encabezado -->
     <TextView
         android:layout_width="match_parent"
         android:layout_height="97dp"
@@ -18,7 +17,6 @@
         android:textSize="20sp"
         android:textStyle="bold" />
 
-    <!-- Barra de búsqueda -->
     <EditText
         android:id="@+id/buscar_comunidad"
         android:layout_width="match_parent"
@@ -29,7 +27,6 @@
         android:background="@android:drawable/edit_text"
         android:layout_margin="8dp" />
 
-    <!-- Lista de comunidades -->
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

@@ -113,7 +113,7 @@
                 android:id="@+id/tvSexo"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Sexo"
+                android:text="Genero"
                 android:textColor="@color/black"
                 android:fontFamily="sans-serif-medium"
                 android:textSize="14sp"/>
