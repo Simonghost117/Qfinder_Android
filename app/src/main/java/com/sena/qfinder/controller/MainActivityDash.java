@@ -3,9 +3,11 @@ package com.sena.qfinder.controller;
 import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
+
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
 import com.sena.qfinder.Comunidad;
+import com.sena.qfinder.Fragment_Serivicios;
 import com.sena.qfinder.R;
 import com.sena.qfinder.ui.home.DashboardFragment;
 
@@ -36,6 +38,9 @@ public class MainActivityDash extends AppCompatActivity {
 
                 if (itemId == R.id.nav_home) {
                     selectedFragment = new DashboardFragment();
+                }
+                else if (itemId == R.id.nav_services) {
+                    selectedFragment = new Fragment_Serivicios(); // nombre correcto con guion bajo
                 }
                 // else if (itemId == R.id.nav_services) {
                 //     selectedFragment = new ServicesFragment();
