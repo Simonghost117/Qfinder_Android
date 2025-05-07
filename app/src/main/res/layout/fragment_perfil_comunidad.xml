@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".PerfilComunidad">
+    <LinearLayout
+        android:id="@+id/cntBackPerfilCominidad"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingHorizontal="16dp"
+        android:layout_marginTop="5dp">
+        <ImageButton
+            android:id="@+id/btnBack"
+            android:layout_width="23dp"
+            android:layout_height="23dp"
+            android:src="@drawable/back"
+            android:scaleType="fitCenter"
+            android:background="@color/white"
+            />
+    </LinearLayout>
+    <!-- TODO: Update blank fragment layout -->
+    <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="30dp"
+        >
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:orientation="vertical"
+            android:layout_height="match_parent">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <!-- Imagen circular -->
+            <ImageView
+                android:id="@+id/imageCommunityIcon"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:layout_gravity="center_horizontal"
+                android:src="@drawable/imgcomunidad"
+                android:scaleType="centerCrop"
+                android:background="@drawable/circle_azul"
+                android:padding="12dp" />
+
+            <!-- Nombre y miembros -->
+            <TextView
+                android:id="@+id/textCommunityName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Familias Unidas 1"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:layout_marginTop="8dp"
+                android:layout_gravity="center_horizontal"/>
+
+            <TextView
+                android:id="@+id/textCommunityMembers"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Comunidad 1,200,000 miembros"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="4dp"/>
+
+            <!-- Botones -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center"
+
+                android:layout_marginTop="16dp">
+
+                <LinearLayout
+                    android:id="@+id/btnJoin"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:background="@drawable/shapeeste"
+                    android:gravity="center"
+                    android:orientation="vertical"
+                    android:padding="10dp"
+                    android:layout_marginEnd="8dp"
+                    android:clickable="true"
+                    android:focusable="true">
+
+                    <ImageView
+                        android:layout_width="25dp"
+                        android:layout_height="25dp"
+
+                        android:src="@drawable/masicono" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Unirme"
+                        android:textColor="#000000"
+                        android:textSize="19sp"
+                        android:layout_marginStart="8dp" />
+                </LinearLayout>
+
+
+                <LinearLayout
+                    android:id="@+id/btnShared"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:background="@drawable/shapeeste"
+                    android:gravity="center"
+                    android:orientation="vertical"
+                    android:padding="10dp"
+                    android:layout_marginEnd="8dp"
+                    android:clickable="true"
+                    android:focusable="true">
+
+                    <ImageView
+                        android:layout_width="25dp"
+                        android:layout_height="25dp"
+                        android:src="@drawable/compartiricono" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Compartir"
+                        android:textColor="#000000"
+                        android:textSize="19sp"
+                        android:layout_marginStart="8dp" />
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="16dp"
+            android:background="#000000"/>
+            <!-- Descripción -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+            <TextView
+                android:id="@+id/textDescription"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="20sp"
+                android:textColor="@color/black"
+                android:text="Descripción de la comunidad"
+                android:layout_marginTop="17dp"/>
+
+            <!-- Fecha de creación -->
+            <TextView
+                android:id="@+id/textCreatedAt"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="18sp"
+                android:text="Se creó el 29/04/2025"
+                android:layout_marginTop="4dp"/>
+        </LinearLayout>
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="#000000"
+                android:layout_marginTop="16dp"/>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="16dp">
+            <!-- Reportar canal -->
+            <Button
+                android:id="@+id/imageViewLogout"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="false"
+                android:text="Settings"
+                android:textColor="@color/rojopasion"
+                android:drawablePadding="10dp"
+                android:fontFamily="sans-serif-medium"
+                android:textSize="20sp"
+                android:paddingHorizontal="0dp"
+                android:background="@android:color/transparent"
+                android:layout_alignParentBottom="true"
+                android:drawableLeft="@drawable/dislike"/>
+        </LinearLayout>
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="#000000"/>
+    </LinearLayout>
+    </ScrollView>
+
+</FrameLayout>
