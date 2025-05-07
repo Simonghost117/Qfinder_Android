@@ -5,6 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.content.Context;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -38,7 +39,6 @@ public class Comunidad extends Fragment {
         recyclerView = view.findViewById(R.id.recyclerComunidades);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
-        
 
         listaComunidades = new ArrayList<>();
         listaComunidades.add(new String[]{"Familias Unidas 1", "1.2 mill. de miembros"});
@@ -60,7 +60,6 @@ public class Comunidad extends Fragment {
         public ComunidadAdapter(Context context, List<String[]> comunidades) {
             this.context = context;
             this.comunidades = comunidades;
-            
         }
 
         @NonNull
@@ -70,7 +69,6 @@ public class Comunidad extends Fragment {
             return new ViewHolder(view);
         }
 
-        //ASIGNACION DE EVENTOS DE LOS ELEMENTOS XML
         @Override
         public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
             String[] comunidad = comunidades.get(position);
@@ -100,8 +98,20 @@ public class Comunidad extends Fragment {
                         transactionPF.commit();
                     } else {
                         Toast.makeText(context, "Error al obtener FragmentManager", Toast.LENGTH_SHORT).show();
-                        // Manejar el caso en que el contexto no es una FragmentActivity
                     }
+                }
+            });
+
+            // Manejar clic en el botón "Unirme"
+            holder.btnUnirme1.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    // Cuando se hace clic en el botón "Unirme", reemplaza el fragmento actual con el fragmento de Chat
+                    ChatComunidad chatFragment = ChatComunidad.newInstance(comunidad[0]); // Nombre de la comunidad
+                    FragmentTransaction transaction = ((androidx.fragment.app.FragmentActivity) context).getSupportFragmentManager().beginTransaction();
+                    transaction.replace(R.id.fragment_container, chatFragment);  // Asegúrate de tener un ViewGroup con este ID en tu Activity
+                    transaction.addToBackStack(null);  // Opcional: Para permitir volver al fragmento anterior
+                    transaction.commit();
                 }
             });
         }
@@ -111,17 +121,18 @@ public class Comunidad extends Fragment {
             return comunidades.size();
         }
 
-        // ASIGNACION DE ELEMENTOS XML DE LOS ITEMS AGREGADOS
-        public  class ViewHolder extends RecyclerView.ViewHolder {
+        // Asignación de elementos XML de los items agregados
+        public class ViewHolder extends RecyclerView.ViewHolder {
             TextView nombre, miembros;
             ImageView imgComunidad;
+            Button btnUnirme1; // Define el botón
+
             public ViewHolder(@NonNull View itemView) {
                 super(itemView);
                 nombre = itemView.findViewById(R.id.nombre_comunidad);
                 miembros = itemView.findViewById(R.id.miembros_comunidad);
                 imgComunidad = itemView.findViewById(R.id.imgComunidad);
-
-
+                btnUnirme1 = itemView.findViewById(R.id.btnUnirme1); // Encuentra el botón
             }
         }
     }
