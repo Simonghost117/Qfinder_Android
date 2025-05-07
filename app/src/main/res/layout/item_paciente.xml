@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+
+    android:background="@drawable/bg_card"
+    android:layout_marginHorizontal="12dp"
+    android:layout_marginTop="12dp"
+    android:elevation="4dp">
+
+    <!-- Fondo azul y foto -->
+    <FrameLayout
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:background="@drawable/esquina"
+        android:clipToPadding="false"
+        android:clipChildren="false">
+
+        <!-- Imagen del paciente (circular) -->
+        <ImageView
+            android:id="@+id/imagenPaciente"
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            android:layout_gravity="center"
+            android:scaleType="centerCrop"
+            android:src="@drawable/perfil_paciente"
+            android:background="@drawable/circle_mask"
+            android:layout_marginTop="6dp"/>
+
+        <!-- Estado: Bien -->
+       <!-- <TextView
+            android:id="@+id/estadoPaciente"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Bien"
+            android:textSize="10sp"
+            android:background="@drawable/bg_estado_bien"
+            android:padding="2dp"
+            android:layout_gravity="top|end"
+            android:layout_margin="6dp"/>-->
+    </FrameLayout>
+
+    <!-- Nombre, edad y enfermedad -->
+    <RelativeLayout
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:paddingStart="12dp"
+        android:paddingTop="16dp"
+        android:paddingBottom="16dp">
+
+        <TextView
+            android:id="@+id/nombrePaciente"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Juan Carlos"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="#000000"/>
+
+        <TextView
+            android:id="@+id/edadPaciente"
+            android:layout_below="@id/nombrePaciente"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=""
+            android:textSize="14sp"
+            android:textColor="#555555"
+            android:layout_marginTop="2dp"/>
+
+        <TextView
+            android:id="@+id/enfermedadPaciente"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="178dp"
+            android:layout_marginTop="14dp"
+            android:background="@drawable/bg_etiqueta"
+            android:padding="5dp"
+            android:text="Alzheimer"
+            android:textColor="#000000"
+            android:textSize="13sp" />
+    </RelativeLayout>
+</LinearLayout>

@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/layoutLista"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#F5F5F5">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="99dp">
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="99dp"
+            android:scaleType="centerCrop"
+            android:src="@drawable/ic_header" />
+
+        <TextView
+            android:id="@+id/tituloGestion"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Gestion Pacientes"
+            android:textColor="#000000"
+            android:textSize="26sp"
+            android:textStyle="bold"
+            android:layout_centerInParent="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginTop="33dp" />
+    </RelativeLayout>
+
+    <TextView
+        android:id="@+id/tituloRegistrarPaciente"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Registra un paciente"
+        android:textColor="#000000"
+        android:textSize="22sp"
+        android:textStyle="bold"
+        android:layout_gravity="center"
+        android:layout_marginTop="33dp" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <LinearLayout
+            android:id="@+id/containerPacientes"
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingBottom="32dp">
+
+            <!-- Aquí se agregan dinámicamente los pacientes -->
+
+        </LinearLayout>
+    </ScrollView>
+
+    <!-- MUEVE EL BOTÓN AQUÍ -->
+    <ImageView
+        android:id="@+id/PatientAdd"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:src="@drawable/add"
+        android:layout_gravity="center"
+        android:layout_marginBottom="24dp"
+        android:contentDescription="Agregar paciente" />
+
+</LinearLayout>
