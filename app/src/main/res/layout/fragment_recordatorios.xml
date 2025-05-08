@@ -1,39 +1,110 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/fragment_recordatorios"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="16dp">
+    android:background="#FFFFFF">
 
-    <CalendarView
-        android:id="@+id/calendarView"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
-
-    <TextView
-        android:id="@+id/tv_recordatorios_titulo"
-        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Recordatorios"
-        android:textStyle="bold"
-        android:layout_marginTop="12dp" />
+        android:orientation="vertical"
+        android:padding="16dp">
 
-    <ScrollView
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1">
-
-        <LinearLayout
-            android:id="@+id/layout_recordatorios"
+        <!-- Título -->
+        <TextView
+            android:id="@+id/tvTitulo"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical" />
-    </ScrollView>
+            android:text="RECORDATORIOS"
+            android:textStyle="bold"
+            android:gravity="center"
+            android:textSize="88sp"
+            android:background="#1983ff"
+            android:textColor="#FFFFFF"
+            android:padding="12dp"
+            android:layout_marginBottom="12dp" />
 
-    <Button
-        android:id="@+id/btn_agregar_recordatorio"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Agregar recordatorio" />
-</LinearLayout>
+        <!-- Calendario -->
+        <com.prolificinteractive.materialcalendarview.MaterialCalendarView
+            android:id="@+id/calendarView"
+            android:layout_width="match_parent"
+            android:layout_height="1255dp"
+            android:layout_marginBottom="16dp"
+            app:mcv_firstDayOfWeek="sunday"
+            app:mcv_selectionColor="#1983ff"
+            app:mcv_showOtherDates="all"
+            app:mcv_todayColor="#1983ff" />
+
+        <!-- Tarjeta de citas -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="#f8c9ff"
+            android:padding="30dp"
+            android:layout_marginBottom="30dp"
+            android:elevation="2dp"
+            android:layout_marginTop="4dp"
+            android:layout_marginStart="2dp"
+            android:layout_marginEnd="2dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Citas"
+                android:textStyle="bold"
+                android:textColor="#000000"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="• Médico general - 19 mayo de 2025 - 3:00pm"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="• Especialista - 22 mayo de 2025 - 10:00am"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="• Neurología - 23 mayo de 2025 - 10:00am"/>
+        </LinearLayout>
+
+        <!-- Tarjeta de medicamentos -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="#b9f6ca"
+            android:padding="12dp"
+            android:elevation="2dp"
+            android:layout_marginBottom="16dp"
+            android:layout_marginStart="2dp"
+            android:layout_marginEnd="2dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Medicamentos"
+                android:textStyle="bold"
+                android:textColor="#000000"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="• Silsona - 10:00 am - Lunes"/>
+        </LinearLayout>
+
+        <!-- Botón -->
+        <Button
+            android:id="@+id/btnAgregarRecordatorio"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Agregar recordatorio"
+            android:layout_gravity="center"
+            android:backgroundTint="#1983ff"
+            android:textColor="#ffffff"/>
+    </LinearLayout>
+</ScrollView>
