@@ -6,6 +6,7 @@ import androidx.fragment.app.Fragment;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
+import com.sena.qfinder.Comunidad;
 import com.sena.qfinder.Fragment_Serivicios;
 import com.sena.qfinder.R;
 import com.sena.qfinder.ui.home.DashboardFragment;
@@ -39,10 +40,11 @@ public class MainActivityDash extends AppCompatActivity {
                     selectedFragment = new DashboardFragment();
                 }
                 else if (itemId == R.id.nav_services) {
-                    selectedFragment = new Fragment_Serivicios(); // nombre correcto con guion bajo
+                    selectedFragment = new Fragment_Serivicios();
                 }
-                // else if (itemId == R.id.nav_services) {
-                //     selectedFragment = new ServicesFragment();
+                else if (itemId == R.id.nav_comunidad) {
+                    selectedFragment = new Comunidad();
+                }
                 // } else if (itemId == R.id.nav_community) {
                 //     selectedFragment = new CommunityFragment();
                 // } else if (itemId == R.id.nav_profile) {

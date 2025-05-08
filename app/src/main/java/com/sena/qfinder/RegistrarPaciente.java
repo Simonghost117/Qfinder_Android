@@ -7,6 +7,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
@@ -29,7 +31,9 @@ public class RegistrarPaciente extends Fragment {
 
     ImageView btnBack;
 
-    private EditText editNombreApellido, editFechaNacimiento, editSexo, editDiagnostico, editIdentificacion;
+    private AutoCompleteTextView editSexo;
+
+    private EditText editNombreApellido, editFechaNacimiento, editDiagnostico, editIdentificacion;
     private Button btnRegistrar;
 
     public RegistrarPaciente() {
@@ -55,6 +59,30 @@ public class RegistrarPaciente extends Fragment {
         editDiagnostico = view.findViewById(R.id.etDiagnostico);
         editIdentificacion = view.findViewById(R.id.etIdentificacion);
         btnRegistrar = view.findViewById(R.id.btnRegistrar);
+
+        String[] generos = {"Masculino", "Femenino", "Otro"};
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(requireContext(), android.R.layout.simple_dropdown_item_1line, generos);
+        ((AutoCompleteTextView) editSexo).setAdapter(adapter);
+
+// Forzar que muestre la lista al tocar
+        editSexo.setOnClickListener(v -> ((AutoCompleteTextView) editSexo).showDropDown());
+
+        editSexo = view.findViewById(R.id.etSexo);
+
+
+// Detectar selección y permitir escritura si es "Otro"
+        editSexo.setOnItemClickListener((parent, view1, position, id) -> {
+            String seleccion = (String) parent.getItemAtPosition(position);
+            if ("Otro".equals(seleccion)) {
+                editSexo.setInputType(android.text.InputType.TYPE_CLASS_TEXT);
+                editSexo.setText("");
+                editSexo.setHint("Escribe tu género");
+            } else {
+                editSexo.setInputType(android.text.InputType.TYPE_NULL);
+                editSexo.setHint(null);
+            }
+        });
+
 
         // Mostrar el selector de fecha con clic o foco
         editFechaNacimiento.setOnClickListener(v -> showDatePickerDialog());

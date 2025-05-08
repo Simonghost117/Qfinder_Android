@@ -50,7 +50,7 @@ public class PerfilComunidad extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_perfil_comunidad, container, false);
 
-        LinearLayout btnBack = view.findViewById(R.id.btnBack);
+        ImageView btnBack = view.findViewById(R.id.btnBack);
         btnBack.setOnClickListener(v -> {
             FragmentManager fragmentManager = getParentFragmentManager();
             FragmentTransaction transaction = fragmentManager.beginTransaction();

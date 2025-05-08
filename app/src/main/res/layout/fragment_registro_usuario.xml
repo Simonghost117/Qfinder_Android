@@ -51,14 +51,14 @@
             android:layout_marginHorizontal="30dp"
             android:orientation="vertical"
             >
+
             <TextView
-                android:layout_width="200dp"
+                android:layout_width="374dp"
                 android:layout_height="wrap_content"
                 android:text="@string/text2RegUsuario"
-                android:textSize="40sp"
-                android:textStyle="bold"
                 android:textColor="#202244"
-                />
+                android:textSize="40sp"
+                android:textStyle="bold" />
 
             <LinearLayout
                 android:layout_width="wrap_content"
