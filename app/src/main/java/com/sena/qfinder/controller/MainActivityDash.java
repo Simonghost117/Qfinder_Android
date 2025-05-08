@@ -40,14 +40,14 @@ public class MainActivityDash extends AppCompatActivity {
                     selectedFragment = new DashboardFragment();
                 }
                 else if (itemId == R.id.nav_services) {
-                    selectedFragment = new Fragment_Serivicios(); // nombre correcto con guion bajo
+                    selectedFragment = new Fragment_Serivicios();
                 }
-                // else if (itemId == R.id.nav_services) {
-                //     selectedFragment = new ServicesFragment();
                 else if (itemId == R.id.nav_comunidad) {
                     selectedFragment = new Comunidad();
                 }
-                // else if (itemId == R.id.nav_profile) {
+                // } else if (itemId == R.id.nav_community) {
+                //     selectedFragment = new CommunityFragment();
+                // } else if (itemId == R.id.nav_profile) {
                 //     selectedFragment = new ProfileFragment();
                 // }
 

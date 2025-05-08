@@ -118,6 +118,7 @@ public class ManagerDB {
         return resultado;
     }
 
+
     public ArrayList<HashMap<String, String>> obtenerPacientes() {
         openReadable();
         ArrayList<HashMap<String, String>> pacientesLista = new ArrayList<>();
