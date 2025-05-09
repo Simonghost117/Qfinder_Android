@@ -6,11 +6,12 @@
     <string name="patient_section">Pacientes</string>
     <string name="activities_section">Actividades</string>
     <string name="medications_section">Medicamentos</string>
+    <!--Alejandro modificacion en values-->
     <string-array name="tipos_recordatorio">
         <item>Medicamentos</item>
         <item>Citas</item>
     </string-array>
-
+    <!--hasta aqui-->
 
     <string name="text1RegUsuario">Registra tus datos</string>
     <string name="text2RegUsuario">Créate una cuenta</string>

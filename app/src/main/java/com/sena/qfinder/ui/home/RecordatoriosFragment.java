@@ -13,6 +13,14 @@ import com.sena.qfinder.R;
 import com.prolificinteractive.materialcalendarview.MaterialCalendarView;
 import com.prolificinteractive.materialcalendarview.CalendarDay;
 
+import android.app.AlertDialog;
+import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.EditText;
+import android.widget.Spinner;
+
+
+
 
 /**
  * A simple {@link Fragment} subclass.
@@ -73,9 +81,32 @@ public class RecordatoriosFragment extends Fragment {
         // Puedes configurar el calendario aquí si quieres (opcional)
         calendarView.setSelectedDate(CalendarDay.today());
 
-        // 3. Aquí puedes hacer lo mismo con otros elementos como:
-        // TextView citasView = view.findViewById(R.id.textCitas);
-        // Button btnAgregar = view.findViewById(R.id.btnAgregar);
+        Button btnAgregar = view.findViewById(R.id.btnAgregarRecordatorio);
+        btnAgregar.setOnClickListener(v -> mostrarDialogoAgregar());
 
         return view;
-    }}
+    }
+
+    private void mostrarDialogoAgregar() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_agregar_recordatorio, null);
+        builder.setView(dialogView);
+
+        // Referencias
+        Spinner spinnerTipo = dialogView.findViewById(R.id.spinnerTipo);
+        EditText etTitulo = dialogView.findViewById(R.id.etTitulo);
+        CheckBox check1 = dialogView.findViewById(R.id.checkUnDiaAntes);
+        CheckBox check2 = dialogView.findViewById(R.id.checkMismoDia);
+        Button btnGuardar = dialogView.findViewById(R.id.btnGuardar);
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
+
+        btnGuardar.setOnClickListener(v -> {
+            // Aquí puedes guardar la información o hacer lo que necesites
+            dialog.dismiss(); // Cierra el diálogo
+        });
+    }
+
+}
+

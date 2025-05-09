@@ -1,6 +1,68 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-             android:layout_width="match_parent"
-             android:layout_height="match_parent">
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="24dp"
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    android:elevation="8dp">
+    <!-- android:background="@drawable/bg_dialog_white" -->
+    <!-- Spinner para tipo de recordatorio -->
+    <Spinner
+        android:id="@+id/spinnerTipo"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:entries="@array/tipos_recordatorio"/>
+
+    <!-- Campo Título -->
+    <EditText
+        android:id="@+id/etTitulo"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Título" />
+
+    <!-- Fecha y hora (de momento como texto o luego con date picker) -->
+    <TextView
+        android:id="@+id/tvFechaHora"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text=" 1 de mayo 2025 - 10:00 am"
+        android:drawableStart="@drawable/baseline_access_time_24"
+        android:padding="8dp"/>
+
+    <!-- Checkboxes -->
+
+    <CheckBox
+        android:id="@+id/checkUnDiaAntes"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:drawableStart="@drawable/baseline_add_alert_24"
+        android:text="Recordarme 1 día antes"
+        />
+
+    <CheckBox
+        android:id="@+id/checkMismoDia"
+        android:drawableStart="@drawable/ic_calendar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Programar para recordar el mismo día" />
+
+    <!-- Descripción -->
+    <EditText
+        android:id="@+id/etDescripcion"
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:hint="Descripción"
+        android:gravity="top"
+        android:inputType="textMultiLine" />
+
+    <!-- Botón Guardar -->
+    <Button
+        android:id="@+id/btnGuardar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Guardar"
+        android:layout_gravity="center"
+        android:backgroundTint="#1983ff"
+        android:textColor="#fff"/>
+</LinearLayout>

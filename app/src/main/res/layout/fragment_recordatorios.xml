@@ -78,9 +78,9 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:background="#b9f6ca"
-            android:padding="12dp"
+            android:padding="32dp"
             android:elevation="2dp"
-            android:layout_marginBottom="16dp"
+            android:layout_marginBottom="32dp"
             android:layout_marginStart="2dp"
             android:layout_marginEnd="2dp">
 
@@ -103,6 +103,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Agregar recordatorio"
+            android:layout_below="@id/calendarView"
             android:layout_gravity="center"
             android:backgroundTint="#1983ff"
             android:textColor="#ffffff"/>
