@@ -1,4 +1,4 @@
-package com.sena.qfinder.controller;
+package com.sena.qfinder.model;
 
 import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;

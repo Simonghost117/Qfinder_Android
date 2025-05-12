@@ -118,6 +118,26 @@ public class ManagerDB {
         return resultado;
     }
 
+    // ==================== ACTUALIZAR PACIENTE ====================
+    public boolean actualizarPaciente(int id, String nombres, String apellidos, String fechaNacimiento,
+                                      String sexo, String diagnostico, int identificacion) {
+        openWritable();
+
+        ContentValues values = new ContentValues();
+        values.put("nombres", nombres);
+        values.put("apellidos", apellidos);
+        values.put("fechaNacimiento", fechaNacimiento);
+        values.put("sexo", sexo);
+        values.put("diagnostico", diagnostico);
+        values.put("identificacion", identificacion);
+
+        int filasActualizadas = db.update("Paciente", values, "id = ?", new String[]{String.valueOf(id)});
+        close();
+
+        return filasActualizadas > 0;
+    }
+
+
     public ArrayList<HashMap<String, String>> obtenerPacientes() {
         openReadable();
         ArrayList<HashMap<String, String>> pacientesLista = new ArrayList<>();

@@ -1,61 +1,37 @@
 package com.sena.qfinder;
 
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
-import androidx.fragment.app.Fragment;
 import android.content.Context;
 import android.os.Bundle;
-
-
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
+
 import com.sena.qfinder.model.ManagerDB;
+import com.sena.qfinder.ui.home.DashboardFragment;
 
 import java.util.HashMap;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link PerfilPaciente#newInstance} factory method to
- * create an instance of this fragment.
- */
 public class PerfilPaciente extends Fragment {
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
-
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
-
-    //Variables necesarias para conexin con la BD
     private static final String ARG_PACIENTE_ID = "id";
-    private int pacienteId = -1; // Inicializar con un valor por defecto
 
-    //Inicializacion de variables de TextView
-    TextView tvNombreApellido, tvFechaNacimiento, tvSexo, tvDiagnostico, tvIdentificacion;
-
-    //Instancia de ManagerDB
+    private int pacienteId = -1;
     private ManagerDB managerDB;
+
+    private TextView tvNombreApellido, tvFechaNacimiento, tvSexo, tvDiagnostico, tvIdentificacion;
+    private ImageView btnBack;
 
     public PerfilPaciente() {
         // Required empty public constructor
     }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment PerfilPaciente.
-     */
-    // TODO: Rename and change types and number of parameters
     public static PerfilPaciente newInstance(int pacienteId) {
         PerfilPaciente fragment = new PerfilPaciente();
         Bundle args = new Bundle();
@@ -67,21 +43,15 @@ public class PerfilPaciente extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         if (getArguments() != null) {
             pacienteId = getArguments().getInt(ARG_PACIENTE_ID, -1);
-            Log.d("debugger", "idPaciente: "+pacienteId);
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
+            Log.d("PerfilPaciente", "ID del paciente recibido: " + pacienteId);
         }
 
-        // Inicializa ManagerDB aquí, asegurándote de que el Context no sea nulo
         Context context = getContext();
         if (context != null) {
             managerDB = new ManagerDB(context);
-        } else {
-            // Manejar el caso en que el Context es nulo (puede ocurrir en etapas tempranas del ciclo de vida)
-            // Quizás mostrar un mensaje de error o evitar operaciones de base de datos.
-            managerDB = null; // Para evitar NullPointerException más tarde
         }
     }
 
@@ -90,46 +60,49 @@ public class PerfilPaciente extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_perfil_paciente, container, false);
 
-        //Asignacion de elementos de XML a variables de JAVA
+        // Referencias UI
         tvNombreApellido = view.findViewById(R.id.tvNombreApellido);
         tvFechaNacimiento = view.findViewById(R.id.tvFechaNacimiento);
         tvSexo = view.findViewById(R.id.tvSexo);
         tvDiagnostico = view.findViewById(R.id.tvDiagnostico);
         tvIdentificacion = view.findViewById(R.id.tvIdentificacion);
+        btnBack = view.findViewById(R.id.btnBack);
+
+        btnBack.setOnClickListener(v -> volverADashboard());
 
         if (managerDB != null) {
             mostrarInformacionPaciente();
         } else {
-            // Manejar el caso en que managerDB no se inicializó (Context nulo)
-            tvNombreApellido.setText("Error al cargar el perfil");
+            tvNombreApellido.setText("Error al cargar datos");
         }
 
-        // Inflate the layout for this fragment
         return view;
     }
 
     private void mostrarInformacionPaciente() {
-        if (pacienteId != -1 && managerDB != null) {
-            HashMap<String, String> paciente = managerDB.obtenerPaciente(pacienteId);
-            Log.d("debugger", "Paciente: "+ paciente);
-            if (paciente != null) {
-                tvNombreApellido.setText(paciente.get("nombres") + " " + paciente.get("apellidos"));
-                tvFechaNacimiento.setText(paciente.get("fechaNacimiento"));
-                tvSexo.setText(paciente.get("sexo"));
-                tvDiagnostico.setText(paciente.get("diagnostico"));
-                tvIdentificacion.setText(paciente.get("identificacion"));
-            } else {
-                // Manejar el caso en que no se encuentra el paciente con ese ID
-
-                tvNombreApellido.setText("Paciente no encontrado");
-            }
-        } else {
-            // Manejar el caso en que no se proporcionó un ID o managerDB es nulo
-            if (pacienteId == -1) {
-                tvNombreApellido.setText("ID de paciente no proporcionado");
-            } else if (managerDB == null) {
-                tvNombreApellido.setText("Error al acceder a la base de datos");
-            }
+        if (pacienteId == -1) {
+            tvNombreApellido.setText("ID de paciente no proporcionado");
+            return;
         }
+
+        HashMap<String, String> paciente = managerDB.obtenerPaciente(pacienteId);
+
+        if (paciente != null) {
+            tvNombreApellido.setText(paciente.get("nombres") + " " + paciente.get("apellidos"));
+            tvFechaNacimiento.setText(paciente.get("fechaNacimiento"));
+            tvSexo.setText(paciente.get("sexo"));
+            tvDiagnostico.setText(paciente.get("diagnostico"));
+            tvIdentificacion.setText(paciente.get("identificacion"));
+        } else {
+            tvNombreApellido.setText("Paciente no encontrado");
+        }
+    }
+
+    private void volverADashboard() {
+        FragmentManager fragmentManager = getParentFragmentManager();
+        FragmentTransaction transaction = fragmentManager.beginTransaction();
+        transaction.replace(R.id.fragment_container, new DashboardFragment());
+        transaction.addToBackStack(null);
+        transaction.commit();
     }
 }

@@ -7,9 +7,12 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.fragment.app.Fragment;
@@ -17,6 +20,7 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
 import com.sena.qfinder.model.ManagerDB;
+import com.sena.qfinder.ui.home.DashboardFragment;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -25,7 +29,11 @@ public class RegistrarPaciente extends Fragment {
 
     ManagerDB managerDB;
 
-    private EditText editNombreApellido, editFechaNacimiento, editSexo, editDiagnostico, editIdentificacion;
+    ImageView btnBack;
+
+    private AutoCompleteTextView editSexo;
+
+    private EditText editNombreApellido, editFechaNacimiento, editDiagnostico, editIdentificacion;
     private Button btnRegistrar;
 
     public RegistrarPaciente() {
@@ -45,17 +53,58 @@ public class RegistrarPaciente extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_registrar_paciente, container, false);
 
-        editNombreApellido = view.findViewById(R.id.etNombresApellidos); // necesita este id en el XML
-        editFechaNacimiento = view.findViewById(R.id.etFechaNacimiento); // idem
+        editNombreApellido = view.findViewById(R.id.etNombresApellidos);
+        editFechaNacimiento = view.findViewById(R.id.etFechaNacimiento);
         editSexo = view.findViewById(R.id.etSexo);
-        editDiagnostico = view.findViewById(R.id.etDiagnostico); // idem
-        editIdentificacion = view.findViewById(R.id.etIdentificacion); // idem
+        editDiagnostico = view.findViewById(R.id.etDiagnostico);
+        editIdentificacion = view.findViewById(R.id.etIdentificacion);
         btnRegistrar = view.findViewById(R.id.btnRegistrar);
 
-        // Configurar el DatePickerDialog para el campo de fecha
+        String[] generos = {"Masculino", "Femenino", "Otro"};
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(requireContext(), android.R.layout.simple_dropdown_item_1line, generos);
+        ((AutoCompleteTextView) editSexo).setAdapter(adapter);
+
+// Forzar que muestre la lista al tocar
+        editSexo.setOnClickListener(v -> ((AutoCompleteTextView) editSexo).showDropDown());
+
+        editSexo = view.findViewById(R.id.etSexo);
+
+
+// Detectar selección y permitir escritura si es "Otro"
+        editSexo.setOnItemClickListener((parent, view1, position, id) -> {
+            String seleccion = (String) parent.getItemAtPosition(position);
+            if ("Otro".equals(seleccion)) {
+                editSexo.setInputType(android.text.InputType.TYPE_CLASS_TEXT);
+                editSexo.setText("");
+                editSexo.setHint("Escribe tu género");
+            } else {
+                editSexo.setInputType(android.text.InputType.TYPE_NULL);
+                editSexo.setHint(null);
+            }
+        });
+
+
+        // Mostrar el selector de fecha con clic o foco
         editFechaNacimiento.setOnClickListener(v -> showDatePickerDialog());
+        editFechaNacimiento.setOnFocusChangeListener((v, hasFocus) -> {
+            if (hasFocus) {
+                showDatePickerDialog();
+            }
+        });
+
+        // Bloquear escritura directa en el campo
+        editFechaNacimiento.setKeyListener(null);
 
         btnRegistrar.setOnClickListener(v -> registrarPaciente());
+        btnBack = view.findViewById(R.id.btnBack);
+        btnBack.setOnClickListener(v -> {
+            FragmentManager fragmentManager = getParentFragmentManager();
+            FragmentTransaction transaction = fragmentManager.beginTransaction();
+            transaction.replace(R.id.fragment_container, new DashboardFragment()); // o el fragmento que represente tu dashboard
+            transaction.addToBackStack(null);
+            transaction.commit();
+        });
+
 
         return view;
     }
@@ -67,17 +116,14 @@ public class RegistrarPaciente extends Fragment {
         int month = calendar.get(Calendar.MONTH);
         int day = calendar.get(Calendar.DAY_OF_MONTH);
 
-        DatePickerDialog datePickerDialog = new DatePickerDialog(getContext(),
-                new DatePickerDialog.OnDateSetListener() {
-                    @Override
-                    public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
-                        // Formatear la fecha seleccionada a formato dd/MM/yyyy
-                        Calendar selectedDate = Calendar.getInstance();
-                        selectedDate.set(year, monthOfYear, dayOfMonth);
+        DatePickerDialog datePickerDialog = new DatePickerDialog(requireContext(),
+                (view, selectedYear, selectedMonth, selectedDay) -> {
+                    Calendar selectedDate = Calendar.getInstance();
+                    selectedDate.set(selectedYear, selectedMonth, selectedDay);
 
-                        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
-                        editFechaNacimiento.setText(sdf.format(selectedDate.getTime()));
-                    }
+                    SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+                    editFechaNacimiento.setText(sdf.format(selectedDate.getTime()));
+                    editFechaNacimiento.clearFocus();
                 }, year, month, day);
 
         datePickerDialog.show();
@@ -110,11 +156,11 @@ public class RegistrarPaciente extends Fragment {
 
         managerDB = new ManagerDB(getContext());
         long resultado = managerDB.insertarPaciente(nombres, apellidos, fechaNacimiento, sexo, diagnostico, identificacion);
-        Log.d("debugger", "resultadocreacionuser: "+ resultado);
+        Log.d("debugger", "resultadocreacionuser: " + resultado);
         if (resultado != -1) {
             Toast.makeText(getContext(), "Paciente registrado correctamente", Toast.LENGTH_SHORT).show();
             limpiarCampos();
-            Integer resultadoConvert = Integer.parseInt(resultado+"");
+            Integer resultadoConvert = Integer.parseInt(resultado + "");
             mostrarPerfilPaciente(resultadoConvert);
         } else {
             Toast.makeText(getContext(), "Error al registrar paciente", Toast.LENGTH_SHORT).show();
@@ -122,8 +168,8 @@ public class RegistrarPaciente extends Fragment {
     }
 
     private void mostrarPerfilPaciente(int pacienteId) {
-        Log.d("debugger", "ID: "+ pacienteId);
-        PerfilPaciente perfilFragment = PerfilPaciente.newInstance(pacienteId); // Ahora pasas el ID
+        Log.d("debugger", "ID: " + pacienteId);
+        PerfilPaciente perfilFragment = PerfilPaciente.newInstance(pacienteId);
         FragmentManager fragmentManager = getFragmentManager();
         if (fragmentManager != null) {
             FragmentTransaction transaction = fragmentManager.beginTransaction();

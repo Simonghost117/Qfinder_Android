@@ -5,19 +5,24 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.google.android.material.textfield.TextInputEditText;
 import com.sena.qfinder.model.ManagerDB;
+import com.sena.qfinder.ui.home.DashboardFragment;
 
 
 public class RegistroUsuario extends Fragment {
+
+    ImageView btnBack;
     private ManagerDB managerDB;
     private TextInputEditText edtNombre, edtApellido, edtCorreo, edtIdentificacion, edtDirrecion, edtTelefono, edtContrasena;
     private Button btnContinuar;
@@ -45,6 +50,15 @@ public class RegistroUsuario extends Fragment {
 
         btnContinuar = view.findViewById(R.id.btnContinuar);
         //btnContinuar = view.findViewById(R.id.btnContinuar);
+
+        btnBack = view.findViewById(R.id.btnBack);
+        btnBack.setOnClickListener(v -> {
+            FragmentManager fragmentManager = getParentFragmentManager();
+            FragmentTransaction transaction = fragmentManager.beginTransaction();
+            transaction.replace(R.id.fragment_container, new Login());
+            transaction.addToBackStack(null);
+            transaction.commit();
+        });
 
         btnContinuar.setOnClickListener(v -> {
             if (validarCampos()) {

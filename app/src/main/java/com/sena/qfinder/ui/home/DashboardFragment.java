@@ -16,6 +16,7 @@ import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.sena.qfinder.PerfilPaciente;
 import com.sena.qfinder.R;
 import com.sena.qfinder.RegistrarPaciente;
 import com.sena.qfinder.model.ManagerDB;
@@ -65,7 +66,8 @@ public class DashboardFragment extends Fragment {
         for (HashMap<String, String> paciente : pacientes) {
             String nombreCompleto = paciente.get("nombres") + " " + paciente.get("apellidos");
             String diagnostico = paciente.get("diagnostico");
-            addPatientCard(inflater, nombreCompleto, "Paciente", diagnostico, R.drawable.perfil_paciente);
+            int patientId = Integer.parseInt(paciente.get("id"));  // Asegúrate de que el campo "id" exista
+            addPatientCard(inflater, nombreCompleto, "Paciente", diagnostico, R.drawable.perfil_paciente, patientId);
         }
 
         // Botón Agregar Paciente
@@ -74,11 +76,34 @@ public class DashboardFragment extends Fragment {
         patientsContainer.addView(addCard);
     }
 
+    private void addPatientCard(LayoutInflater inflater, String name, String relation, String conditions, int imageResId, int patientId) {
+        View patientCard = inflater.inflate(R.layout.item_patient_card, patientsContainer, false);
+
+        TextView tvName = patientCard.findViewById(R.id.tvPatientName);
+        TextView tvRelation = patientCard.findViewById(R.id.tvPatientRelation);
+        TextView tvConditions = patientCard.findViewById(R.id.tvPatientConditions);
+        ImageView ivProfile = patientCard.findViewById(R.id.ivPatientProfile);
+
+        tvName.setText(name);
+        tvRelation.setText(relation);
+        tvConditions.setText(conditions);
+        ivProfile.setImageResource(imageResId);
+
+        // Al hacer clic en la tarjeta, navegar al fragmento de perfil del paciente
+        patientCard.setOnClickListener(v -> {
+            FragmentTransaction transaction = getParentFragmentManager().beginTransaction();
+            transaction.replace(R.id.fragment_container, PerfilPaciente.newInstance(patientId));
+            transaction.addToBackStack("dashboard");
+            transaction.commit();
+        });
+
+        patientsContainer.addView(patientCard);
+    }
+
     private void setupActivitiesSection(LayoutInflater inflater, View root) {
         activitiesContainer = root.findViewById(R.id.activitiesContainer);
         activitiesContainer.removeAllViews();
 
-        // Datos quemados de actividades
         List<Activity> activities = new ArrayList<>();
         activities.add(new Activity("Cita médica", "Revisión mensual con el pediatra", "Pendiente", "10:30 AM"));
         activities.add(new Activity("Examen de sangre", "Laboratorio clínico", "Completado", "08:00 AM"));
@@ -100,7 +125,6 @@ public class DashboardFragment extends Fragment {
         rvMedications = root.findViewById(R.id.rvMedications);
         rvMedications.setLayoutManager(new LinearLayoutManager(getContext()));
 
-        // Datos quemados de medicamentos
         List<Medication> medications = new ArrayList<>();
         medications.add(new Medication("Paracetamol", "500mg", "Cada 8 horas"));
         medications.add(new Medication("Loratadina", "10mg", "Una vez al día"));
@@ -111,24 +135,7 @@ public class DashboardFragment extends Fragment {
         rvMedications.setAdapter(new MedicationAdapter(medications));
     }
 
-    private void addPatientCard(LayoutInflater inflater, String name, String relation, String conditions, int imageResId) {
-        View patientCard = inflater.inflate(R.layout.item_patient_card, patientsContainer, false);
-
-        TextView tvName = patientCard.findViewById(R.id.tvPatientName);
-        TextView tvRelation = patientCard.findViewById(R.id.tvPatientRelation);
-        TextView tvConditions = patientCard.findViewById(R.id.tvPatientConditions);
-        ImageView ivProfile = patientCard.findViewById(R.id.ivPatientProfile);
-
-        tvName.setText(name);
-        tvRelation.setText(relation);
-        tvConditions.setText(conditions);
-        ivProfile.setImageResource(imageResId);
-
-        patientsContainer.addView(patientCard);
-    }
-
     private void navigateToAddPatient() {
-        // Navegación al contenedor principal de la Activity
         FragmentTransaction transaction = getParentFragmentManager().beginTransaction();
         transaction.replace(R.id.fragment_container, new RegistrarPaciente());
         transaction.addToBackStack("dashboard");
