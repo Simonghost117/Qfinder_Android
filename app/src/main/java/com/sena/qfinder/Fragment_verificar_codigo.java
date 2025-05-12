@@ -4,16 +4,18 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
 import com.sena.qfinder.R;
 
 public class Fragment_verificar_codigo extends Fragment {
-
+    private ImageView backButton;
     public Fragment_verificar_codigo () {
         super(R.layout.fragment_verificar_codigo);
     }
@@ -22,8 +24,14 @@ public class Fragment_verificar_codigo extends Fragment {
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-
-
+        backButton = view.findViewById(R.id.backButton);
+        // Configurar el botón de retroceso
+        backButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                navigateBackToLogin();
+            }
+        });
         Button confirmButton = view.findViewById(R.id.confirmButton);
         confirmButton.setOnClickListener(v -> {
             String code = String.format("%s%s%s%s",
@@ -48,5 +56,12 @@ public class Fragment_verificar_codigo extends Fragment {
         resendCode.setOnClickListener(v -> {
             Toast.makeText(requireContext(), "Código reenviado", Toast.LENGTH_SHORT).show();
         });
+    }
+    private void navigateBackToLogin() {
+        FragmentManager fragmentManager = getParentFragmentManager();
+        FragmentTransaction transaction = fragmentManager.beginTransaction();
+        transaction.replace(R.id.fragment_container, new Fragment_password_recovery());
+        transaction.addToBackStack(null);
+        transaction.commit();
     }
 }
