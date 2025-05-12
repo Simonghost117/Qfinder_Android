@@ -16,8 +16,8 @@
 
     <ImageButton
             android:id="@+id/btnBack"
-            android:layout_width="23dp"
-            android:layout_height="23dp"
+            android:layout_width="28dp"
+            android:layout_height="28dp"
             android:src="@drawable/back"
             android:scaleType="fitCenter"
             android:background="@color/white"
@@ -52,7 +52,7 @@
 
             <!-- Nombre y miembros -->
             <TextView
-                android:id="@+id/textCommunityName"
+                android:id="@+id/tvNombreComunidad"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Familias Unidas 1"
@@ -62,7 +62,7 @@
                 android:layout_gravity="center_horizontal"/>
 
             <TextView
-                android:id="@+id/textCommunityMembers"
+                android:id="@+id/tvMiembrosComunidad"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Comunidad 1,200,000 miembros"
