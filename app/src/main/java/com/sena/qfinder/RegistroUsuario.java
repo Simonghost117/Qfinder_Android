@@ -143,7 +143,7 @@ public class RegistroUsuario extends Fragment {
 
         // Configurar Retrofit
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("https://qfinder-backend.onrender.com/")
+                .baseUrl("https://qfinder-production.up.railway.app/")
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
 
