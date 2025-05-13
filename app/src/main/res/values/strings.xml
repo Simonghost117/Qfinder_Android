@@ -2,6 +2,25 @@
     <string name="app_name">Qfinder-Android</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="prompt_elige_paciente">Elige al paciente</string>
+
+    <string-array name="frecuencia_opciones">
+        <item>Selecciones Frecuencia</item>
+        <item>Diaria</item>
+        <item>Semanal</item>
+        <item>Mensual</item>
+        <item>Una sola vez</item>
+    </string-array>
+    <!-- Opciones de recordatorio -->
+    <string-array name="recordatorio_opciones">
+        <item>Selecciones Recordatorio</item>
+        <item>1 hora antes</item>
+        <item>2 horas antes</item>
+        <item>4 horas antes</item>
+        <item>1 día antes</item>
+        <item>2 días antes</item>
+        <item>No recordar</item>
+    </string-array>
 
     <string name="patient_section">Pacientes</string>
     <string name="activities_section">Actividades</string>
@@ -70,3 +89,5 @@ Teléfono: 31022589685
     <string name="correo">Correo</string>
     <string name="contraseña">Contraseña</string>
 </resources>
+
+
