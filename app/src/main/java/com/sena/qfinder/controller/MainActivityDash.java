@@ -1,7 +1,9 @@
 package com.sena.qfinder.controller;
 
+import android.graphics.Color;
 import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.view.WindowCompat;
 import androidx.fragment.app.Fragment;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -18,17 +20,34 @@ public class MainActivityDash extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // Configuración crítica para el espacio de la barra de estado
+        WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
+        getWindow().setStatusBarColor(Color.TRANSPARENT);
+
         setContentView(R.layout.activity_main_dash);
 
+        // Configuración de la navegación inferior
         bottomNavigation = findViewById(R.id.bottom_navigation);
         bottomNavigation.setOnItemSelectedListener(navListener);
 
-        // Fragmento inicial
+        // Carga el fragment inicial solo si es una nueva instancia
         if (savedInstanceState == null) {
-            getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.fragment_container, new DashboardFragment())
-                    .commit();
+            loadInitialFragment();
         }
+    }
+
+    private void loadInitialFragment() {
+        DashboardFragment dashboardFragment = new DashboardFragment();
+
+        // Puedes pasar argumentos si es necesario
+        // Bundle args = new Bundle();
+        // args.putString("key", "value");
+        // dashboardFragment.setArguments(args);
+
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.fragment_container, dashboardFragment)
+                .commit();
     }
 
     private final NavigationBarView.OnItemSelectedListener navListener =
@@ -36,27 +55,38 @@ public class MainActivityDash extends AppCompatActivity {
                 Fragment selectedFragment = null;
                 int itemId = item.getItemId();
 
+                // Selección de fragmentos
                 if (itemId == R.id.nav_home) {
                     selectedFragment = new DashboardFragment();
-                }
-                else if (itemId == R.id.nav_services) {
+                } else if (itemId == R.id.nav_services) {
                     selectedFragment = new Fragment_Serivicios();
-                }
-                else if (itemId == R.id.nav_comunidad) {
+                } else if (itemId == R.id.nav_comunidad) {
                     selectedFragment = new Comunidad();
                 }
-                // } else if (itemId == R.id.nav_community) {
-                //     selectedFragment = new CommunityFragment();
-                // } else if (itemId == R.id.nav_profile) {
+                // Agrega más casos según sea necesario
+                // else if (itemId == R.id.nav_profile) {
                 //     selectedFragment = new ProfileFragment();
                 // }
 
+                // Reemplaza el fragmento actual si se seleccionó uno válido
                 if (selectedFragment != null) {
                     getSupportFragmentManager()
                             .beginTransaction()
                             .replace(R.id.fragment_container, selectedFragment)
                             .commit();
+                    return true;
                 }
-                return true;
+
+                return false;
             };
+
+    @Override
+    public void onBackPressed() {
+        // Personaliza el comportamiento del botón atrás si es necesario
+        if (bottomNavigation.getSelectedItemId() != R.id.nav_home) {
+            bottomNavigation.setSelectedItemId(R.id.nav_home);
+        } else {
+            super.onBackPressed();
+        }
+    }
 }
