@@ -22,7 +22,7 @@ import android.widget.CheckBox;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.google.android.material.textfield.TextInputEditText;
-import com.sena.qfinder.controller.MainActivity;
+import com.sena.qfinder.model.MainActivity;
 import com.sena.qfinder.model.ManagerDB;
 
 public class ConfirmacionContrasena extends Fragment {
