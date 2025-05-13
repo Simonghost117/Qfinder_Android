@@ -275,7 +275,7 @@
                     android:background="@drawable/edittext_azul"
                     android:layout_width="match_parent"
                     android:layout_height="50dp"
-                    android:inputType="number"
+                    android:inputType="textPassword"
                     android:textColor="@color/black"
                     android:padding="10dp" />
 
