@@ -1,6 +1,7 @@
 package com.sena.qfinder.ui.home;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -9,8 +10,10 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -19,7 +22,9 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.sena.qfinder.PerfilPaciente;
 import com.sena.qfinder.R;
 import com.sena.qfinder.RegistrarPaciente;
+import com.sena.qfinder.model.MainActivity;
 import com.sena.qfinder.model.ManagerDB;
+import com.sena.qfinder.Login;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -66,11 +71,10 @@ public class DashboardFragment extends Fragment {
         for (HashMap<String, String> paciente : pacientes) {
             String nombreCompleto = paciente.get("nombres") + " " + paciente.get("apellidos");
             String diagnostico = paciente.get("diagnostico");
-            int patientId = Integer.parseInt(paciente.get("id"));  // Asegúrate de que el campo "id" exista
+            int patientId = Integer.parseInt(paciente.get("id"));
             addPatientCard(inflater, nombreCompleto, "Paciente", diagnostico, R.drawable.perfil_paciente, patientId);
         }
 
-        // Botón Agregar Paciente
         View addCard = inflater.inflate(R.layout.item_add_patient_card, patientsContainer, false);
         addCard.setOnClickListener(v -> navigateToAddPatient());
         patientsContainer.addView(addCard);
@@ -89,7 +93,6 @@ public class DashboardFragment extends Fragment {
         tvConditions.setText(conditions);
         ivProfile.setImageResource(imageResId);
 
-        // Al hacer clic en la tarjeta, navegar al fragmento de perfil del paciente
         patientCard.setOnClickListener(v -> {
             FragmentTransaction transaction = getParentFragmentManager().beginTransaction();
             transaction.replace(R.id.fragment_container, PerfilPaciente.newInstance(patientId));

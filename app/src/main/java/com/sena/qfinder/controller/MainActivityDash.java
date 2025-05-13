@@ -11,6 +11,7 @@ import com.google.android.material.navigation.NavigationBarView;
 import com.sena.qfinder.Comunidad;
 import com.sena.qfinder.Fragment_Serivicios;
 import com.sena.qfinder.R;
+import com.sena.qfinder.perfil_usuario;
 import com.sena.qfinder.ui.home.DashboardFragment;
 
 public class MainActivityDash extends AppCompatActivity {
@@ -67,6 +68,14 @@ public class MainActivityDash extends AppCompatActivity {
                 // else if (itemId == R.id.nav_profile) {
                 //     selectedFragment = new ProfileFragment();
                 // }
+
+                else if (itemId == R.id.nav_profile) {
+                    selectedFragment = new perfil_usuario();
+                }
+
+                // } else if (itemId == R.id.nav_community) {
+                //     selectedFragment = new CommunityFragment();
+                //
 
                 // Reemplaza el fragmento actual si se seleccionó uno válido
                 if (selectedFragment != null) {
