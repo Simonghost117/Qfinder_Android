@@ -1,6 +1,8 @@
 package com.sena.qfinder;
 
+import android.app.ProgressDialog;
 import android.os.Bundle;
+import android.util.Patterns;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,12 +12,13 @@ import android.widget.Toast;
 
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
 
 import com.google.android.material.textfield.TextInputEditText;
 import com.sena.qfinder.api.AuthService;
 import com.sena.qfinder.models.RegisterRequest;
 import com.sena.qfinder.models.RegisterResponse;
+
+import java.io.IOException;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -25,15 +28,25 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class RegistroUsuario extends Fragment {
 
-    ImageView btnBack;
     private TextInputEditText edtNombre, edtApellido, edtCorreo, edtIdentificacion, edtDirrecion, edtTelefono;
     private Button btnContinuar;
+    private ImageView btnBack;
+    private ProgressDialog progressDialog;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_registro_usuario, container, false);
 
-        // Asignación de elementos UI
+        // Inicializar vistas
+        initViews(view);
+
+        // Configurar listeners
+        setupListeners();
+
+        return view;
+    }
+
+    private void initViews(View view) {
         edtNombre = view.findViewById(R.id.edtNombre);
         edtApellido = view.findViewById(R.id.edtApellido);
         edtCorreo = view.findViewById(R.id.edtCorreo);
@@ -43,97 +56,152 @@ public class RegistroUsuario extends Fragment {
         btnContinuar = view.findViewById(R.id.btnContinuar);
         btnBack = view.findViewById(R.id.btnBack);
 
-        // Botón para volver al login
-        btnBack.setOnClickListener(v -> {
-            FragmentManager fragmentManager = getParentFragmentManager();
-            FragmentTransaction transaction = fragmentManager.beginTransaction();
-            transaction.replace(R.id.fragment_container, new Login());
-            transaction.addToBackStack(null);
-            transaction.commit();
-        });
+        // Configurar ProgressDialog
+        progressDialog = new ProgressDialog(getContext());
+        progressDialog.setTitle("Registrando");
+        progressDialog.setMessage("Por favor espere...");
+        progressDialog.setCancelable(false);
+    }
 
-        // Botón para continuar y registrar usuario
+    private void setupListeners() {
+        btnBack.setOnClickListener(v -> volverALogin());
+
         btnContinuar.setOnClickListener(v -> {
             if (validarCampos()) {
                 registrarUsuarioEnBackend();
             }
         });
-
-        return view;
     }
 
     private boolean validarCampos() {
-        if (edtNombre.getText().toString().isEmpty()) {
-            mostrarError("El nombre es obligatorio", edtNombre);
-            return false;
+        boolean valido = true;
+
+        if (edtNombre.getText().toString().trim().isEmpty()) {
+            edtNombre.setError("El nombre es obligatorio");
+            valido = false;
         }
 
-        if (edtApellido.getText().toString().isEmpty()) {
-            mostrarError("El apellido es obligatorio", edtApellido);
-            return false;
+        if (edtApellido.getText().toString().trim().isEmpty()) {
+            edtApellido.setError("El apellido es obligatorio");
+            valido = false;
         }
 
-        if (edtCorreo.getText().toString().isEmpty()) {
-            mostrarError("El correo es obligatorio", edtCorreo);
-            return false;
+        if (edtCorreo.getText().toString().trim().isEmpty()) {
+            edtCorreo.setError("El correo es obligatorio");
+            valido = false;
+        } else if (!esCorreoValido(edtCorreo.getText().toString().trim())) {
+            edtCorreo.setError("Ingrese un correo válido");
+            valido = false;
         }
 
-        if (edtIdentificacion.getText().toString().isEmpty()) {
-            mostrarError("La identificación es obligatoria", edtIdentificacion);
-            return false;
+        if (edtIdentificacion.getText().toString().trim().isEmpty()) {
+            edtIdentificacion.setError("La identificación es obligatoria");
+            valido = false;
         }
 
-        if (edtDirrecion.getText().toString().isEmpty()) {
-            mostrarError("La dirección es obligatoria", edtDirrecion);
-            return false;
+        if (edtDirrecion.getText().toString().trim().isEmpty()) {
+            edtDirrecion.setError("La dirección es obligatoria");
+            valido = false;
         }
 
-        if (edtTelefono.getText().toString().isEmpty()) {
-            mostrarError("El teléfono es obligatorio", edtTelefono);
-            return false;
+        if (edtTelefono.getText().toString().trim().isEmpty()) {
+            edtTelefono.setError("El teléfono es obligatorio");
+            valido = false;
         }
 
-        return true;
+        return valido;
     }
 
-    private void mostrarError(String mensaje, TextInputEditText campo) {
-        Toast.makeText(getContext(), mensaje, Toast.LENGTH_SHORT).show();
-        campo.requestFocus();
+    private boolean esCorreoValido(String correo) {
+        return Patterns.EMAIL_ADDRESS.matcher(correo).matches();
     }
 
     private void registrarUsuarioEnBackend() {
-        String nombre = edtNombre.getText().toString();
-        String correo = edtCorreo.getText().toString();
-        String password = edtIdentificacion.getText().toString(); // Puedes cambiar por un campo real de contraseña
+        progressDialog.show();
 
+        // Obtener datos del formulario
+        String nombre = edtNombre.getText().toString().trim();
+        String apellido = edtApellido.getText().toString().trim();
+        String identificacion = edtIdentificacion.getText().toString().trim();
+        String direccion = edtDirrecion.getText().toString().trim();
+        String telefono = edtTelefono.getText().toString().trim();
+        String correo = edtCorreo.getText().toString().trim();
+        String contrasena = generarContrasenaSegura(identificacion);
+
+        // Crear objeto de solicitud
+        RegisterRequest request = new RegisterRequest(
+                nombre,
+                apellido,
+                identificacion,
+                direccion,
+                telefono,
+                correo,
+                contrasena
+        );
+
+        // Configurar Retrofit
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("https://qfinder-backend.onrender.com/") // URL base del backend
+                .baseUrl("https://qfinder-backend.onrender.com/")
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
 
         AuthService authService = retrofit.create(AuthService.class);
-        RegisterRequest request = new RegisterRequest(nombre, correo, password);
 
-        authService.registerUser(request).enqueue(new Callback<RegisterResponse>() {
+        // Realizar la llamada al servidor
+        Call<RegisterResponse> call = authService.registerUser(request);
+        call.enqueue(new Callback<RegisterResponse>() {
             @Override
             public void onResponse(Call<RegisterResponse> call, Response<RegisterResponse> response) {
-                if (response.isSuccessful()) {
-                    Toast.makeText(getContext(), "Usuario registrado correctamente", Toast.LENGTH_SHORT).show();
+                progressDialog.dismiss();
 
-                    FragmentManager fragmentManager = getParentFragmentManager();
-                    fragmentManager.beginTransaction()
-                            .replace(R.id.fragment_container, new Login())
-                            .addToBackStack(null)
-                            .commit();
+                if (response.isSuccessful()) {
+                    manejarRegistroExitoso();
                 } else {
-                    Toast.makeText(getContext(), "Error al registrar: " + response.code(), Toast.LENGTH_SHORT).show();
+                    manejarErrorRegistro(response);
                 }
             }
 
             @Override
             public void onFailure(Call<RegisterResponse> call, Throwable t) {
-                Toast.makeText(getContext(), "Error de red: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                progressDialog.dismiss();
+                Toast.makeText(getContext(), "Error de conexión: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    private String generarContrasenaSegura(String identificacion) {
+        // Genera una contraseña segura basada en la identificación
+        // Esto es solo un ejemplo - considera usar un método más seguro en producción
+        return "QF" + identificacion + "!23";
+    }
+
+    private void manejarRegistroExitoso() {
+        Toast.makeText(getContext(), "Registro exitoso. Verifica tu correo electrónico.", Toast.LENGTH_LONG).show();
+        volverALogin();
+    }
+
+    private void manejarErrorRegistro(Response<RegisterResponse> response) {
+        try {
+            String errorBody = response.errorBody() != null ? response.errorBody().string() : "Error desconocido";
+            Toast.makeText(getContext(), "Error al registrar: " + errorBody, Toast.LENGTH_LONG).show();
+            System.out.println(errorBody);
+        } catch (IOException e) {
+            Toast.makeText(getContext(), "Error al procesar la respuesta", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void volverALogin() {
+        FragmentManager fragmentManager = getParentFragmentManager();
+        fragmentManager.beginTransaction()
+                .replace(R.id.fragment_container, new Login())
+                .commit();
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        if (progressDialog != null && progressDialog.isShowing()) {
+            progressDialog.dismiss();
+        }
     }
 }
