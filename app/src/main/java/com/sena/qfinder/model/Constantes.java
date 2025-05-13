@@ -28,12 +28,11 @@ public class Constantes {
                     "identificacion INTEGER UNIQUE" +
                     ");";
 
-    public static final String SENTENCIA_TABLA_COMUNIDAD =
+    public static final String SENTENCIA_TABLA_MENSAJE =
             "CREATE TABLE mensaje (" +
                     "id INTEGER, " +
                     "nombre_usuario TEXT, " +
                     "contenido TEXT, " +
                     "hora TEXT, " +
                     "comunidad TEXT);";
-
 }

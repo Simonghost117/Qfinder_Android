@@ -3,6 +3,7 @@ package com.sena.qfinder;
 import android.app.AlertDialog;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
@@ -10,7 +11,6 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.*;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.*;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -45,26 +45,15 @@ public class Comunidad extends Fragment {
         adapter = new ComunidadAdapter(getContext(), listaComunidades, getParentFragmentManager());
         recyclerView.setAdapter(adapter);
 
-        // Configurar el buscador
         EditText buscador = view.findViewById(R.id.buscar_comunidad);
         buscador.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
+            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
                 adapter.filtrar(s.toString());
             }
-
-            @Override
-            public void afterTextChanged(Editable s) {}
+            @Override public void afterTextChanged(Editable s) {}
         });
 
-        // Ocultar el teclado al tocar fuera del EditText
-        InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
-        imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
-
-        // Botón flotante para agregar nueva comunidad
         FloatingActionButton fab = view.findViewById(R.id.fabAddComunidad);
         fab.setOnClickListener(v -> mostrarDialogoCrearComunidad());
 
@@ -86,18 +75,15 @@ public class Comunidad extends Fragment {
 
             if (!nombre.isEmpty() && !miembros.isEmpty()) {
                 db.agregarComunidad(nombre, miembros);
-
                 listaComunidades.clear();
                 listaComunidades.addAll(db.obtenerComunidades());
                 adapter.notifyDataSetChanged();
 
-                // Abrir PerfilComunidad inmediatamente
                 PerfilComunidad pf = PerfilComunidad.newInstance(nombre, miembros);
-                FragmentTransaction transactionPF = requireActivity().getSupportFragmentManager().beginTransaction();
-                transactionPF.replace(R.id.fragment_container, pf);
-                transactionPF.addToBackStack(null);
-                transactionPF.commit();
-
+                FragmentTransaction transaction = requireActivity().getSupportFragmentManager().beginTransaction();
+                transaction.replace(R.id.fragment_container, pf);
+                transaction.addToBackStack(null);
+                transaction.commit();
             } else {
                 Toast.makeText(getContext(), "Completa todos los campos", Toast.LENGTH_SHORT).show();
             }
@@ -107,7 +93,6 @@ public class Comunidad extends Fragment {
         builder.show();
     }
 
-    // ========================== ADAPTER ===============================
     private class ComunidadAdapter extends RecyclerView.Adapter<ComunidadAdapter.ViewHolder> {
 
         private Context context;
@@ -150,28 +135,30 @@ public class Comunidad extends Fragment {
             holder.nombre.setText(comunidad.getNombre());
             holder.miembros.setText(comunidad.getMiembros());
 
-            holder.imgComunidad.setOnClickListener(view -> {
-                try {
-                    PerfilComunidad pf = PerfilComunidad.newInstance(comunidad.getNombre(), comunidad.getMiembros());
-                    FragmentTransaction transactionPF = ((FragmentActivity) context).getSupportFragmentManager().beginTransaction();
-                    transactionPF.replace(R.id.fragment_container, pf);
-                    transactionPF.addToBackStack(null);
-                    transactionPF.commit();
-                } catch (Exception e) {
-                    Toast.makeText(context, "Error al abrir el perfil: " + e.getMessage(), Toast.LENGTH_LONG).show();
+            boolean unido = obtenerEstadoUnion(comunidad.getNombre());
+            holder.btnUnirme1.setText(unido ? "Unido" : "Unirme");
+            holder.btnUnirme1.setBackgroundColor(context.getResources().getColor(unido ? R.color.colorUnido : R.color.colorUnirse));
+
+            holder.btnUnirme1.setOnClickListener(v -> {
+                ChatComunidad chat = ChatComunidad.newInstance(comunidad.getNombre());
+                FragmentTransaction transaction = fragmentManager.beginTransaction();
+                transaction.replace(R.id.fragment_container, chat);
+                transaction.addToBackStack(null);
+                transaction.commit();
+
+                if (!unido) {
+                    guardarEstadoUnion(comunidad.getNombre(), true);
+                    holder.btnUnirme1.setText("Unido");
+                    holder.btnUnirme1.setBackgroundColor(context.getResources().getColor(R.color.colorUnido));
                 }
             });
 
-            holder.btnUnirme1.setOnClickListener(v -> {
-                try {
-                    ChatComunidad chatFragment = ChatComunidad.newInstance(comunidad.getNombre());
-                    FragmentTransaction transaction = fragmentManager.beginTransaction();
-                    transaction.replace(R.id.fragment_container, chatFragment);
-                    transaction.addToBackStack(null);
-                    transaction.commit();
-                } catch (Exception e) {
-                    Toast.makeText(context, "Error al abrir chat: " + e.getMessage(), Toast.LENGTH_LONG).show();
-                }
+            holder.imgComunidad.setOnClickListener(view -> {
+                PerfilComunidad pf = PerfilComunidad.newInstance(comunidad.getNombre(), comunidad.getMiembros());
+                FragmentTransaction transaction = ((FragmentActivity) context).getSupportFragmentManager().beginTransaction();
+                transaction.replace(R.id.fragment_container, pf);
+                transaction.addToBackStack(null);
+                transaction.commit();
             });
 
             holder.btnOpciones.setOnClickListener(v -> {
@@ -186,7 +173,17 @@ public class Comunidad extends Fragment {
                     } else if (itemId == R.id.menu_eliminar) {
                         db.eliminarComunidad(comunidad.getId());
                         comunidades.remove(position);
+                        comunidadesOriginal.remove(position);
                         notifyItemRemoved(position);
+                        return true;
+                    } else if (itemId == R.id.btnsalirComunidad) {
+                        guardarEstadoUnion(comunidad.getNombre(), false);
+                        holder.btnUnirme1.setText("Unirme");
+                        holder.btnUnirme1.setBackgroundColor(context.getResources().getColor(R.color.colorUnirse));
+
+                        FragmentTransaction tx = fragmentManager.beginTransaction();
+                        tx.replace(R.id.fragment_container, new Comunidad());
+                        tx.commit();
                         return true;
                     }
                     return false;
@@ -241,7 +238,6 @@ public class Comunidad extends Fragment {
         }
     }
 
-    // ========================== MODELO ===============================
     public class ComunidadModelo {
         private int id;
         private String nombre;
@@ -263,9 +259,7 @@ public class Comunidad extends Fragment {
         public void setMiembros(String miembros) { this.miembros = miembros; }
     }
 
-    // ========================== BASE DE DATOS ===============================
     public class ComunidadDB extends SQLiteOpenHelper {
-
         private static final String DB_NAME = "QFinder.db";
         private static final int DB_VERSION = 1;
 
@@ -290,6 +284,7 @@ public class Comunidad extends Fragment {
             values.put("nombre", nombre);
             values.put("miembros", miembros);
             db.insert("comunidades", null, values);
+            db.close();
         }
 
         public List<ComunidadModelo> obtenerComunidades() {
@@ -303,6 +298,7 @@ public class Comunidad extends Fragment {
                 lista.add(new ComunidadModelo(id, nombre, miembros));
             }
             cursor.close();
+            db.close();
             return lista;
         }
 
@@ -312,11 +308,23 @@ public class Comunidad extends Fragment {
             values.put("nombre", nombre);
             values.put("miembros", miembros);
             db.update("comunidades", values, "id=?", new String[]{String.valueOf(id)});
+            db.close();
         }
 
         public void eliminarComunidad(int id) {
             SQLiteDatabase db = getWritableDatabase();
             db.delete("comunidades", "id=?", new String[]{String.valueOf(id)});
+            db.close();
         }
+    }
+
+    private void guardarEstadoUnion(String nombreComunidad, boolean unido) {
+        SharedPreferences prefs = requireContext().getSharedPreferences("UnionComunidad", Context.MODE_PRIVATE);
+        prefs.edit().putBoolean(nombreComunidad, unido).apply();
+    }
+
+    private boolean obtenerEstadoUnion(String nombreComunidad) {
+        SharedPreferences prefs = requireContext().getSharedPreferences("UnionComunidad", Context.MODE_PRIVATE);
+        return prefs.getBoolean(nombreComunidad, false);
     }
 }
