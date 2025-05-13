@@ -1,37 +1,35 @@
 package com.sena.qfinder;
 
 import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.TextView;
+
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-
-import com.sena.qfinder.ui.home.DashboardFragment;
-
 public class PerfilComunidad extends Fragment {
 
-    ImageView btnBack;
+    private static final String ARG_PARAM1 = "nombreComunidad";
+    private static final String ARG_PARAM2 = "miembrosComunidad";
 
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
-
-    private String mParam1;
-    private String mParam2;
+    private String nombreComunidad;
+    private String miembrosComunidad;
 
     public PerfilComunidad() {
-        // Required empty public constructor
+        // Constructor vacío requerido
     }
 
-    public static PerfilComunidad newInstance(String param1, String param2) {
+    // Método para crear una instancia con parámetros
+    public static PerfilComunidad newInstance(String nombre, String miembros) {
         PerfilComunidad fragment = new PerfilComunidad();
         Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
+        args.putString(ARG_PARAM1, nombre);
+        args.putString(ARG_PARAM2, miembros);
         fragment.setArguments(args);
         return fragment;
     }
@@ -40,21 +38,36 @@ public class PerfilComunidad extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
+            nombreComunidad = getArguments().getString(ARG_PARAM1);
+            miembrosComunidad = getArguments().getString(ARG_PARAM2);
         }
     }
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_perfil_comunidad, container, false);
 
-        ImageView btnBack = view.findViewById(R.id.btnBack);
+        // Referencias a vistas
+        TextView tvNombre = view.findViewById(R.id.tvNombreComunidad);
+        TextView tvMiembros = view.findViewById(R.id.tvMiembrosComunidad);
+        ImageButton btnBack = view.findViewById(R.id.btnBack);
+
+        // Mostrar los datos
+        if (nombreComunidad != null) {
+            tvNombre.setText(nombreComunidad);
+        }
+
+        if (miembrosComunidad != null) {
+            tvMiembros.setText("Comunidad " + miembrosComunidad + " miembros");
+        }
+
+        // Acción del botón volver
         btnBack.setOnClickListener(v -> {
             FragmentManager fragmentManager = getParentFragmentManager();
             FragmentTransaction transaction = fragmentManager.beginTransaction();
-            transaction.replace(R.id.fragment_container, new Comunidad());
+            transaction.replace(R.id.fragment_container, new Comunidad()); // Asegúrate que `Comunidad` es el fragment correcto
             transaction.addToBackStack(null);
             transaction.commit();
         });

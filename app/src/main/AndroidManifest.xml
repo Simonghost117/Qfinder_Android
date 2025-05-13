@@ -1,7 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools" >
+
     <uses-permission android:name="android.permission.INTERNET"></uses-permission>
+    <!-- Permiso para acceso a internet -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <!-- Opcional: permiso para verificar estado de conexión -->
+
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <application
         android:allowBackup="true"
@@ -13,6 +18,16 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.QfinderAndroid"
         tools:targetApi="31" >
+        <!-- Configuración para notch y barra de estado -->
+        <meta-data
+            android:name="android.notch_support"
+            android:value="true" />
+        <meta-data
+            android:name="android.window.translucent.status"
+            android:value="false" />
+        <meta-data
+            android:name="android.window.drawsSystemBarBackgrounds"
+            android:value="true" />
         <activity
             android:name=".controller.Registro_usuario"
             android:exported="false" />

@@ -156,6 +156,7 @@ public class RegistroUsuario extends Fragment {
 
                 if (response.isSuccessful()) {
                     manejarRegistroExitoso();
+
                 } else {
                     manejarErrorRegistro(response);
                 }

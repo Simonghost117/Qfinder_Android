@@ -58,7 +58,7 @@ public class Login extends Fragment {
     private void setupClickListeners(View view) {
         view.findViewById(R.id.loginButton).setOnClickListener(v -> validarYLogin());
         view.findViewById(R.id.registerLink).setOnClickListener(v -> navegarARegistro());
-        view.findViewById(R.id.forgotPassword).setOnClickListener(v -> mostrarToast("Función en desarrollo"));
+        view.findViewById(R.id.forgotPassword).setOnClickListener(v -> forgotPassword());
     }
 
     private void validarYLogin() {
@@ -119,4 +119,12 @@ public class Login extends Fragment {
     private void mostrarToast(String mensaje) {
         Toast.makeText(requireContext(), mensaje, Toast.LENGTH_SHORT).show();
     }
+
+    private void forgotPassword () {
+        FragmentTransaction transaction = getParentFragmentManager().beginTransaction();
+        transaction.replace(R.id.fragment_container, new Fragment_password_recovery());
+        transaction.addToBackStack(null);
+        transaction.commit();
+    }
+
 }
