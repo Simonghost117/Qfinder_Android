@@ -10,10 +10,10 @@ import android.view.ViewGroup;
 
 /**
  * A simple {@link Fragment} subclass.
- * Use the {@link Verficacion_ContrasenaFragment#newInstance} factory method to
+ * Use the {@link VerficacionCorreo#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class Verficacion_ContrasenaFragment extends Fragment {
+public class VerficacionCorreo extends Fragment {
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -24,7 +24,7 @@ public class Verficacion_ContrasenaFragment extends Fragment {
     private String mParam1;
     private String mParam2;
 
-    public Verficacion_ContrasenaFragment() {
+    public VerficacionCorreo() {
         // Required empty public constructor
     }
 
@@ -37,8 +37,8 @@ public class Verficacion_ContrasenaFragment extends Fragment {
      * @return A new instance of fragment Verficacion_ContrasenaFragment.
      */
     // TODO: Rename and change types and number of parameters
-    public static Verficacion_ContrasenaFragment newInstance(String param1, String param2) {
-        Verficacion_ContrasenaFragment fragment = new Verficacion_ContrasenaFragment();
+    public static VerficacionCorreo newInstance(String param1, String param2) {
+        VerficacionCorreo fragment = new VerficacionCorreo();
         Bundle args = new Bundle();
         args.putString(ARG_PARAM1, param1);
         args.putString(ARG_PARAM2, param2);
@@ -59,6 +59,6 @@ public class Verficacion_ContrasenaFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_verficacion__contrasena, container, false);
+        return inflater.inflate(R.layout.verificacion_correo, container, false);
     }
 }

@@ -12,6 +12,7 @@ import android.widget.Toast;
 
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 
 import com.google.android.material.textfield.TextInputEditText;
 import com.sena.qfinder.api.AuthService;
@@ -44,6 +45,7 @@ public class RegistroUsuario extends Fragment {
         setupListeners();
 
         return view;
+
     }
 
     private void initViews(View view) {
@@ -178,7 +180,7 @@ public class RegistroUsuario extends Fragment {
 
     private void manejarRegistroExitoso() {
         Toast.makeText(getContext(), "Registro exitoso. Verifica tu correo electrónico.", Toast.LENGTH_LONG).show();
-        volverALogin();
+        confirmCorreo();
     }
 
     private void manejarErrorRegistro(Response<RegisterResponse> response) {
@@ -204,5 +206,11 @@ public class RegistroUsuario extends Fragment {
         if (progressDialog != null && progressDialog.isShowing()) {
             progressDialog.dismiss();
         }
+    }
+    private void confirmCorreo () {
+        FragmentTransaction transaction = getParentFragmentManager().beginTransaction();
+        transaction.replace(R.id.fragment_container, new VerficacionCorreo());
+        transaction.addToBackStack(null);
+        transaction.commit();
     }
 }
