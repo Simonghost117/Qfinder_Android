@@ -9,6 +9,7 @@ import com.google.android.material.navigation.NavigationBarView;
 import com.sena.qfinder.Comunidad;
 import com.sena.qfinder.Fragment_Serivicios;
 import com.sena.qfinder.R;
+import com.sena.qfinder.perfil_usuario;
 import com.sena.qfinder.ui.home.DashboardFragment;
 
 public class MainActivityDash extends AppCompatActivity {
@@ -45,11 +46,13 @@ public class MainActivityDash extends AppCompatActivity {
                 else if (itemId == R.id.nav_comunidad) {
                     selectedFragment = new Comunidad();
                 }
+                else if (itemId == R.id.nav_profile) {
+                    selectedFragment = new perfil_usuario();
+                }
+
                 // } else if (itemId == R.id.nav_community) {
                 //     selectedFragment = new CommunityFragment();
-                // } else if (itemId == R.id.nav_profile) {
-                //     selectedFragment = new ProfileFragment();
-                // }
+                //
 
                 if (selectedFragment != null) {
                     getSupportFragmentManager()

@@ -30,9 +30,13 @@
             android:textColor="#000000"/>
 
         <ImageView
+            android:id="@+id/notis"
             android:layout_width="24dp"
             android:layout_height="24dp"
-            android:src="@drawable/logo_qfinder"/>
+            android:src="@drawable/campana"
+            android:layout_marginStart="12dp"/>
+
+
     </LinearLayout>
 
     <!-- SECCIÓN PACIENTES -->
