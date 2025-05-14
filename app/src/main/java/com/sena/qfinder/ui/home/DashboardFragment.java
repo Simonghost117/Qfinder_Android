@@ -54,14 +54,24 @@ public class DashboardFragment extends Fragment {
 
     private void setupUserInfo(View root) {
         TextView tvUserName = root.findViewById(R.id.tvUserName);
-        String userEmail = sharedPreferences.getString("email_usuario", "");
 
-        HashMap<String, String> usuario = managerDB.obtenerUsuarioPorEmail(userEmail);
+        // En lugar de obtener el email del SharedPreferences, usamos uno fijo
+        String userEmail = "usuario@ejemplo.com";  // Aquí puedes poner cualquier correo para pruebas
+
+        // Datos de usuario hardcoded
+        HashMap<String, String> usuario = new HashMap<>();
+        usuario.put("nombre", "Juan");
+        usuario.put("apellido", "Pérez");
+
+        // Usamos los datos "quemados" si no hay usuario obtenido de la base de datos
         if (usuario != null && !usuario.isEmpty()) {
             String nombreCompleto = usuario.get("nombre") + " " + usuario.get("apellido");
             tvUserName.setText(nombreCompleto);
+        } else {
+            tvUserName.setText("Usuario no encontrado");
         }
     }
+
 
     private void setupPatientsSection(LayoutInflater inflater, View root) {
         patientsContainer = root.findViewById(R.id.patientsContainer);
