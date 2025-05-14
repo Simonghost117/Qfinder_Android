@@ -11,7 +11,7 @@ android {
         minSdk = 24
         targetSdk = 35
         versionCode = 1
-        versionName = "1.8" // Puedes personalizar la versión
+        versionName = "2.0" // Puedes personalizar la versión
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -26,7 +26,7 @@ android {
         }
         debug {
             // Nombre personalizado para el APK debug
-            applicationIdSuffix = ".debug"
+            applicationIdSuffix = "Qfinder"
         }
     }
 

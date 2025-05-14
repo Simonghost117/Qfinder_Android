@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Qfinder-Android</string>
+    <string name="app_name">Qfinder</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="prompt_elige_paciente">Elige al paciente</string>
