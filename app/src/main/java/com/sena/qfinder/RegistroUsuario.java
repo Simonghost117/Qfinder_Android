@@ -175,7 +175,7 @@ public class RegistroUsuario extends Fragment {
     private String generarContrasenaSegura(String identificacion) {
         // Genera una contraseña segura basada en la identificación
         // Esto es solo un ejemplo - considera usar un método más seguro en producción
-        return "QF" + identificacion + "!23";
+        return identificacion;
     }
 
     private void manejarRegistroExitoso() {

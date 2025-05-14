@@ -1,7 +1,6 @@
 package com.sena.qfinder.ui.home;
 
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -10,10 +9,8 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -22,9 +19,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.sena.qfinder.PerfilPaciente;
 import com.sena.qfinder.R;
 import com.sena.qfinder.RegistrarPaciente;
-import com.sena.qfinder.model.MainActivity;
-import com.sena.qfinder.model.ManagerDB;
-import com.sena.qfinder.Login;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -34,14 +28,12 @@ public class DashboardFragment extends Fragment {
 
     private LinearLayout patientsContainer, activitiesContainer;
     private RecyclerView rvMedications;
-    private ManagerDB managerDB;
     private SharedPreferences sharedPreferences;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.fragment_dashboard, container, false);
 
-        managerDB = new ManagerDB(requireContext());
         sharedPreferences = requireContext().getSharedPreferences("prefs_qfinder", Context.MODE_PRIVATE);
 
         setupUserInfo(root);
@@ -54,20 +46,37 @@ public class DashboardFragment extends Fragment {
 
     private void setupUserInfo(View root) {
         TextView tvUserName = root.findViewById(R.id.tvUserName);
-        String userEmail = sharedPreferences.getString("email_usuario", "");
 
-        HashMap<String, String> usuario = managerDB.obtenerUsuarioPorEmail(userEmail);
-        if (usuario != null && !usuario.isEmpty()) {
-            String nombreCompleto = usuario.get("nombre") + " " + usuario.get("apellido");
-            tvUserName.setText(nombreCompleto);
-        }
+        // Datos quemados
+        String nombre = "Juan";
+        String apellido = "Pérez";
+        String nombreCompleto = nombre + " " + apellido;
+
+        tvUserName.setText(nombreCompleto);
     }
 
     private void setupPatientsSection(LayoutInflater inflater, View root) {
         patientsContainer = root.findViewById(R.id.patientsContainer);
         patientsContainer.removeAllViews();
 
-        ArrayList<HashMap<String, String>> pacientes = managerDB.obtenerPacientes();
+        // Datos quemados para pacientes
+        List<HashMap<String, String>> pacientes = new ArrayList<>();
+
+        HashMap<String, String> paciente1 = new HashMap<>();
+        paciente1.put("nombres", "Ana");
+        paciente1.put("apellidos", "Gómez");
+        paciente1.put("diagnostico", "Asma");
+        paciente1.put("id", "1");
+
+        HashMap<String, String> paciente2 = new HashMap<>();
+        paciente2.put("nombres", "Luis");
+        paciente2.put("apellidos", "Martínez");
+        paciente2.put("diagnostico", "Diabetes tipo 1");
+        paciente2.put("id", "2");
+
+        pacientes.add(paciente1);
+        pacientes.add(paciente2);
+
         for (HashMap<String, String> paciente : pacientes) {
             String nombreCompleto = paciente.get("nombres") + " " + paciente.get("apellidos");
             String diagnostico = paciente.get("diagnostico");

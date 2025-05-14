@@ -4,6 +4,8 @@ import com.sena.qfinder.models.CodeVerificationRequest;
 import com.sena.qfinder.models.CodeVerificationResponse;
 import com.sena.qfinder.models.RegisterPacienteRequest;
 import com.sena.qfinder.models.RegisterPacienteResponse;
+import com.sena.qfinder.models.LoginRequest;
+import com.sena.qfinder.models.LoginResponse;
 import com.sena.qfinder.models.RegisterRequest;
 import com.sena.qfinder.models.RegisterResponse;
 import retrofit2.Call;
@@ -17,7 +19,9 @@ public interface AuthService {
     @POST("api/auth/verify")
     Call<CodeVerificationResponse> verificarCodigo(@Body CodeVerificationRequest request);
 
+    @POST("api/auth/login")
+    Call<LoginResponse> LoginUser(@Body LoginRequest request);
+
     @POST("/api/paciente")
     Call<RegisterPacienteResponse> registrarPaciente(@Body RegisterPacienteRequest request);
-
 }
