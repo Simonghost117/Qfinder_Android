@@ -25,7 +25,6 @@ import com.sena.qfinder.api.AuthService;
 import com.sena.qfinder.controller.MainActivityDash;
 import com.sena.qfinder.models.LoginRequest;
 import com.sena.qfinder.models.LoginResponse;
-import com.sena.qfinder.ui.home.DashboardFragment;
 
 import java.io.IOException;
 
@@ -113,7 +112,6 @@ public class Login extends Fragment {
         return valido;
     }
 
-
     private void iniciarSesionEnBackend() {
         progressDialog.show();
 
@@ -122,7 +120,6 @@ public class Login extends Fragment {
 
         LoginRequest request = new LoginRequest(email, password);
 
-        // Log the request
         Log.d("LOGIN", "Attempting login with: " + email);
         Log.d("LOGIN", "Request body: " + new Gson().toJson(request));
 
@@ -131,7 +128,6 @@ public class Login extends Fragment {
             public void onResponse(@NonNull Call<LoginResponse> call, @NonNull Response<LoginResponse> response) {
                 progressDialog.dismiss();
 
-                // Log the response
                 Log.d("LOGIN", "Response code: " + response.code());
                 if (response.errorBody() != null) {
                     try {
@@ -142,8 +138,14 @@ public class Login extends Fragment {
                 }
 
                 if (response.isSuccessful() && response.body() != null) {
-                    Toast.makeText(getContext(), response.body().getMensaje(), Toast.LENGTH_SHORT).show();
-                    guardarEmailUsuario(email);
+                    String mensaje = response.body().getMensaje();
+                    if (mensaje != null && !mensaje.trim().isEmpty()) {
+                        Toast.makeText(getContext(), mensaje, Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(getContext(), "Inicio de sesión exitoso", Toast.LENGTH_SHORT).show();
+                    }
+
+                    guardarDatosUsuario(email, response.body().getToken());
                     iniciarSesionExitoso();
                 } else {
                     Toast.makeText(getContext(), "Credenciales incorrectas", Toast.LENGTH_SHORT).show();
@@ -158,18 +160,25 @@ public class Login extends Fragment {
         });
     }
 
-    private void guardarEmailUsuario(String email) {
+    private void guardarDatosUsuario(String email, String token) {
         SharedPreferences preferences = requireContext().getSharedPreferences("usuario", Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = preferences.edit();
         editor.putString("correo_usuario", email);
+        editor.putString("token", token);
         editor.apply();
     }
 
     private void iniciarSesionExitoso() {
-        Intent intent = new Intent(requireContext(), MainActivityDash.class);
-        startActivity(intent);
-        requireActivity().finish();
+        try {
+            Intent intent = new Intent(requireContext(), MainActivityDash.class);
+            startActivity(intent);
+            requireActivity().finish();
+        } catch (Exception e) {
+            Log.e("LOGIN", "Error al iniciar MainActivityDash: ", e);
+            Toast.makeText(requireContext(), "Error al iniciar el dashboard: " + e.getMessage(), Toast.LENGTH_LONG).show();
+        }
     }
+
     private void navegarARegistro() {
         FragmentManager fragmentManager = getParentFragmentManager();
         fragmentManager.beginTransaction()
