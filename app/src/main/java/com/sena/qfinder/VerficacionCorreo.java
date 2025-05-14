@@ -1,47 +1,43 @@
 package com.sena.qfinder;
 
 import android.os.Bundle;
-
-import androidx.fragment.app.Fragment;
-
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.Toast;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link VerficacionCorreo#newInstance} factory method to
- * create an instance of this fragment.
- */
+import androidx.fragment.app.Fragment;
+
+import com.google.gson.annotations.SerializedName;
+import com.sena.qfinder.api.AuthService;
+import com.sena.qfinder.models.CodeVerificationRequest;
+import com.sena.qfinder.models.CodeVerificationResponse;
+
+import java.io.IOException;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
+
 public class VerficacionCorreo extends Fragment {
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
-
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
+    private static final String ARG_EMAIL = "correo_usuario";
+    private String correoUsuario;
 
     public VerficacionCorreo() {
-        // Required empty public constructor
     }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment Verficacion_ContrasenaFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static VerficacionCorreo newInstance(String param1, String param2) {
+    public static VerficacionCorreo newInstance(String correo) {
         VerficacionCorreo fragment = new VerficacionCorreo();
         Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
+        args.putString(ARG_EMAIL, correo);
         fragment.setArguments(args);
         return fragment;
     }
@@ -50,15 +46,125 @@ public class VerficacionCorreo extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
+            correoUsuario = getArguments().getString(ARG_EMAIL);
         }
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.verificacion_correo, container, false);
+        View view = inflater.inflate(R.layout.verificacion_correo, container, false);
+
+        EditText[] digits = {
+                view.findViewById(R.id.digit1),
+                view.findViewById(R.id.digit2),
+                view.findViewById(R.id.digit3),
+                view.findViewById(R.id.digit4),
+                view.findViewById(R.id.digit5)
+        };
+
+        Button confirmButton = view.findViewById(R.id.confirmButton);
+
+        // Configura el auto-foco para cada campo de dígito
+        for (int i = 0; i < digits.length - 1; i++) {
+            setupAutoFocus(digits[i], digits[i + 1]);
+        }
+
+        confirmButton.setOnClickListener(v -> {
+            StringBuilder codeBuilder = new StringBuilder();
+            for (EditText digit : digits) {
+                String digitText = digit.getText().toString().trim();
+                if (digitText.isEmpty()) {
+                    Toast.makeText(getContext(), "Por favor completa todos los dígitos", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                codeBuilder.append(digitText);
+            }
+
+            String codeEntered = codeBuilder.toString();
+            verificarCodigoConBackend(correoUsuario, codeEntered);
+        });
+
+        return view;
+    }
+
+    private void setupAutoFocus(EditText current, EditText next) {
+        current.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if (s.length() == 1) {
+                    next.requestFocus();
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+            }
+        });
+    }
+
+    private void verificarCodigoConBackend(String correo, String codigo) {
+        // Validaciones básicas
+        if (correo == null || correo.isEmpty()) {
+            Toast.makeText(getContext(), "Correo electrónico no válido", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if (codigo == null || codigo.length() != 5) {
+            Toast.makeText(getContext(), "El código debe tener exactamente 5 dígitos", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        Log.d("VerificacionCodigo", "Verificando código: " + codigo + " para correo: " + correo);
+
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl("https://qfinder-production.up.railway.app/")
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+
+        AuthService service = retrofit.create(AuthService.class);
+        CodeVerificationRequest request = new CodeVerificationRequest(correo, codigo);
+
+        service.verificarCodigo(request).enqueue(new Callback<CodeVerificationResponse>() {
+            @Override
+            public void onResponse(Call<CodeVerificationResponse> call, Response<CodeVerificationResponse> response) {
+                if (!response.isSuccessful()) {
+                    try {
+                        String errorBody = response.errorBody() != null ? response.errorBody().string() : "Error desconocido";
+                        Log.e("API_ERROR", "Código de error: " + response.code() + ", Mensaje: " + errorBody);
+                        Toast.makeText(getContext(), "Error en la verificación: " + errorBody, Toast.LENGTH_LONG).show();
+                    } catch (IOException e) {
+                        Log.e("API_ERROR", "Error al leer el cuerpo del error", e);
+                        Toast.makeText(getContext(), "Error al procesar la respuesta", Toast.LENGTH_SHORT).show();
+                    }
+                    return;
+                }
+
+                CodeVerificationResponse verificationResponse = response.body();
+                if (verificationResponse != null) {
+                    if (verificationResponse.isSuccess()) {
+                        // Verificación exitosa
+                        Toast.makeText(getContext(), verificationResponse.getMessage(), Toast.LENGTH_SHORT).show();
+                        // Navegar a la siguiente pantalla
+                        // ((MainActivity) getActivity()).navigateToNextFragment();
+                    } else {
+                        // Código incorrecto u otro error
+                        Toast.makeText(getContext(), verificationResponse.getMessage(), Toast.LENGTH_LONG).show();
+                    }
+                } else {
+                    Toast.makeText(getContext(), "Respuesta vacía del servidor", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<CodeVerificationResponse> call, Throwable t) {
+                Log.e("NETWORK_ERROR", "Error de red: " + t.getMessage(), t);
+                Toast.makeText(getContext(), "Error de conexión: " + t.getMessage(), Toast.LENGTH_LONG).show();
+            }
+        });
     }
 }

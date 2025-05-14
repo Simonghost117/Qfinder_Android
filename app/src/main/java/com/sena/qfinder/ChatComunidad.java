@@ -7,6 +7,9 @@ import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import android.widget.Button;
@@ -25,8 +28,8 @@ public class ChatComunidad extends Fragment {
 
     private RecyclerView recyclerView;
     private MensajeAdapter mensajeAdapter;
-    private List<Mensaje> mensajesPreview;  // Lista con los mensajes previos
-    private List<Mensaje> mensajesActivos;   // Lista que se usará después de unirse
+    private List<Mensaje> mensajesPreview;
+    private List<Mensaje> mensajesActivos;
 
     public ChatComunidad() {}
 
@@ -45,13 +48,11 @@ public class ChatComunidad extends Fragment {
             nombreComunidad = getArguments().getString(ARG_NOMBRE_COMUNIDAD);
         }
 
-        // Mensajes previos (vista previa antes de unirse)
         mensajesPreview = new ArrayList<>();
         mensajesPreview.add(new Mensaje("Usuario 1", "Hola, ¿cómo están?", "12:00 p.m.", nombreComunidad));
         mensajesPreview.add(new Mensaje("Usuario 2", "Bien, ¿y tú?", "12:01 p.m.", nombreComunidad));
         mensajesPreview.add(new Mensaje("Usuario 1", "Todo bien, gracias", "12:02 p.m.", nombreComunidad));
 
-        // Lista de mensajes activa al unirse (vacía al inicio)
         mensajesActivos = new ArrayList<>();
     }
 
@@ -60,28 +61,24 @@ public class ChatComunidad extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_chat_comunidad, container, false);
 
-        // Inicialización del RecyclerView
         recyclerView = view.findViewById(R.id.recyclerChat);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
-        // Mostrar los mensajes previos antes de unirse
         mensajeAdapter = new MensajeAdapter(mensajesPreview);
         recyclerView.setAdapter(mensajeAdapter);
 
-        // Mostrar nombre de comunidad
         TextView txtTitulo = view.findViewById(R.id.txtTitulo);
         if (nombreComunidad != null) {
             txtTitulo.setText(nombreComunidad);
         }
 
-        // Referencias a vistas
         LinearLayout layoutAviso = view.findViewById(R.id.layoutAviso);
         LinearLayout layoutEnviarMensaje = view.findViewById(R.id.layoutEnviarMensaje);
         EditText etMensaje = view.findViewById(R.id.etMensaje);
         Button btnEnviar = view.findViewById(R.id.btnEnviar);
         Button btnUnirmeComunidad = view.findViewById(R.id.btnUnirmeComunidad);
+        Button btnInfo = view.findViewById((R.id.btnInfo));
 
-        // Cargar mensajes si ya se unió
         mensajesActivos = obtenerMensajesDeSharedPreferences(nombreComunidad);
         if (!mensajesActivos.isEmpty()) {
             mensajeAdapter.setListaMensajes(mensajesActivos);
@@ -91,39 +88,47 @@ public class ChatComunidad extends Fragment {
             btnUnirmeComunidad.setVisibility(View.GONE);
         }
 
-        // Botón para unirse a la comunidad
         btnUnirmeComunidad.setOnClickListener(v -> {
             btnUnirmeComunidad.setVisibility(View.GONE);
             layoutAviso.setVisibility(View.GONE);
             layoutEnviarMensaje.setVisibility(View.VISIBLE);
 
-            // Limpiar los mensajes previos y establecer la lista activa
             mensajeAdapter.setListaMensajes(mensajesActivos);
             mensajeAdapter.notifyDataSetChanged();
 
-            // Guardar los mensajes cuando el usuario se une
             guardarMensajesEnSharedPreferences(mensajesActivos, nombreComunidad);
+
+            // Incrementar miembros en SharedPreferences
+            int miembrosActuales = obtenerNumeroMiembros(nombreComunidad);
+            guardarNumeroMiembros(nombreComunidad, miembrosActuales + 1);
         });
 
-        // Botón para enviar mensaje
         btnEnviar.setOnClickListener(v -> {
             String contenido = etMensaje.getText().toString().trim();
             if (!contenido.isEmpty()) {
                 Mensaje nuevo = new Mensaje("Tú", contenido, "Ahora", nombreComunidad);
-                mensajesActivos.add(nuevo);  // Agregar el nuevo mensaje a la lista activa
-                mensajeAdapter.notifyItemInserted(mensajesActivos.size() - 1);  // Notificar que se insertó un nuevo mensaje
-                recyclerView.scrollToPosition(mensajesActivos.size() - 1);  // Desplazar el RecyclerView hacia el último mensaje
-                etMensaje.setText("");  // Limpiar el campo de mensaje
-
-                // Guardar los mensajes después de enviar uno nuevo
+                mensajesActivos.add(nuevo);
+                mensajeAdapter.notifyItemInserted(mensajesActivos.size() - 1);
+                recyclerView.scrollToPosition(mensajesActivos.size() - 1);
+                etMensaje.setText("");
                 guardarMensajesEnSharedPreferences(mensajesActivos, nombreComunidad);
             }
+        });
+
+        // Botón Info – abre el perfil con número real de miembros
+        btnInfo.setOnClickListener(v -> {
+            int miembros = obtenerNumeroMiembros(nombreComunidad);
+            FragmentManager fragmentManager = getParentFragmentManager();
+            FragmentTransaction transaction = fragmentManager.beginTransaction();
+            Fragment perfilFragment = PerfilComunidad.newInstance(nombreComunidad, String.valueOf(miembros));
+            transaction.replace(R.id.fragment_container, perfilFragment);
+            transaction.addToBackStack(null);
+            transaction.commit();
         });
 
         return view;
     }
 
-    // Guardar los mensajes en SharedPreferences
     private void guardarMensajesEnSharedPreferences(List<Mensaje> mensajes, String nombreComunidad) {
         JSONArray jsonArray = new JSONArray();
         for (Mensaje mensaje : mensajes) {
@@ -143,7 +148,6 @@ public class ChatComunidad extends Fragment {
         prefs.edit().putString(nombreComunidad, jsonArray.toString()).apply();
     }
 
-    // Obtener los mensajes guardados de SharedPreferences
     private List<Mensaje> obtenerMensajesDeSharedPreferences(String nombreComunidad) {
         SharedPreferences prefs = requireContext().getSharedPreferences("MensajesComunidad", Context.MODE_PRIVATE);
         String json = prefs.getString(nombreComunidad, null);
@@ -169,12 +173,21 @@ public class ChatComunidad extends Fragment {
         return mensajes;
     }
 
-    // Clase interna: Adaptador del RecyclerView
+    private void guardarNumeroMiembros(String nombreComunidad, int miembros) {
+        SharedPreferences prefs = requireContext().getSharedPreferences("MiembrosComunidad", Context.MODE_PRIVATE);
+        prefs.edit().putInt(nombreComunidad, miembros).apply();
+    }
+
+    private int obtenerNumeroMiembros(String nombreComunidad) {
+        SharedPreferences prefs = requireContext().getSharedPreferences("MiembrosComunidad", Context.MODE_PRIVATE);
+        return prefs.getInt(nombreComunidad, 1); // por defecto 1
+    }
+
     public class MensajeAdapter extends RecyclerView.Adapter<MensajeAdapter.MensajeViewHolder> {
         private List<Mensaje> listaMensajes;
 
         public MensajeAdapter(List<Mensaje> listaMensajes) {
-            this.listaMensajes = listaMensajes; // ¡No copiar, solo referenciar!
+            this.listaMensajes = listaMensajes;
         }
 
         @Override
@@ -213,7 +226,6 @@ public class ChatComunidad extends Fragment {
         }
     }
 
-    // Clase interna: Modelo de mensaje
     public class Mensaje {
         private final String nombreUsuario;
         private final String contenido;

@@ -242,7 +242,7 @@
                 app:boxCornerRadiusBottomStart="15dp"
                 app:boxCornerRadiusBottomEnd="15dp"
                 app:boxStrokeColor="@color/azulBorder"
-                app:boxStrokeWidth="2dp">
+                app:boxStrokeWidth="2dp" />
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/edtTelefono"
@@ -250,6 +250,32 @@
                     android:layout_width="match_parent"
                     android:layout_height="50dp"
                     android:inputType="number"
+                    android:textColor="@color/black"
+                    android:padding="10dp" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/txtContra"
+                android:textSize="22sp"
+                />
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:boxBackgroundColor="@color/azulClaro2"
+                app:boxCornerRadiusTopStart="15dp"
+                app:boxCornerRadiusTopEnd="15dp"
+                app:boxCornerRadiusBottomStart="15dp"
+                app:boxCornerRadiusBottomEnd="15dp"
+                app:boxStrokeColor="@color/azulBorder"
+                app:boxStrokeWidth="2dp">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/edtContrasena"
+                    android:background="@drawable/edittext_azul"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:inputType="textPassword"
                     android:textColor="@color/black"
                     android:padding="10dp" />
 

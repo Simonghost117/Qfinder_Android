@@ -29,11 +29,10 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class RegistroUsuario extends Fragment {
 
-    private TextInputEditText edtNombre, edtApellido, edtCorreo, edtIdentificacion, edtDirrecion, edtTelefono;
+    private TextInputEditText edtNombre, edtApellido, edtCorreo, edtIdentificacion, edtDirrecion, edtTelefono, edtContrasena;
     private Button btnContinuar;
     private ImageView btnBack;
     private ProgressDialog progressDialog;
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_registro_usuario, container, false);
@@ -55,6 +54,7 @@ public class RegistroUsuario extends Fragment {
         edtIdentificacion = view.findViewById(R.id.edtIdentificacion);
         edtDirrecion = view.findViewById(R.id.edtDireccion);
         edtTelefono = view.findViewById(R.id.edtTelefono);
+        edtContrasena = view.findViewById(R.id.edtContrasena);
         btnContinuar = view.findViewById(R.id.btnContinuar);
         btnBack = view.findViewById(R.id.btnBack);
 
@@ -128,7 +128,7 @@ public class RegistroUsuario extends Fragment {
         String direccion = edtDirrecion.getText().toString().trim();
         String telefono = edtTelefono.getText().toString().trim();
         String correo = edtCorreo.getText().toString().trim();
-        String contrasena = generarContrasenaSegura(identificacion);
+        String contrasena = generarContrasenaSegura(edtContrasena.getText().toString().trim());
 
         // Crear objeto de solicitud
         RegisterRequest request = new RegisterRequest(
@@ -143,7 +143,7 @@ public class RegistroUsuario extends Fragment {
 
         // Configurar Retrofit
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("https://qfinder-backend.onrender.com/")
+                .baseUrl("https://qfinder-production.up.railway.app/")
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
 
@@ -207,9 +207,12 @@ public class RegistroUsuario extends Fragment {
             progressDialog.dismiss();
         }
     }
-    private void confirmCorreo () {
+    private void confirmCorreo() {
+        String correo = edtCorreo.getText().toString().trim();
+        VerficacionCorreo fragment = VerficacionCorreo.newInstance(correo);
+
         FragmentTransaction transaction = getParentFragmentManager().beginTransaction();
-        transaction.replace(R.id.fragment_container, new VerficacionCorreo());
+        transaction.replace(R.id.fragment_container, fragment);
         transaction.addToBackStack(null);
         transaction.commit();
     }
