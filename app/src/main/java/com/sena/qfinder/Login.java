@@ -166,12 +166,9 @@ public class Login extends Fragment {
     }
 
     private void iniciarSesionExitoso() {
-        Intent intent = new Intent(getActivity(), MainActivityDash.class);
-        // Elimina estas banderas si no son absolutamente necesarias
-        // intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+        Intent intent = new Intent(requireContext(), MainActivityDash.class);
         startActivity(intent);
-        // Añade animaciones personalizadas
-        getActivity().finish(); // Solo si quieres cerrar la actividad de login
+        requireActivity().finish();
     }
     private void navegarARegistro() {
         FragmentManager fragmentManager = getParentFragmentManager();
