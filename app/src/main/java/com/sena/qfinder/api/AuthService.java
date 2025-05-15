@@ -26,6 +26,6 @@ public interface AuthService {
     @POST("api/auth/login")
     Call<LoginResponse> LoginUser(@Body LoginRequest request);
 
-    @GET("api/auth/listarUsers")
-    Call<List<PerfilUsuarioResponse>> obtenerPerfil(@Header("Authorization") String token);
+    @GET("api/auth/perfil")
+    Call<PerfilUsuarioResponse> obtenerPerfil(@Header("Authorization") String token);
 }
