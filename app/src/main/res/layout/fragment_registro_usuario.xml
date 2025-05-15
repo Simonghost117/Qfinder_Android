@@ -11,6 +11,25 @@
         android:orientation="vertical">
 
         <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:layout_gravity="center">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnContinuar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingHorizontal="100dp"
+                android:paddingVertical="15dp"
+                android:backgroundTint="@color/azulClaro"
+                android:textColor="@color/white"
+                android:text="Continuar"
+                android:textSize="15sp"
+                app:cornerRadius="20dp" />
+        </LinearLayout>
+
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@color/azulClaro"
@@ -283,24 +302,7 @@
 
 
 
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:gravity="center"
-                android:layout_gravity="center">
 
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnContinuar"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:paddingHorizontal="100dp"
-                    android:paddingVertical="15dp"
-                    android:backgroundTint="@color/azulClaro"
-                    android:textColor="@color/white"
-                    android:text="Continuar"
-                    android:textSize="15sp"
-                    app:cornerRadius="20dp" />
-            </LinearLayout>
 
 
         </LinearLayout>
