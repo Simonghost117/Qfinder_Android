@@ -1,111 +1,140 @@
-<?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="#FFFFFF">
+    android:layout_height="match_parent">
 
+
+    <!-- HEADER AZUL -->
     <LinearLayout
+        android:id="@+id/headerLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="16dp">
+        android:background="#1983ff"
+        android:padding="15dp"
+        android:orientation="horizontal"
+        android:gravity="center">
 
-        <!-- Título -->
         <TextView
             android:id="@+id/tvTitulo"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="RECORDATORIOS"
             android:textStyle="bold"
-            android:gravity="center"
-            android:textSize="88sp"
-            android:background="#1983ff"
-            android:textColor="#FFFFFF"
-            android:padding="12dp"
-            android:layout_marginBottom="12dp" />
-
-        <!-- Calendario -->
-        <com.prolificinteractive.materialcalendarview.MaterialCalendarView
-            android:id="@+id/calendarView"
-            android:layout_width="match_parent"
-            android:layout_height="1255dp"
-            android:layout_marginBottom="16dp"
-            app:mcv_firstDayOfWeek="sunday"
-            app:mcv_selectionColor="#1983ff"
-            app:mcv_showOtherDates="all"
-            app:mcv_todayColor="#1983ff" />
-
-        <!-- Tarjeta de citas -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:background="#f8c9ff"
-            android:padding="30dp"
-            android:layout_marginBottom="30dp"
-            android:elevation="2dp"
-            android:layout_marginTop="4dp"
-            android:layout_marginStart="2dp"
-            android:layout_marginEnd="2dp">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Citas"
-                android:textStyle="bold"
-                android:textColor="#000000"/>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="• Médico general - 19 mayo de 2025 - 3:00pm"/>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="• Especialista - 22 mayo de 2025 - 10:00am"/>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="• Neurología - 23 mayo de 2025 - 10:00am"/>
-        </LinearLayout>
-
-        <!-- Tarjeta de medicamentos -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:background="#b9f6ca"
-            android:padding="32dp"
-            android:elevation="2dp"
-            android:layout_marginBottom="32dp"
-            android:layout_marginStart="2dp"
-            android:layout_marginEnd="2dp">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Medicamentos"
-                android:textStyle="bold"
-                android:textColor="#000000"/>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="• Silsona - 10:00 am - Lunes"/>
-        </LinearLayout>
-
-        <!-- Botón -->
-        <Button
-            android:id="@+id/btnAgregarRecordatorio"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Agregar recordatorio"
-            android:layout_below="@id/calendarView"
-            android:layout_gravity="center"
-            android:backgroundTint="#1983ff"
-            android:textColor="#ffffff"/>
+            android:textSize="38sp"
+            android:textColor="#FFFFFF" />
     </LinearLayout>
-</ScrollView>
+    <!-- HEADER + SCROLLABLE CONTENT -->
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="16dp">
+
+
+
+            <!-- CALENDARIO -->
+            <com.prolificinteractive.materialcalendarview.MaterialCalendarView
+                android:id="@+id/calendarView"
+                android:layout_width="match_parent"
+                android:layout_height="370dp"
+                app:mcv_firstDayOfWeek="sunday"
+                app:mcv_selectionColor="#1983ff"
+                app:mcv_showOtherDates="all"
+                app:mcv_todayColor="#1983ff"
+                android:layout_marginBottom="16dp" />
+
+            <!-- TARJETA CITAS -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="20dp"
+                android:elevation="2dp"
+                app:cardCornerRadius="16dp"
+                app:cardBackgroundColor="#f8c9ff">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="20dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Citas"
+                        android:textStyle="bold"
+                        android:textColor="#000000" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="• Médico general - 19 mayo de 2025 - 3:00pm" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="• Especialista - 22 mayo de 2025 - 10:00am" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="• Neurología - 23 mayo de 2025 - 10:00am" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- TARJETA MEDICAMENTOS -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="20dp"
+                android:elevation="2dp"
+                app:cardCornerRadius="16dp"
+                app:cardBackgroundColor="#b9f6ca">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="20dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Medicamentos"
+                        android:textStyle="bold"
+                        android:textColor="#000000" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="• Silsona - 10:00 am - Lunes" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- BOTÓN -->
+            <Button
+                android:id="@+id/btnAgregarRecordatorio"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Agregar recordatorio"
+                android:layout_gravity="center"
+                android:backgroundTint="#1983ff"
+                android:textColor="#ffffff" />
+        </LinearLayout>
+    </ScrollView>
+
+    <!-- DASHBOARD O BOTTOM NAVIGATION FIJO -->
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottom_navigation"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#ffffff"
+        app:menu="@menu/bottom_nav_menu"
+        app:labelVisibilityMode="labeled"
+         />
+
+</LinearLayout>

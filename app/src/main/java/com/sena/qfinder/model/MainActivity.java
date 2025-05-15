@@ -19,6 +19,8 @@ public class MainActivity extends AppCompatActivity {
             loadFragment(new Inicio());
             isInicioFragmentShown = true;
         }
+
+
     }
 
     @Override

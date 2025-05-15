@@ -18,8 +18,7 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Spinner;
-
-
+import android.widget.Toast;
 
 
 /**
@@ -91,22 +90,26 @@ public class RecordatoriosFragment extends Fragment {
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
         View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_agregar_recordatorio, null);
         builder.setView(dialogView);
+        builder.setTitle("Nuevo recordatorio"); //
 
-        // Referencias
+        // Referencias a los elementos
         Spinner spinnerTipo = dialogView.findViewById(R.id.spinnerTipo);
         EditText etTitulo = dialogView.findViewById(R.id.etTitulo);
         CheckBox check1 = dialogView.findViewById(R.id.checkUnDiaAntes);
         CheckBox check2 = dialogView.findViewById(R.id.checkMismoDia);
+        EditText etDescripcion = dialogView.findViewById(R.id.etDescripcion);
         Button btnGuardar = dialogView.findViewById(R.id.btnGuardar);
 
         AlertDialog dialog = builder.create();
         dialog.show();
 
         btnGuardar.setOnClickListener(v -> {
-            // Aquí puedes guardar la información o hacer lo que necesites
+            // Aquí puedes guardar los datos ingresados si quieres
+            Toast.makeText(getContext(), "Recordatorio guardado", Toast.LENGTH_SHORT).show();
             dialog.dismiss(); // Cierra el diálogo
         });
     }
+
 
 }
 
