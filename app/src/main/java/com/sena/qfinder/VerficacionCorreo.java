@@ -12,6 +12,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 
 import com.google.gson.annotations.SerializedName;
 import com.sena.qfinder.api.AuthService;
@@ -149,14 +150,17 @@ public class VerficacionCorreo extends Fragment {
                     if (verificationResponse.isSuccess()) {
                         // Verificación exitosa
                         Toast.makeText(getContext(), verificationResponse.getMessage(), Toast.LENGTH_SHORT).show();
-                        // Navegar a la siguiente pantalla
-                        // ((MainActivity) getActivity()).navigateToNextFragment();
+
+                        // Cambiar de fragmento
+                        FragmentTransaction transaction = getParentFragmentManager().beginTransaction();
+                        transaction.replace(R.id.fragment_container, new Login());
+                        transaction.addToBackStack(null);
+                        transaction.commit();
+
                     } else {
                         // Código incorrecto u otro error
                         Toast.makeText(getContext(), verificationResponse.getMessage(), Toast.LENGTH_LONG).show();
                     }
-                } else {
-                    Toast.makeText(getContext(), "Respuesta vacía del servidor", Toast.LENGTH_SHORT).show();
                 }
             }
 
