@@ -1,5 +1,6 @@
 plugins {
     alias(libs.plugins.android.application)
+    alias(libs.plugins.kotlin.android)
 }
 
 android {
@@ -11,9 +12,10 @@ android {
         minSdk = 24
         targetSdk = 35
         versionCode = 1
-        versionName = "1.5" // Puedes personalizar la versión
+        versionName = "1.5"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        vectorDrawables.useSupportLibrary = true
     }
 
     buildTypes {
@@ -25,16 +27,24 @@ android {
             )
         }
         debug {
-            // Nombre personalizado para el APK debug
             applicationIdSuffix = ".debug"
         }
     }
 
-
-
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
+    }
+
+    kotlinOptions {
+        jvmTarget = "11"
+    }
+
+    packaging {
+        resources.excludes += setOf(
+            "META-INF/LICENSE.md",
+            "META-INF/LICENSE-notice.md"
+        )
     }
 }
 
@@ -46,6 +56,10 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
-    implementation("com.prolificinteractive:material-calendarview:1.4.3")
 
+    implementation("com.github.prolificinteractive:material-calendarview:2.0.1") {
+        exclude(group = "org.threeten", module = "threetenbp")
+    }
+
+    implementation("com.jakewharton.threetenabp:threetenabp:1.4.5")
 }
