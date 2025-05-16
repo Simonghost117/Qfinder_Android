@@ -1,30 +1,35 @@
 package com.sena.qfinder.models;
 
-public class RegisterPacienteRequest {
-    private int id_usuario; // 🔹 campo obligatorio
-    private String nombre;
-    private String apellido;
-    private String identificacion;
-    private String fecha_nacimiento; // 🔹 debe coincidir con el backend
-    private String sexo;
-    private String diagnostico_principal; // 🔹 debe coincidir con el backend
+import com.google.gson.annotations.SerializedName;
 
-    // Constructor
-    public RegisterPacienteRequest(int id_usuario, String nombre, String apellido,
-                                   String identificacion, String fecha_nacimiento,
-                                   String sexo, String diagnostico_principal) {
-        this.id_usuario = id_usuario;
+public class RegisterPacienteRequest {
+
+    @SerializedName("nombre")
+    private String nombre;
+
+    @SerializedName("apellido")
+    private String apellido;
+
+    @SerializedName("fecha_nacimiento")
+    private String fechaNacimiento;
+
+
+    private String sexo;
+
+    @SerializedName("diagnostico_principal")
+    private String diagnosticoPrincipal;
+
+    @SerializedName("identificacion")
+    private String identificacion;
+
+    public RegisterPacienteRequest(String nombre, String apellido, String fechaNacimiento,
+                                   String sexo, String diagnosticoPrincipal, String identificacion) {
         this.nombre = nombre;
         this.apellido = apellido;
-        this.identificacion = identificacion;
-        this.fecha_nacimiento = fecha_nacimiento;
+        this.fechaNacimiento = fechaNacimiento;
         this.sexo = sexo;
-        this.diagnostico_principal = diagnostico_principal;
-    }
-
-    // Getters
-    public int getId_usuario() {
-        return id_usuario;
+        this.diagnosticoPrincipal = diagnosticoPrincipal;
+        this.identificacion = identificacion;
     }
 
     public String getNombre() {
@@ -35,19 +40,19 @@ public class RegisterPacienteRequest {
         return apellido;
     }
 
-    public String getIdentificacion() {
-        return identificacion;
-    }
-
-    public String getFecha_nacimiento() {
-        return fecha_nacimiento;
+    public String getFechaNacimiento() {
+        return fechaNacimiento;
     }
 
     public String getSexo() {
         return sexo;
     }
 
-    public String getDiagnostico_principal() {
-        return diagnostico_principal;
+    public String getDiagnosticoPrincipal() {
+        return diagnosticoPrincipal;
+    }
+
+    public String getIdentificacion() {
+        return identificacion;
     }
 }

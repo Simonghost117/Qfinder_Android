@@ -10,6 +10,7 @@ import com.sena.qfinder.models.RegisterRequest;
 import com.sena.qfinder.models.RegisterResponse;
 import retrofit2.Call;
 import retrofit2.http.Body;
+import retrofit2.http.Header;
 import retrofit2.http.POST;
 
 public interface AuthService {
@@ -22,6 +23,9 @@ public interface AuthService {
     @POST("api/auth/login")
     Call<LoginResponse> LoginUser(@Body LoginRequest request);
 
-    @POST("/api/paciente")
-    Call<RegisterPacienteResponse> registrarPaciente(@Body RegisterPacienteRequest request);
+    @POST("api/paciente/register")
+    Call<RegisterPacienteResponse> registerPaciente(
+            @Header("Authorization") String token,
+            @Body RegisterPacienteRequest request
+    );
 }

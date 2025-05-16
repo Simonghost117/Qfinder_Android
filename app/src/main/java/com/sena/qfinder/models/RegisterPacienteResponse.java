@@ -1,9 +1,14 @@
 package com.sena.qfinder.models;
 
 public class RegisterPacienteResponse {
-    private String message;
+    private boolean success;
+    private String mensaje;
 
-    public String getMessage() {
-        return message;
+    public boolean isSuccess() {
+        return success;
+    }
+
+    public String getMensaje() {
+        return mensaje;
     }
 }
