@@ -15,10 +15,13 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
 import com.sena.qfinder.api.ApiClient;
 import com.sena.qfinder.api.AuthService;
+import com.sena.qfinder.models.SendCodeRequest;
+import com.sena.qfinder.models.SendCodeResponse;
 import com.sena.qfinder.models.VerificarCodigoRequest;
 
 import java.io.IOException;
@@ -34,6 +37,7 @@ public class Fragment_verificar_codigo extends Fragment {
 
     private static final int MAX_ATTEMPTS = 3;
     private static final long RESEND_DELAY_MINUTES = 1;
+    private static final String TAG = "CodeVerification";
 
     private ImageView backButton;
     private String email;
@@ -114,12 +118,11 @@ public class Fragment_verificar_codigo extends Fragment {
         verifyCodeWithServer(email, code);
     }
 
-
-    private void verifyCodeWithServer(String email, String code) {
+    private void verifyCodeWithServer(String correo, String codigo) {
         showProgress("Verificando código...");
 
         AuthService authService = ApiClient.getClient().create(AuthService.class);
-        VerificarCodigoRequest request = new VerificarCodigoRequest(email.trim(), code);
+        VerificarCodigoRequest request = new VerificarCodigoRequest(correo.trim(), codigo);
 
         Call<Void> call = authService.verificarCodigo(request);
         call.enqueue(new Callback<Void>() {
@@ -129,13 +132,30 @@ public class Fragment_verificar_codigo extends Fragment {
                 if (response.isSuccessful()) {
                     // Extraer token de las cookies
                     List<Cookie> cookies = ApiClient.getCookieJar().loadForRequest(call.request().url());
+                    String token = null;
+
                     for (Cookie cookie : cookies) {
                         if ("resetToken".equals(cookie.name())) {
-                            ApiClient.setAuthToken(cookie.value());
+                            token = cookie.value();
+                            Log.d(TAG, "Token encontrado en cookies: " + token);
                             break;
                         }
                     }
-                    handleSuccessfulVerification(email);
+
+                    // Si no está en cookies, buscar en headers
+                    if (token == null && response.headers() != null) {
+                        String authHeader = response.headers().get("Authorization");
+                        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+                            token = authHeader.substring(7);
+                            Log.d(TAG, "Token encontrado en headers: " + token);
+                        }
+                    }
+
+                    if (token != null) {
+                        handleSuccessfulVerification(correo, token);
+                    } else {
+                        Toast.makeText(getContext(), "Error: no se recibió token de autenticación", Toast.LENGTH_LONG).show();
+                    }
                 } else {
                     handleVerificationError(response);
                 }
@@ -145,23 +165,26 @@ public class Fragment_verificar_codigo extends Fragment {
             public void onFailure(Call<Void> call, Throwable t) {
                 dismissProgress();
                 Toast.makeText(getContext(), "Error de conexión: " + t.getMessage(), Toast.LENGTH_SHORT).show();
-                Log.e("CODE_VERIFICATION", "Error en la llamada", t);
+                Log.e(TAG, "Error en la llamada", t);
             }
         });
     }
 
-    private void handleSuccessfulVerification(String email) {
+    private void handleSuccessfulVerification(String correo, String token) {
         attempts = 0;
 
         Bundle bundle = new Bundle();
-        bundle.putString("email", email);
+        bundle.putString("email", correo);
+        bundle.putString("resetToken", token);
 
         Fragment_new_password newPasswordFragment = new Fragment_new_password();
         newPasswordFragment.setArguments(bundle);
 
+        // Limpiar back stack
+        getParentFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+
         FragmentTransaction transaction = getParentFragmentManager().beginTransaction();
         transaction.replace(R.id.fragment_container, newPasswordFragment);
-        transaction.addToBackStack(null);
         transaction.commit();
     }
 
@@ -198,10 +221,29 @@ public class Fragment_verificar_codigo extends Fragment {
         }
 
         showProgress("Enviando nuevo código...");
-        // Implementar lógica de reenvío aquí si es necesario
-        dismissProgress();
-        lastResendTime = currentTime;
-        Toast.makeText(getContext(), "Código reenviado al correo.", Toast.LENGTH_SHORT).show();
+
+        AuthService authService = ApiClient.getClient().create(AuthService.class);
+        Call<SendCodeResponse> call = authService.SendCode(new SendCodeRequest(email));
+
+        call.enqueue(new Callback<SendCodeResponse>() {
+            @Override
+            public void onResponse(Call<SendCodeResponse> call, Response<SendCodeResponse> response) {
+                dismissProgress();
+                if (response.isSuccessful()) {
+                    lastResendTime = System.currentTimeMillis();
+                    attempts = 0;
+                    Toast.makeText(getContext(), "Nuevo código enviado", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(getContext(), "Error al reenviar código", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<SendCodeResponse> call, Throwable t) {
+                dismissProgress();
+                Toast.makeText(getContext(), "Error de conexión", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private void navigateBackToRecovery() {

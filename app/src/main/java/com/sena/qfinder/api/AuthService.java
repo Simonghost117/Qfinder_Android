@@ -31,9 +31,11 @@ public interface AuthService {
     @POST("api/auth/verificar-codigo")
     Call<Void> verificarCodigo(@Body VerificarCodigoRequest request);
 
-        @POST("api/auth/cambiar-password")
-        Call<Void> cambiarPassword(@Body CambiarPasswordRequest request);
-
+    @POST("api/auth/cambiar-password") // o "/api/auth/change-password" según tu backend
+    Call<Void> cambiarPassword(
+            @Header("Authorization") String authToken,
+            @Body CambiarPasswordRequest request
+    );
     @GET("api/auth/perfil")
     Call<PerfilUsuarioResponse> obtenerPerfil(@Header("Authorization") String token);
 }

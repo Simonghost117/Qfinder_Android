@@ -13,6 +13,7 @@ import okhttp3.HttpUrl;
 
 public class MyCookieJar implements CookieJar {
     private final Map<String, List<Cookie>> cookieStore = new HashMap<>();
+    private static final String TAG = "MyCookieJar";
 
     @Override
     public void saveFromResponse(HttpUrl url, List<Cookie> cookies) {
@@ -20,28 +21,72 @@ public class MyCookieJar implements CookieJar {
         List<Cookie> storedCookies = cookieStore.getOrDefault(host, new ArrayList<>());
 
         for (Cookie newCookie : cookies) {
-            // Actualizar cookies existentes
             storedCookies.removeIf(cookie -> cookie.name().equals(newCookie.name()));
             storedCookies.add(newCookie);
-            Log.d("COOKIE_JAR", "Guardada cookie: " + newCookie.name() + "=" + newCookie.value());
+            Log.d(TAG, "Saved cookie: " + newCookie.name() + " for " + host);
         }
 
         cookieStore.put(host, storedCookies);
+        logAllCookies();
     }
 
     @Override
     public List<Cookie> loadForRequest(HttpUrl url) {
-        List<Cookie> cookies = cookieStore.getOrDefault(url.host(), new ArrayList<>());
-        Log.d("COOKIE_JAR", "Enviando " + cookies.size() + " cookies para " + url.host());
-        return cookies;
+        List<Cookie> cookiesToSend = new ArrayList<>();
+        String host = url.host();
+
+        for (Map.Entry<String, List<Cookie>> entry : cookieStore.entrySet()) {
+            for (Cookie cookie : entry.getValue()) {
+                if (cookie.matches(url)) {
+                    cookiesToSend.add(cookie);
+                }
+            }
+        }
+
+        Log.d(TAG, "Sending " + cookiesToSend.size() + " cookies for " + host);
+        return cookiesToSend;
     }
 
-    public String getCookies(String host) {
-        List<Cookie> cookies = cookieStore.getOrDefault(host, new ArrayList<>());
-        StringBuilder sb = new StringBuilder();
-        for (Cookie cookie : cookies) {
-            sb.append(cookie.name()).append("=").append(cookie.value()).append("; ");
+    public void clear() {
+        cookieStore.clear();
+        Log.d(TAG, "All cookies cleared");
+    }
+
+    public void clearForDomain(String domain) {
+        if (cookieStore.containsKey(domain)) {
+            cookieStore.get(domain).clear();
+            cookieStore.remove(domain);
+            Log.d(TAG, "Cookies cleared for domain: " + domain);
         }
-        return sb.toString();
+    }
+
+    public Cookie getCookie(String domain, String name) {
+        List<Cookie> cookies = cookieStore.get(domain);
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if (cookie.name().equals(name)) {
+                    return cookie;
+                }
+            }
+        }
+        return null;
+    }
+
+    private void logAllCookies() {
+        // Eliminamos la comprobación de BuildConfig.DEBUG
+        // y dejamos solo el logging en modo debug
+        for (Map.Entry<String, List<Cookie>> entry : cookieStore.entrySet()) {
+            for (Cookie cookie : entry.getValue()) {
+                Log.d(TAG, String.format(
+                        "Host: %s | Cookie: %s=%s | Secure: %b | HttpOnly: %b | Expires: %d",
+                        entry.getKey(),
+                        cookie.name(),
+                        cookie.value(),
+                        cookie.secure(),
+                        cookie.httpOnly(),
+                        cookie.expiresAt()
+                ));
+            }
+        }
     }
 }

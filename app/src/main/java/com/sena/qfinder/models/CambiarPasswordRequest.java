@@ -1,21 +1,21 @@
 package com.sena.qfinder.models;
 
 public class CambiarPasswordRequest {
-    private String correo_usuario;  // nombre debe coincidir con el backend
+    private String correo;
     private String nuevaContrasena;
 
-    public CambiarPasswordRequest(String correo_usuario, String nuevaContrasena) {
-        this.correo_usuario = correo_usuario;
+    public CambiarPasswordRequest(String correo, String nuevaContrasena) {
+        this.correo = correo;
         this.nuevaContrasena = nuevaContrasena;
     }
 
     // Getters y setters
-    public String getCorreo_usuario() {
-        return correo_usuario;
+    public String getCorreo() {
+        return correo;
     }
 
-    public void setCorreo_usuario(String correo_usuario) {
-        this.correo_usuario = correo_usuario;
+    public void setCorreo(String correo) {
+        this.correo = correo;
     }
 
     public String getNuevaContrasena() {

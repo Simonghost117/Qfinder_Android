@@ -3,12 +3,15 @@ package com.sena.qfinder;
 import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
@@ -25,95 +28,77 @@ import retrofit2.Response;
 
 public class Fragment_new_password extends Fragment {
 
-    private ImageView backButton;
+    private EditText edtNewPassword, edtConfirmPassword;
+    private Button btnChangePassword;
+    private ProgressDialog progressDialog;
     private String email;
-    private static final String TAG = "PASSWORD_RESET";
+    private String resetToken;
 
-    public Fragment_new_password() {
-        super(R.layout.fragment_new_password);
-    }
-
+    @Nullable
     @Override
-    public void onViewCreated(View view, Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.fragment_new_password, container, false);
 
         if (getArguments() != null) {
             email = getArguments().getString("email");
-            Log.d(TAG, "Email recibido: " + email);
-
-            String cookies = ApiClient.getCookieJar().getCookies("qfinder-production.up.railway.app");
-            Log.d(TAG, "Cookies encontradas: " + cookies);
-
-            String[] parts = cookies.split("; ");
-            for (String part : parts) {
-                if (part.startsWith("resetToken=")) {
-                    Log.d(TAG, "Parte de cookie: " + part);
-                    String token = part.substring("resetToken=".length());
-                    ApiClient.setAuthToken(token);
-                    Log.d(TAG, "Token JWT extraído y establecido: " + token);
-                    break;
-                }
-            }
+            resetToken = getArguments().getString("resetToken");
         }
 
-        EditText newPasswordEditText = view.findViewById(R.id.newPasswordEditText);
-        EditText confirmPasswordEditText = view.findViewById(R.id.confirmPasswordEditText);
-        Button confirmButton = view.findViewById(R.id.confirmButton);
-        backButton = view.findViewById(R.id.backButton);
+        progressDialog = new ProgressDialog(getContext());
+        progressDialog.setCancelable(false);
 
-        confirmButton.setOnClickListener(v -> {
-            Log.d(TAG, "Botón confirmar presionado");
-            String newPassword = newPasswordEditText.getText().toString().trim();
-            String confirmPassword = confirmPasswordEditText.getText().toString().trim();
+        edtNewPassword = view.findViewById(R.id.edtNewPassword);
+        edtConfirmPassword = view.findViewById(R.id.edtConfirmPassword);
+        btnChangePassword = view.findViewById(R.id.btnChangePassword);
 
-            if (validatePasswords(newPassword, confirmPassword)) {
-                cambiarContrasena(newPassword);
-            }
-        });
+        btnChangePassword.setOnClickListener(v -> cambiarContrasena());
 
-        backButton.setOnClickListener(v -> navigateBackToCodeVerification());
+        return view;
     }
 
-    private boolean validatePasswords(String newPassword, String confirmPassword) {
+    private void cambiarContrasena() {
+        // Verificar que tenemos el token
+        if (resetToken == null || resetToken.isEmpty()) {
+            Toast.makeText(getContext(), "Error de autenticación. Por favor inicie el proceso nuevamente.", Toast.LENGTH_LONG).show();
+            volverALogin();
+            return;
+        }
+
+        String newPassword = edtNewPassword.getText().toString().trim();
+        String confirmPassword = edtConfirmPassword.getText().toString().trim();
+
         if (newPassword.isEmpty() || confirmPassword.isEmpty()) {
-            Toast.makeText(requireContext(), "Por favor, complete ambos campos", Toast.LENGTH_SHORT).show();
-            return false;
+            Toast.makeText(getContext(), "Ambos campos son requeridos", Toast.LENGTH_SHORT).show();
+            return;
         }
 
         if (!newPassword.equals(confirmPassword)) {
-            Toast.makeText(requireContext(), "Las contraseñas no coinciden", Toast.LENGTH_SHORT).show();
-            return false;
+            Toast.makeText(getContext(), "Las contraseñas no coinciden", Toast.LENGTH_SHORT).show();
+            return;
         }
 
         if (newPassword.length() < 6) {
-            Toast.makeText(requireContext(), "La contraseña debe tener al menos 6 caracteres", Toast.LENGTH_SHORT).show();
-            return false;
+            Toast.makeText(getContext(), "La contraseña debe tener al menos 6 caracteres", Toast.LENGTH_SHORT).show();
+            return;
         }
 
-        return true;
-    }
-
-    private void cambiarContrasena(String nuevaContrasena) {
-        Log.d(TAG, "Llamando a cambiarPassword con email: " + email + " y nueva contraseña");
-
-        ProgressDialog progressDialog = new ProgressDialog(getContext());
         progressDialog.setMessage("Cambiando contraseña...");
-        progressDialog.setCancelable(false);
         progressDialog.show();
 
         AuthService authService = ApiClient.getClient().create(AuthService.class);
-        CambiarPasswordRequest request = new CambiarPasswordRequest(email, nuevaContrasena);
+        CambiarPasswordRequest request = new CambiarPasswordRequest(email, newPassword);
 
-        Call<Void> call = authService.cambiarPassword(request);
+        Call<Void> call = authService.cambiarPassword("Bearer " + resetToken, request);
         call.enqueue(new Callback<Void>() {
             @Override
             public void onResponse(Call<Void> call, Response<Void> response) {
                 progressDialog.dismiss();
-                Log.d(TAG, "Respuesta HTTP recibida: " + response.code());
                 if (response.isSuccessful()) {
-                    handlePasswordChangeSuccess();
+                    Toast.makeText(getContext(), "Contraseña cambiada exitosamente", Toast.LENGTH_SHORT).show();
+                    limpiarSesion();
+                    volverALogin();
                 } else {
-                    handlePasswordChangeError(response);
+                    manejarErrorCambioContrasena(response);
                 }
             }
 
@@ -121,51 +106,39 @@ public class Fragment_new_password extends Fragment {
             public void onFailure(Call<Void> call, Throwable t) {
                 progressDialog.dismiss();
                 Toast.makeText(getContext(), "Error de conexión: " + t.getMessage(), Toast.LENGTH_SHORT).show();
-                Log.e(TAG, "Error en la llamada", t);
             }
         });
     }
 
-    private void handlePasswordChangeSuccess() {
-        Toast.makeText(getContext(), "Contraseña cambiada exitosamente", Toast.LENGTH_SHORT).show();
-        getParentFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
-
-        FragmentTransaction transaction = getParentFragmentManager().beginTransaction();
-        transaction.replace(R.id.fragment_container, new Login());
-        transaction.commit();
-    }
-
-    private void handlePasswordChangeError(Response<Void> response) {
+    private void manejarErrorCambioContrasena(Response<Void> response) {
         String errorMessage = "Error al cambiar la contraseña";
-        Log.e(TAG, "Error al cambiar contraseña. Código HTTP: " + response.code());
-
         try {
             if (response.code() == 401) {
-                errorMessage = "Sesión expirada. Por favor solicita un nuevo código de verificación.";
-                Log.w(TAG, "Sesión expirada, redirigiendo");
-                navigateBackToCodeVerification();
+                errorMessage = "Sesión expirada. Por favor inicie el proceso nuevamente.";
             } else if (response.errorBody() != null) {
-                errorMessage = response.errorBody().string();
+                errorMessage += ": " + response.errorBody().string();
             }
         } catch (IOException e) {
-            Log.e(TAG, "Error al leer mensaje de error", e);
+            errorMessage = "Error al procesar la respuesta del servidor";
         }
-
         Toast.makeText(getContext(), errorMessage, Toast.LENGTH_LONG).show();
+        Log.v("error",errorMessage);
     }
 
-    private void navigateBackToCodeVerification() {
-        Log.d(TAG, "Navegando a Fragment_verificar_codigo");
+    private void limpiarSesion() {
+        ApiClient.setResetToken(null);
+        ApiClient.setUserEmail(null);
+        if (ApiClient.getCookieJar() != null) {
+            ApiClient.getCookieJar().clear();
+        }
+    }
 
-        Bundle bundle = new Bundle();
-        bundle.putString("email", email);
-
-        Fragment_verificar_codigo fragment = new Fragment_verificar_codigo();
-        fragment.setArguments(bundle);
-
-        FragmentTransaction transaction = getParentFragmentManager().beginTransaction();
-        transaction.replace(R.id.fragment_container, fragment);
-        transaction.addToBackStack(null);
-        transaction.commit();
+    private void volverALogin() {
+        if (getActivity() != null) {
+            getActivity().getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+            FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
+            transaction.replace(R.id.fragment_container, new Login());
+            transaction.commit();
+        }
     }
 }
