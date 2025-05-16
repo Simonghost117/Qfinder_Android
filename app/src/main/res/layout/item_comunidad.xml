@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:card_view="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
@@ -6,28 +5,32 @@
     card_view:cardCornerRadius="12dp"
     android:layout_margin="8dp"
     android:background="@android:color/white"
-    card_view:cardElevation="4dp">
+    card_view:cardElevation="6dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:padding="12dp">
+        android:padding="12dp"
+        android:gravity="center"> <!-- Cambié el gravity a "center" para centrar todo -->
 
+        <!-- Imagen de la comunidad -->
         <ImageView
             android:id="@+id/imgComunidad"
             android:layout_width="60dp"
             android:layout_height="60dp"
             android:src="@drawable/imgcomunidad"
-        android:layout_gravity="center_vertical"
-        android:scaleType="centerCrop"
-        android:layout_marginEnd="12dp" />
+            android:layout_marginEnd="12dp"
+            android:layout_gravity="center_vertical"
+            android:scaleType="centerCrop" />
 
+        <!-- Contenedor para el nombre y los miembros -->
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:gravity="center_vertical">
 
             <TextView
                 android:id="@+id/nombre_comunidad"
@@ -35,7 +38,8 @@
                 android:layout_height="wrap_content"
                 android:text="Nombre comunidad"
                 android:textStyle="bold"
-                android:textSize="16sp" />
+                android:textSize="16sp"
+                android:layout_marginBottom="4dp" />
 
             <TextView
                 android:id="@+id/miembros_comunidad"
@@ -46,10 +50,24 @@
                 android:textColor="#555" />
         </LinearLayout>
 
+        <!-- Botón para unirse -->
         <Button
-            android:id="@+id/btnUnirme"
+            android:id="@+id/btnUnirme1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Unirme" />
+            android:text="Unirme"
+            android:layout_gravity="center_vertical"
+            android:layout_marginStart="12dp"
+            android:paddingHorizontal="16dp" />
+
+        <!-- Icono de opciones -->
+        <ImageView
+            android:id="@+id/btnOpciones"
+            android:layout_width="34dp"
+            android:layout_height="37dp"
+            android:layout_gravity="center_vertical"
+            android:contentDescription="Opciones"
+            android:padding="8dp"
+            android:src="@drawable/trespuntos" />
     </LinearLayout>
 </androidx.cardview.widget.CardView>

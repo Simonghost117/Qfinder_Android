@@ -1,0 +1,254 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#EAEAEA"
+    tools:context=".Fragment_Serivicios">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        >
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="99dp">
+
+            <!-- Imagen de encabezado -->
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="99dp"
+                android:scaleType="centerCrop"
+                android:src="@drawable/ic_header" />
+
+            <!-- Título sobre la imagen -->
+            <TextView
+                android:id="@+id/tituloServicios"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Servicios"
+                android:textColor="#000000"
+                android:textSize="26sp"
+                android:textStyle="bold"
+                android:layout_centerInParent="true"
+                android:layout_alignParentTop="true"
+                android:layout_marginTop="33dp"/>
+        </RelativeLayout>
+
+
+        <!-- Tarjeta: Gestión de medicamentos -->
+        <LinearLayout
+            android:layout_width="392dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="35dp"
+            android:orientation="horizontal"
+            android:background="@drawable/bg_card"
+            android:padding="12dp"
+            android:elevation="2dp"
+            android:gravity="center_vertical">
+
+            <!-- Fondo azul con icono encima -->
+            <FrameLayout
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:layout_marginEnd="12dp">
+
+                <!-- Fondo azul completamente ajustado -->
+                <ImageView
+                    android:layout_width="70dp"
+                    android:layout_height="70dp"
+                    android:src="@drawable/fondo_azul" />
+
+                <!-- Icono centrado -->
+                <ImageView
+                    android:layout_width="match_parent"
+                    android:layout_height="40dp"
+                    android:layout_gravity="center"
+                    android:src="@drawable/medic" />
+            </FrameLayout>
+
+            <!-- Texto -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Gestión de medicamentos"
+                android:textStyle="bold"
+                android:textSize="16sp"
+                android:textColor="#000000" />
+        </LinearLayout>
+
+
+        <!-- Tarjeta: Recordatorios -->
+        <LinearLayout
+            android:id="@+id/cardRecordatorio"
+            android:layout_width="392dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="35dp"
+            android:orientation="horizontal"
+            android:background="@drawable/card_background"
+            android:padding="12dp"
+            android:elevation="2dp"
+            android:gravity="center_vertical">
+
+            <!-- Fondo azul con icono encima -->
+            <FrameLayout
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:layout_marginEnd="12dp">
+
+                <!-- Fondo azul completamente ajustado -->
+                <ImageView
+                    android:layout_width="70dp"
+                    android:layout_height="70dp"
+                    android:src="@drawable/fondo_azul" />
+
+                <!-- Icono centrado -->
+                <ImageView
+                    android:layout_width="71dp"
+                    android:layout_height="48dp"
+                    android:layout_gravity="center"
+                    android:src="@drawable/recorda" />
+            </FrameLayout>
+
+            <!-- Texto -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Recordatorios"
+                android:textStyle="bold"
+                android:textSize="16sp"
+                android:textColor="#000000" />
+        </LinearLayout>
+
+        <!-- Tarjeta: Registros de salud -->
+        <LinearLayout
+            android:layout_width="392dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="35dp"
+            android:orientation="horizontal"
+            android:background="@drawable/card_background"
+            android:gravity="center_vertical">
+
+            <!-- Fondo azul con icono encima -->
+            <FrameLayout
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:layout_marginEnd="12dp">
+
+                <!-- Fondo azul completamente ajustado -->
+                <ImageView
+                    android:layout_width="60dp"
+                    android:layout_height="60dp"
+                    android:src="@drawable/fondo_azul" />
+
+                <!-- Icono centrado -->
+                <ImageView
+                    android:layout_width="49dp"
+                    android:layout_height="48dp"
+                    android:layout_gravity="center"
+                    android:src="@drawable/salud" />
+            </FrameLayout>
+
+            <!-- Texto -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Registros de salud"
+                android:textStyle="bold"
+                android:textSize="16sp"
+                android:textColor="#000000" />
+        </LinearLayout>
+        <!-- Tarjeta: Gestión de pacientes -->
+        <LinearLayout
+            android:id="@+id/cardGestionPacientes"
+            android:layout_width="392dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="35dp"
+            android:orientation="horizontal"
+            android:layout_gravity="center"
+            android:background="@drawable/card_background"
+            android:padding="12dp"
+            android:elevation="2dp"
+            android:gravity="center_vertical">
+
+            <!-- Fondo azul con icono encima -->
+            <FrameLayout
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:layout_marginEnd="12dp">
+
+                <!-- Fondo azul completamente ajustado -->
+                <ImageView
+                    android:layout_width="60dp"
+                    android:layout_height="60dp"
+                    android:src="@drawable/fondo_azul" />
+
+                <!-- Icono centrado -->
+                <ImageView
+                    android:layout_width="46dp"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="center"
+                    android:src="@drawable/ic_paciente" />
+            </FrameLayout>
+
+            <!-- Texto -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Gestión de pacientes"
+                android:textStyle="bold"
+                android:textSize="16sp"
+                android:textColor="#000000" />
+        </LinearLayout>
+
+        <!-- Tarjeta: Actividad -->
+        <LinearLayout
+            android:id="@+id/cardActividad"
+            android:layout_width="392dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="35dp"
+            android:background="@drawable/bg_card"
+            android:elevation="2dp"
+            android:layout_gravity="center"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:padding="12dp">
+
+
+            <FrameLayout
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:layout_marginEnd="12dp">
+
+                <!-- Fondo azul completamente ajustado -->
+                <ImageView
+                    android:layout_width="60dp"
+                    android:layout_height="60dp"
+                    android:src="@drawable/fondo_azul" />
+
+                <!-- Icono centrado -->
+                <ImageView
+                    android:layout_width="60dp"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="center"
+                    android:src="@drawable/ic_actividad" />
+            </FrameLayout>
+
+            <!-- Texto -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Actividad"
+                android:textColor="#000000"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+    </LinearLayout>
+
+</ScrollView>

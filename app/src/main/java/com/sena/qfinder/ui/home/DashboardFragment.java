@@ -19,7 +19,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.sena.qfinder.PerfilPaciente;
 import com.sena.qfinder.R;
 import com.sena.qfinder.RegistrarPaciente;
-import com.sena.qfinder.model.ManagerDB;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -29,14 +28,12 @@ public class DashboardFragment extends Fragment {
 
     private LinearLayout patientsContainer, activitiesContainer;
     private RecyclerView rvMedications;
-    private ManagerDB managerDB;
     private SharedPreferences sharedPreferences;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.fragment_dashboard, container, false);
 
-        managerDB = new ManagerDB(requireContext());
         sharedPreferences = requireContext().getSharedPreferences("prefs_qfinder", Context.MODE_PRIVATE);
 
         setupUserInfo(root);
@@ -49,28 +46,44 @@ public class DashboardFragment extends Fragment {
 
     private void setupUserInfo(View root) {
         TextView tvUserName = root.findViewById(R.id.tvUserName);
-        String userEmail = sharedPreferences.getString("email_usuario", "");
 
-        HashMap<String, String> usuario = managerDB.obtenerUsuarioPorEmail(userEmail);
-        if (usuario != null && !usuario.isEmpty()) {
-            String nombreCompleto = usuario.get("nombre") + " " + usuario.get("apellido");
-            tvUserName.setText(nombreCompleto);
-        }
+        // Datos quemados
+        String nombre = "Juan";
+        String apellido = "Pérez";
+        String nombreCompleto = nombre + " " + apellido;
+
+        tvUserName.setText(nombreCompleto);
     }
 
     private void setupPatientsSection(LayoutInflater inflater, View root) {
         patientsContainer = root.findViewById(R.id.patientsContainer);
         patientsContainer.removeAllViews();
 
-        ArrayList<HashMap<String, String>> pacientes = managerDB.obtenerPacientes();
+        // Datos quemados para pacientes
+        List<HashMap<String, String>> pacientes = new ArrayList<>();
+
+        HashMap<String, String> paciente1 = new HashMap<>();
+        paciente1.put("nombres", "Ana");
+        paciente1.put("apellidos", "Gómez");
+        paciente1.put("diagnostico", "Asma");
+        paciente1.put("id", "1");
+
+        HashMap<String, String> paciente2 = new HashMap<>();
+        paciente2.put("nombres", "Luis");
+        paciente2.put("apellidos", "Martínez");
+        paciente2.put("diagnostico", "Diabetes tipo 1");
+        paciente2.put("id", "2");
+
+        pacientes.add(paciente1);
+        pacientes.add(paciente2);
+
         for (HashMap<String, String> paciente : pacientes) {
             String nombreCompleto = paciente.get("nombres") + " " + paciente.get("apellidos");
             String diagnostico = paciente.get("diagnostico");
-            int patientId = Integer.parseInt(paciente.get("id"));  // Asegúrate de que el campo "id" exista
+            int patientId = Integer.parseInt(paciente.get("id"));
             addPatientCard(inflater, nombreCompleto, "Paciente", diagnostico, R.drawable.perfil_paciente, patientId);
         }
 
-        // Botón Agregar Paciente
         View addCard = inflater.inflate(R.layout.item_add_patient_card, patientsContainer, false);
         addCard.setOnClickListener(v -> navigateToAddPatient());
         patientsContainer.addView(addCard);
@@ -89,7 +102,6 @@ public class DashboardFragment extends Fragment {
         tvConditions.setText(conditions);
         ivProfile.setImageResource(imageResId);
 
-        // Al hacer clic en la tarjeta, navegar al fragmento de perfil del paciente
         patientCard.setOnClickListener(v -> {
             FragmentTransaction transaction = getParentFragmentManager().beginTransaction();
             transaction.replace(R.id.fragment_container, PerfilPaciente.newInstance(patientId));

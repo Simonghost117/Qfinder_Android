@@ -34,6 +34,18 @@
         <item name="android:layout_marginBottom">4dp</item>
     </style>
 
+
+    <style name="CodEditText">
+        <item name="android:layout_width">48dp</item>
+        <item name="android:layout_height">48dp</item>
+        <item name="android:layout_margin">4dp</item>
+        <item name="android:background">@drawable/code_edittext1_bg</item>
+        <item name="android:gravity">center</item>
+        <item name="android:inputType">number</item>
+        <item name="android:maxLength">1</item>
+        <item name="android:textSize">20sp</item>
+    </style>
+
     <style name="ActivitiesText">
         <item name="android:textSize">16sp</item>
         <item name="android:layout_marginStart">16dp</item>
@@ -58,5 +70,23 @@
     <style name="CalendarTodayStyle" parent="">
         <item name="android:background">@drawable/rounded_gray_background</item>
         <item name="android:textColor">#FFFFFF</item>
+    </style>
+    <style name="CodeEditText">
+        <item name="android:layout_width">48dp</item>
+        <item name="android:layout_height">48dp</item>
+        <item name="android:layout_margin">4dp</item>
+        <item name="android:background">@drawable/code_edittext_bg</item>
+        <item name="android:gravity">center</item>
+        <item name="android:inputType">number</item>
+        <item name="android:maxLength">1</item>
+        <item name="android:textSize">20sp</item>
+    </style>
+
+    <style name="AppTheme" parent="Theme.MaterialComponents.Light.NoActionBar">
+        <!-- Estas 3 líneas son críticas -->
+        <item name="android:windowTranslucentStatus">false</item>
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+
     </style>
 </resources>

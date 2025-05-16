@@ -27,4 +27,12 @@ public class Constantes {
                     "diagnostico TEXT, " +
                     "identificacion INTEGER UNIQUE" +
                     ");";
+
+    public static final String SENTENCIA_TABLA_MENSAJE =
+            "CREATE TABLE mensaje (" +
+                    "id INTEGER, " +
+                    "nombre_usuario TEXT, " +
+                    "contenido TEXT, " +
+                    "hora TEXT, " +
+                    "comunidad TEXT);";
 }

@@ -12,7 +12,8 @@ android {
         minSdk = 24
         targetSdk = 35
         versionCode = 1
-        versionName = "1.5"
+        versionName = "2.0" // Puedes personalizar la versión
+
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
@@ -27,7 +28,11 @@ android {
             )
         }
         debug {
+
             applicationIdSuffix = ".debug"
+            // Nombre personalizado para el APK debug
+            applicationIdSuffix = "Qfinder"
+
         }
     }
 
@@ -35,6 +40,7 @@ android {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
+
 
     kotlinOptions {
         jvmTarget = "11"
@@ -45,6 +51,21 @@ android {
             "META-INF/LICENSE.md",
             "META-INF/LICENSE-notice.md"
         )
+    // Corregido: Evitar errores de duplicación
+    packaging {
+        resources {
+            excludes += setOf(
+                "META-INF/DEPENDENCIES",
+                "META-INF/LICENSE",
+                "META-INF/LICENSE.txt",
+                "META-INF/license.txt",
+                "META-INF/NOTICE",
+                "META-INF/NOTICE.txt",
+                "META-INF/notice.txt",
+                "META-INF/ASL2.0",
+                "META-INF/*.kotlin_module"
+            )
+        }
     }
 }
 
@@ -61,5 +82,12 @@ dependencies {
         exclude(group = "org.threeten", module = "threetenbp")
     }
 
-    implementation("com.jakewharton.threetenabp:threetenabp:1.4.5")
+    implementation("com.jakewharton.threetenabp:threetenabp:1.4.5") // Dependencias para consumo de API
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+    implementation("com.google.code.gson:gson:2.10.1")
+    // Para logging de las peticiones HTTP (opcional pero útil para debug)
+    implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
 }
+}
+
