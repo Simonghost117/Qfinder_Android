@@ -1,10 +1,10 @@
 package com.sena.qfinder;
 
+import android.app.ProgressDialog;
 import android.os.Bundle;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,20 +13,28 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.sena.qfinder.api.AuthService;
+import com.sena.qfinder.models.SendCodeRequest;
+import com.sena.qfinder.models.SendCodeResponse;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
+
 public class Fragment_password_recovery extends Fragment {
 
     private EditText edtEmail;
     private Button btnSend;
     private ImageView backButton;
+    private ProgressDialog progressDialog;
 
-    // Constructor vacío requerido
-    public Fragment_password_recovery() {
-    }
+    public Fragment_password_recovery() {}
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Infla el layout de este fragment
         return inflater.inflate(R.layout.fragment_password_recovery, container, false);
     }
 
@@ -38,30 +46,61 @@ public class Fragment_password_recovery extends Fragment {
         btnSend = view.findViewById(R.id.btnSend);
         backButton = view.findViewById(R.id.backButton);
 
-        // Configurar el botón de retroceso
-        backButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                navigateBackToLogin();
+        progressDialog = new ProgressDialog(getContext());
+        progressDialog.setMessage("Enviando código...");
+        progressDialog.setCancelable(false);
+
+        backButton.setOnClickListener(v -> navigateBackToLogin());
+
+        btnSend.setOnClickListener(v -> {
+            String email = edtEmail.getText().toString().trim();
+
+            if (email.isEmpty()) {
+                Toast.makeText(getContext(), "Ingresa un correo electrónico válido", Toast.LENGTH_SHORT).show();
+            } else {
+                enviarCodigoRecuperacion(email);
             }
         });
+    }
 
-        btnSend.setOnClickListener(new View.OnClickListener() {
+    private void enviarCodigoRecuperacion(String email) {
+        progressDialog.show();
+
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl("https://qfinder-production.up.railway.app/")
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+
+        AuthService authService = retrofit.create(AuthService.class);
+        Call<SendCodeResponse> call = authService.SendCode(new SendCodeRequest(email));
+
+        call.enqueue(new Callback<SendCodeResponse>() {
             @Override
-            public void onClick(View v) {
-                String email = edtEmail.getText().toString().trim();
+            public void onResponse(Call<SendCodeResponse> call, Response<SendCodeResponse> response) {
+                progressDialog.dismiss();
 
-                if (email.isEmpty()) {
-                    Toast.makeText(getContext(), "Ingresa un correo electrónico válido", Toast.LENGTH_SHORT).show();
-                } else {
-                    // Aquí puedes agregar tu lógica para enviar el código
+                if (response.isSuccessful()) {
                     Toast.makeText(getContext(), "Código enviado a " + email, Toast.LENGTH_SHORT).show();
 
+                    Bundle bundle = new Bundle();
+                    bundle.putString("email", email);
+
+                    Fragment_verificar_codigo verificarCodigoFragment = new Fragment_verificar_codigo();
+                    verificarCodigoFragment.setArguments(bundle);
+
                     FragmentTransaction transaction = getParentFragmentManager().beginTransaction();
-                    transaction.replace(R.id.fragment_container, new Fragment_verificar_codigo());
-                    transaction.addToBackStack(null); // Opcional: permite volver atrás con el botón "Back"
+                    transaction.replace(R.id.fragment_container, verificarCodigoFragment);
+                    transaction.addToBackStack(null);
                     transaction.commit();
+                } else {
+                    Toast.makeText(getContext(), "Error al enviar el código", Toast.LENGTH_LONG).show();
                 }
+            }
+
+            @Override
+            public void onFailure(Call<SendCodeResponse> call, Throwable t) {
+                progressDialog.dismiss();
+                Toast.makeText(getContext(), "Error de red: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
     }

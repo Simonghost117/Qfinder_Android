@@ -5,11 +5,12 @@ import com.sena.qfinder.models.CodeVerificationResponse;
 import com.sena.qfinder.models.LoginRequest;
 import com.sena.qfinder.models.LoginResponse;
 import com.sena.qfinder.models.PerfilUsuarioResponse;
+import com.sena.qfinder.models.SendCodeRequest;
+import com.sena.qfinder.models.SendCodeResponse;
 import com.sena.qfinder.models.RegisterRequest;
 import com.sena.qfinder.models.RegisterResponse;
-
-import java.util.List;
-
+import com.sena.qfinder.models.VerificarCodigoRequest;
+import com.sena.qfinder.models.CambiarPasswordRequest;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.GET;
@@ -25,6 +26,13 @@ public interface AuthService {
 
     @POST("api/auth/login")
     Call<LoginResponse> LoginUser(@Body LoginRequest request);
+    @POST("api/auth/recuperar")
+    Call<SendCodeResponse> SendCode(@Body SendCodeRequest request);
+    @POST("api/auth/verificar-codigo")
+    Call<Void> verificarCodigo(@Body VerificarCodigoRequest request);
+
+        @POST("api/auth/cambiar-password")
+        Call<Void> cambiarPassword(@Body CambiarPasswordRequest request);
 
     @GET("api/auth/perfil")
     Call<PerfilUsuarioResponse> obtenerPerfil(@Header("Authorization") String token);
