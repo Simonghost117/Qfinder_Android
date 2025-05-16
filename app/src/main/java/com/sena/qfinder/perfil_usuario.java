@@ -1,6 +1,7 @@
 package com.sena.qfinder;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
@@ -17,6 +18,7 @@ import androidx.fragment.app.Fragment;
 import com.google.android.material.card.MaterialCardView;
 import com.sena.qfinder.api.AuthService;
 import com.sena.qfinder.models.PerfilUsuarioResponse;
+import com.sena.qfinder.model.MainActivity;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -56,7 +58,6 @@ public class perfil_usuario extends Fragment {
             logout();
         });
 
-
         setupRetrofit();
         cargarPerfil();
     }
@@ -70,7 +71,6 @@ public class perfil_usuario extends Fragment {
         authService = retrofit.create(AuthService.class);
     }
 
-
     private void logout() {
         SharedPreferences preferences = requireContext().getSharedPreferences("usuario", Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = preferences.edit();
@@ -79,11 +79,11 @@ public class perfil_usuario extends Fragment {
 
         Toast.makeText(requireContext(), "Sesión cerrada correctamente", Toast.LENGTH_SHORT).show();
 
-        // Volver al fragmento de login o actividad principal
-        requireActivity().getSupportFragmentManager()
-                .beginTransaction()
-                .replace(R.id.fragment_container, new Login()) // Reemplaza "Login" con tu fragmento o actividad real
-                .commit();
+        // Redirigir a MainActivity
+        Intent intent = new Intent(requireActivity(), MainActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(intent);
+        requireActivity().finish();
     }
 
     private void cargarPerfil() {
