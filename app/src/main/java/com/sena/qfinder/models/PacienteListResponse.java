@@ -3,18 +3,35 @@ package com.sena.qfinder.models;
 import java.util.List;
 
 public class PacienteListResponse {
-    private List<PacienteResponse> data; // o "pacientes" según lo que devuelva tu API
+    private boolean success;
+    private List<PacienteResponse> data;
 
     // Constructor vacío
     public PacienteListResponse() {
     }
 
-    // Getter y Setter
+    // Getters y Setters
+    public boolean isSuccess() {
+        return success;
+    }
+
+    public void setSuccess(boolean success) {
+        this.success = success;
+    }
+
     public List<PacienteResponse> getData() {
         return data;
     }
 
     public void setData(List<PacienteResponse> data) {
         this.data = data;
+    }
+
+    @Override
+    public String toString() {
+        return "PacienteListResponse{" +
+                "success=" + success +
+                ", data=" + data +
+                '}';
     }
 }

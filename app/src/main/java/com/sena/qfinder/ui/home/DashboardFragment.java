@@ -18,6 +18,7 @@ import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.sena.qfinder.PerfilPaciente;
 import com.sena.qfinder.R;
 import com.sena.qfinder.RegistrarPaciente;
 import com.sena.qfinder.api.AuthService;
@@ -224,15 +225,13 @@ public class DashboardFragment extends Fragment {
 
         patientCard.setOnClickListener(v -> {
             FragmentTransaction transaction = getParentFragmentManager().beginTransaction();
-            // Descomenta y ajusta esta línea cuando tengas el fragmento PerfilPaciente
-            // transaction.replace(R.id.fragment_container, PerfilPaciente.newInstance(patientId));
+            transaction.replace(R.id.fragment_container, PerfilPaciente.newInstance(patientId));
             transaction.addToBackStack("dashboard");
             transaction.commit();
         });
 
         patientsContainer.addView(patientCard);
     }
-
     private void setupActivitiesSection(LayoutInflater inflater, View root) {
         activitiesContainer = root.findViewById(R.id.activitiesContainer);
         activitiesContainer.removeAllViews();

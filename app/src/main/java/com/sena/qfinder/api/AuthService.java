@@ -23,6 +23,7 @@ import retrofit2.http.Body;
 import retrofit2.http.GET;
 import retrofit2.http.Header;
 import retrofit2.http.POST;
+import retrofit2.http.Path;
 
 public interface AuthService {
     @POST("api/auth/register")
@@ -51,8 +52,11 @@ public interface AuthService {
             @Body RegisterPacienteRequest request
     );
     // En tu AuthService, añade este método
-    @GET("api/paciente/listarPacientes")
-    Call<List<PacienteResponse>> listarPacientes1(@Header("Authorization") String token);
+    @GET("api/paciente/listarPacientes/{id_paciente}")
+    Call<PacienteResponse> obtenerPacientePorId(
+            @Header("Authorization") String token,
+            @Path("id_paciente") int pacienteId
+    );
     @GET("api/paciente/listarPacientes")
     Call<PacienteListResponse> listarPacientes(@Header("Authorization") String token);
     @POST("api/auth/logout")

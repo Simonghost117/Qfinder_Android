@@ -121,30 +121,24 @@ public class GestionPacienteFragment extends Fragment {
     private void mostrarPacientes(LayoutInflater inflater, List<PacienteResponse> pacientes) {
         patientsContainer.removeAllViews();
 
-        // Mostrar pacientes desde la API
         for (PacienteResponse paciente : pacientes) {
             String nombreCompleto = paciente.getNombre() + " " + paciente.getApellido();
-//            String edad = paciente.getEdad() != null ? paciente.getEdad() + " años" : "Edad no especificada";
             String diagnostico = paciente.getDiagnostico_principal() != null ?
                     paciente.getDiagnostico_principal() : "Sin diagnóstico";
 
             View card = inflater.inflate(R.layout.item_paciente, patientsContainer, false);
 
             TextView nombreTextView = card.findViewById(R.id.nombrePaciente);
-            TextView edadTextView = card.findViewById(R.id.edadPaciente);
             TextView enfermedadTextView = card.findViewById(R.id.enfermedadPaciente);
             ImageView fotoPaciente = card.findViewById(R.id.imagenPaciente);
 
             nombreTextView.setText(nombreCompleto);
-//            edadTextView.setText(edad);
             enfermedadTextView.setText(diagnostico);
             fotoPaciente.setImageResource(R.drawable.perfil_paciente);
 
             card.setOnClickListener(v -> {
-                PerfilPaciente perfilFragment = PerfilPaciente.newInstance(paciente.getId());
-
                 FragmentTransaction transaction = getParentFragmentManager().beginTransaction();
-                transaction.replace(R.id.fragment_container, perfilFragment);
+                transaction.replace(R.id.fragment_container, PerfilPaciente.newInstance(paciente.getId()));
                 transaction.addToBackStack(null);
                 transaction.commit();
             });
