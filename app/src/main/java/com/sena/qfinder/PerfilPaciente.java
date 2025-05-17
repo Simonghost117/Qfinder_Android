@@ -1,6 +1,7 @@
 package com.sena.qfinder;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -8,22 +9,31 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
-import com.sena.qfinder.model.ManagerDB;
+import com.sena.qfinder.api.AuthService;
+import com.sena.qfinder.models.PacienteResponse;
 import com.sena.qfinder.ui.home.DashboardFragment;
 
-import java.util.HashMap;
+import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 public class PerfilPaciente extends Fragment {
 
     private static final String ARG_PACIENTE_ID = "id";
+    private static final String BASE_URL = "https://qfinder-production.up.railway.app/";
 
     private int pacienteId = -1;
-    private ManagerDB managerDB;
+    private SharedPreferences sharedPreferences;
 
     private TextView tvNombreApellido, tvFechaNacimiento, tvSexo, tvDiagnostico, tvIdentificacion;
     private ImageView btnBack;
@@ -49,10 +59,7 @@ public class PerfilPaciente extends Fragment {
             Log.d("PerfilPaciente", "ID del paciente recibido: " + pacienteId);
         }
 
-        Context context = getContext();
-        if (context != null) {
-            managerDB = new ManagerDB(context);
-        }
+        sharedPreferences = requireContext().getSharedPreferences("usuario", Context.MODE_PRIVATE);
     }
 
     @Override
@@ -70,32 +77,64 @@ public class PerfilPaciente extends Fragment {
 
         btnBack.setOnClickListener(v -> volverADashboard());
 
-        if (managerDB != null) {
-            mostrarInformacionPaciente();
-        } else {
-            tvNombreApellido.setText("Error al cargar datos");
-        }
+        obtenerInformacionPaciente();
 
         return view;
     }
 
-    private void mostrarInformacionPaciente() {
+    private void obtenerInformacionPaciente() {
+        String token = sharedPreferences.getString("token", null);
+
+        if (token == null) {
+            Toast.makeText(getContext(), "No se encontró token de autenticación", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         if (pacienteId == -1) {
             tvNombreApellido.setText("ID de paciente no proporcionado");
             return;
         }
 
-        HashMap<String, String> paciente = managerDB.obtenerPaciente(pacienteId);
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(BASE_URL)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
 
-        if (paciente != null) {
-            tvNombreApellido.setText(paciente.get("nombres") + " " + paciente.get("apellidos"));
-            tvFechaNacimiento.setText(paciente.get("fechaNacimiento"));
-            tvSexo.setText(paciente.get("sexo"));
-            tvDiagnostico.setText(paciente.get("diagnostico"));
-            tvIdentificacion.setText(paciente.get("identificacion"));
-        } else {
-            tvNombreApellido.setText("Paciente no encontrado");
+        AuthService authService = retrofit.create(AuthService.class);
+        Call<List<PacienteResponse>> call = authService.listarPacientes1("Bearer " + token);
+
+        call.enqueue(new Callback<List<PacienteResponse>>() {
+            @Override
+            public void onResponse(Call<List<PacienteResponse>> call, Response<List<PacienteResponse>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    List<PacienteResponse> pacientes = response.body();
+                    mostrarInformacionPaciente(pacientes);
+                } else {
+                    Toast.makeText(getContext(), "Error al obtener información del paciente", Toast.LENGTH_SHORT).show();
+                    Log.e("PerfilPaciente", "Error: " + response.code() + " - " + response.message());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<PacienteResponse>> call, Throwable t) {
+                Toast.makeText(getContext(), "Error de conexión", Toast.LENGTH_SHORT).show();
+                Log.e("PerfilPaciente", "Error al obtener paciente", t);
+            }
+        });
+    }
+
+    private void mostrarInformacionPaciente(List<PacienteResponse> pacientes) {
+        for (PacienteResponse paciente : pacientes) {
+            if (paciente.getId() == pacienteId) {
+                tvNombreApellido.setText(paciente.getNombre() + " " + paciente.getApellido());
+                tvFechaNacimiento.setText(paciente.getFecha_nacimiento());
+                tvSexo.setText(paciente.getSexo());
+                tvDiagnostico.setText(paciente.getDiagnostico_principal());
+                tvIdentificacion.setText(paciente.getIdentificacion());
+                return;
+            }
         }
+        tvNombreApellido.setText("Paciente no encontrado");
     }
 
     private void volverADashboard() {

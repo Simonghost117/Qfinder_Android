@@ -1,5 +1,7 @@
 package com.sena.qfinder;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -8,19 +10,32 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
-import com.sena.qfinder.model.ManagerDB;
+import com.sena.qfinder.api.AuthService;
+import com.sena.qfinder.models.PacienteListResponse;
+import com.sena.qfinder.models.PacienteResponse;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+
+import okhttp3.OkHttpClient;
+import okhttp3.logging.HttpLoggingInterceptor;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 public class GestionPacienteFragment extends Fragment {
 
     private LinearLayout patientsContainer;
-    private ManagerDB managerDB;
+    private ImageView addButton;
+    private final String BASE_URL = "https://qfinder-production.up.railway.app/";
 
     public GestionPacienteFragment() {
         // Constructor vacío requerido
@@ -38,7 +53,6 @@ public class GestionPacienteFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        managerDB = new ManagerDB(getContext());
     }
 
     @Override
@@ -46,6 +60,7 @@ public class GestionPacienteFragment extends Fragment {
                              Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.fragment_gestion_paciente, container, false);
         setupPatientsSection(inflater, root);
+        setupAddButton(root);
         return root;
     }
 
@@ -53,13 +68,66 @@ public class GestionPacienteFragment extends Fragment {
         patientsContainer = root.findViewById(R.id.containerPacientes);
         patientsContainer.removeAllViews();
 
-        ArrayList<HashMap<String, String>> pacientes = managerDB.obtenerPacientes();
-        for (HashMap<String, String> paciente : pacientes) {
-            String nombreCompleto = paciente.get("nombres") + " " + paciente.get("apellidos");
-            String edad = paciente.get("identificacion");
-            String diagnostico = paciente.get("diagnostico");
+        // Obtener token de SharedPreferences
+        SharedPreferences preferences = requireContext().getSharedPreferences("usuario", Context.MODE_PRIVATE);
+        String token = preferences.getString("token", null);
 
-            // Inflar la tarjeta de cada paciente
+        if (token == null) {
+            Toast.makeText(getContext(), "No se encontró token de autenticación", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Configurar Retrofit con interceptor para logs
+        HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
+        logging.setLevel(HttpLoggingInterceptor.Level.BODY);
+
+        OkHttpClient client = new OkHttpClient.Builder()
+                .addInterceptor(logging)
+                .build();
+
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(BASE_URL)
+                .client(client)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+
+        AuthService authService = retrofit.create(AuthService.class);
+        Call<PacienteListResponse> call = authService.listarPacientes("Bearer " + token);
+
+        call.enqueue(new Callback<PacienteListResponse>() {
+            @Override
+            public void onResponse(Call<PacienteListResponse> call, Response<PacienteListResponse> response) {
+                if (!isAdded()) return;
+
+                if (response.isSuccessful() && response.body() != null) {
+                    List<PacienteResponse> pacientes = response.body().getData();
+                    mostrarPacientes(inflater, pacientes != null ? pacientes : new ArrayList<>());
+                } else {
+                    Toast.makeText(getContext(), "Error al obtener pacientes", Toast.LENGTH_SHORT).show();
+                    mostrarPacientes(inflater, new ArrayList<>());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<PacienteListResponse> call, Throwable t) {
+                if (!isAdded()) return;
+                Log.e("API", "Error de conexión", t);
+                Toast.makeText(getContext(), "Error de conexión", Toast.LENGTH_SHORT).show();
+                mostrarPacientes(inflater, new ArrayList<>());
+            }
+        });
+    }
+
+    private void mostrarPacientes(LayoutInflater inflater, List<PacienteResponse> pacientes) {
+        patientsContainer.removeAllViews();
+
+        // Mostrar pacientes desde la API
+        for (PacienteResponse paciente : pacientes) {
+            String nombreCompleto = paciente.getNombre() + " " + paciente.getApellido();
+//            String edad = paciente.getEdad() != null ? paciente.getEdad() + " años" : "Edad no especificada";
+            String diagnostico = paciente.getDiagnostico_principal() != null ?
+                    paciente.getDiagnostico_principal() : "Sin diagnóstico";
+
             View card = inflater.inflate(R.layout.item_paciente, patientsContainer, false);
 
             TextView nombreTextView = card.findViewById(R.id.nombrePaciente);
@@ -68,34 +136,29 @@ public class GestionPacienteFragment extends Fragment {
             ImageView fotoPaciente = card.findViewById(R.id.imagenPaciente);
 
             nombreTextView.setText(nombreCompleto);
-            edadTextView.setText(edad);
+//            edadTextView.setText(edad);
             enfermedadTextView.setText(diagnostico);
             fotoPaciente.setImageResource(R.drawable.perfil_paciente);
 
-            // Navegar al perfil del paciente al hacer clic
             card.setOnClickListener(v -> {
-                try {
-                    int pacienteId = Integer.parseInt(paciente.get("id")); // Aquí usamos el id correcto
-                    PerfilPaciente perfilFragment = PerfilPaciente.newInstance(pacienteId); // Pasamos el id
+                PerfilPaciente perfilFragment = PerfilPaciente.newInstance(paciente.getId());
 
-                    FragmentTransaction transaction = getParentFragmentManager().beginTransaction();
-                    transaction.replace(R.id.fragment_container, perfilFragment);
-                    transaction.addToBackStack(null);
-                    transaction.commit();
-                } catch (NumberFormatException e) {
-                    Log.e("GestionPacienteFragment", "ID inválido: " + paciente.get("id"));
-                }
+                FragmentTransaction transaction = getParentFragmentManager().beginTransaction();
+                transaction.replace(R.id.fragment_container, perfilFragment);
+                transaction.addToBackStack(null);
+                transaction.commit();
             });
 
             patientsContainer.addView(card);
         }
+    }
 
-        // Configurar botón de agregar paciente
-        ImageView addButton = root.findViewById(R.id.PatientAdd);
+    private void setupAddButton(View root) {
+        addButton = root.findViewById(R.id.PatientAdd);
         if (addButton != null) {
             addButton.setOnClickListener(v -> navigateToRegisterPatient());
         } else {
-            Log.e("GestionPacienteFragment", "No se encontró el ImageView con id PatientAdd.");
+            Log.e("GestionPacienteFragment", "No se encontró el botón de agregar paciente");
         }
     }
 
