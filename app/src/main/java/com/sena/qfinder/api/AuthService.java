@@ -2,6 +2,8 @@ package com.sena.qfinder.api;
 
 import com.sena.qfinder.models.CodeVerificationRequest;
 import com.sena.qfinder.models.CodeVerificationResponse;
+import com.sena.qfinder.models.RegisterPacienteRequest;
+import com.sena.qfinder.models.RegisterPacienteResponse;
 import com.sena.qfinder.models.LoginRequest;
 import com.sena.qfinder.models.LoginResponse;
 import com.sena.qfinder.models.PerfilUsuarioResponse;
@@ -38,4 +40,9 @@ public interface AuthService {
     );
     @GET("api/auth/perfil")
     Call<PerfilUsuarioResponse> obtenerPerfil(@Header("Authorization") String token);
+    @POST("api/paciente/register")
+    Call<RegisterPacienteResponse> registerPaciente(
+            @Header("Authorization") String token,
+            @Body RegisterPacienteRequest request
+    );
 }

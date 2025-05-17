@@ -88,6 +88,7 @@ dependencies {
     implementation("com.google.code.gson:gson:2.10.1")
     // Para logging de las peticiones HTTP (opcional pero útil para debug)
     implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
+    implementation ("com.google.android.material:material:1.7.0")
 }
 }
 
