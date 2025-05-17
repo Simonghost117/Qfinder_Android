@@ -24,7 +24,6 @@ public class PerfilComunidad extends Fragment {
         // Constructor vacío requerido
     }
 
-    // Método para crear una instancia con parámetros
     public static PerfilComunidad newInstance(String nombre, String miembros) {
         PerfilComunidad fragment = new PerfilComunidad();
         Bundle args = new Bundle();

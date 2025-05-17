@@ -1,5 +1,6 @@
 plugins {
     alias(libs.plugins.android.application)
+    alias(libs.plugins.kotlin.android)
 }
 
 android {
@@ -11,9 +12,11 @@ android {
         minSdk = 24
         targetSdk = 35
         versionCode = 1
-        versionName = "1.8" // Puedes personalizar la versión
+        versionName = "2.0" // Puedes personalizar la versión
+
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        vectorDrawables.useSupportLibrary = true
     }
 
     buildTypes {
@@ -25,8 +28,11 @@ android {
             )
         }
         debug {
-            // Nombre personalizado para el APK debug
+
             applicationIdSuffix = ".debug"
+            // Nombre personalizado para el APK debug
+            applicationIdSuffix = "Qfinder"
+
         }
     }
 
@@ -35,6 +41,16 @@ android {
         targetCompatibility = JavaVersion.VERSION_11
     }
 
+
+    kotlinOptions {
+        jvmTarget = "11"
+    }
+
+    packaging {
+        resources.excludes += setOf(
+            "META-INF/LICENSE.md",
+            "META-INF/LICENSE-notice.md"
+        )
     // Corregido: Evitar errores de duplicación
     packaging {
         resources {
@@ -62,15 +78,16 @@ dependencies {
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
 
-    // Dependencias para consumo de API
+    implementation("com.github.prolificinteractive:material-calendarview:2.0.1") {
+        exclude(group = "org.threeten", module = "threetenbp")
+    }
+
+    implementation("com.jakewharton.threetenabp:threetenabp:1.4.5") // Dependencias para consumo de API
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
     implementation("com.squareup.retrofit2:converter-gson:2.9.0")
     implementation("com.google.code.gson:gson:2.10.1")
-
     // Para logging de las peticiones HTTP (opcional pero útil para debug)
     implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
-
-    // Para manejo de imágenes desde URLs (si tu API devuelve imágenes)
-    implementation("com.github.bumptech.glide:glide:4.16.0")
-    annotationProcessor("com.github.bumptech.glide:compiler:4.16.0")
 }
+}
+

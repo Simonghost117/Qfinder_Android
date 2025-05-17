@@ -1,13 +1,8 @@
 package com.sena.qfinder;
 
-import android.content.Intent;
-import android.content.SharedPreferences;
+import android.app.ProgressDialog;
 import android.os.Bundle;
-
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
-
+import android.util.Patterns;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,119 +10,210 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import com.google.android.material.textfield.TextInputEditText;
-import com.sena.qfinder.model.ManagerDB;
-import com.sena.qfinder.ui.home.DashboardFragment;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 
+import com.google.android.material.textfield.TextInputEditText;
+import com.sena.qfinder.api.AuthService;
+import com.sena.qfinder.models.RegisterRequest;
+import com.sena.qfinder.models.RegisterResponse;
+
+import java.io.IOException;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 public class RegistroUsuario extends Fragment {
 
-    ImageView btnBack;
-    private ManagerDB managerDB;
     private TextInputEditText edtNombre, edtApellido, edtCorreo, edtIdentificacion, edtDirrecion, edtTelefono, edtContrasena;
     private Button btnContinuar;
-
-
+    private ImageView btnBack;
+    private ProgressDialog progressDialog;
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        // Inflar el layout para este fragmento
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_registro_usuario, container, false);
 
+        // Inicializar vistas
+        initViews(view);
 
-        // Inicializar la base de datos
-        managerDB = new ManagerDB(requireContext());
+        // Configurar listeners
+        setupListeners();
 
-        // Asignación de elementos UI
+        return view;
+
+    }
+
+    private void initViews(View view) {
         edtNombre = view.findViewById(R.id.edtNombre);
         edtApellido = view.findViewById(R.id.edtApellido);
         edtCorreo = view.findViewById(R.id.edtCorreo);
         edtIdentificacion = view.findViewById(R.id.edtIdentificacion);
         edtDirrecion = view.findViewById(R.id.edtDireccion);
         edtTelefono = view.findViewById(R.id.edtTelefono);
-
-        //edtContrasena = view.findViewById(R.id.edtContrasena);
-
+        edtContrasena = view.findViewById(R.id.edtContrasena);
         btnContinuar = view.findViewById(R.id.btnContinuar);
-        //btnContinuar = view.findViewById(R.id.btnContinuar);
-
         btnBack = view.findViewById(R.id.btnBack);
-        btnBack.setOnClickListener(v -> {
-            FragmentManager fragmentManager = getParentFragmentManager();
-            FragmentTransaction transaction = fragmentManager.beginTransaction();
-            transaction.replace(R.id.fragment_container, new Login());
-            transaction.addToBackStack(null);
-            transaction.commit();
-        });
+
+        // Configurar ProgressDialog
+        progressDialog = new ProgressDialog(getContext());
+        progressDialog.setTitle("Registrando");
+        progressDialog.setMessage("Por favor espere...");
+        progressDialog.setCancelable(false);
+    }
+
+    private void setupListeners() {
+        btnBack.setOnClickListener(v -> volverALogin());
 
         btnContinuar.setOnClickListener(v -> {
             if (validarCampos()) {
-                // Guardar datos en Bundle para pasarlos al siguiente Fragment
-                Bundle args = new Bundle();
-                args.putString("nombre", edtNombre.getText().toString());
-                args.putString("apellido", edtApellido.getText().toString());
-                args.putString("identificacion", edtIdentificacion.getText().toString());
-                args.putString("direccion", edtDirrecion.getText().toString());
-                args.putString("telefono", edtTelefono.getText().toString());
-                args.putString("correo", edtCorreo.getText().toString());
-
-
-                // Navegar al Fragment de confirmación de contraseña
-                Fragment fragment = new ConfirmacionContrasena();
-                fragment.setArguments(args);
-
-                getParentFragmentManager().beginTransaction()
-                        .replace(R.id.fragment_container, fragment) // Usa el mismo ID que en activity_main
-                        .addToBackStack(null)
-                        .commit();
+                registrarUsuarioEnBackend();
             }
         });
-
-        return view;
     }
 
     private boolean validarCampos() {
-        // Validación de campos obligatorios
-        if (edtNombre.getText().toString().isEmpty()) {
-            Toast.makeText(getContext(), "El nombre es obligatorio", Toast.LENGTH_SHORT).show();
-            edtNombre.requestFocus();
-            return false;
+        boolean valido = true;
+
+        if (edtNombre.getText().toString().trim().isEmpty()) {
+            edtNombre.setError("El nombre es obligatorio");
+            valido = false;
         }
 
-        if (edtApellido.getText().toString().isEmpty()) {
-            Toast.makeText(getContext(), "El apellido es obligatorio", Toast.LENGTH_SHORT).show();
-            edtApellido.requestFocus();
-            return false;
+        if (edtApellido.getText().toString().trim().isEmpty()) {
+            edtApellido.setError("El apellido es obligatorio");
+            valido = false;
         }
 
-        if (edtCorreo.getText().toString().isEmpty()) {
-            Toast.makeText(getContext(), "El correo es obligatorio", Toast.LENGTH_SHORT).show();
-            edtCorreo.requestFocus();
-            return false;
-        }
-// Verificar si el correo ya está registrado
-        if (managerDB.correoExiste(edtCorreo.getText().toString())) {
-            Toast.makeText(getContext(), "Este correo ya está registrado, intenta con otro.", Toast.LENGTH_SHORT).show();
-            edtCorreo.requestFocus();
-            return false;
+        if (edtCorreo.getText().toString().trim().isEmpty()) {
+            edtCorreo.setError("El correo es obligatorio");
+            valido = false;
+        } else if (!esCorreoValido(edtCorreo.getText().toString().trim())) {
+            edtCorreo.setError("Ingrese un correo válido");
+            valido = false;
         }
 
-        if (edtIdentificacion.getText().toString().isEmpty()) {
-            Toast.makeText(getContext(), "La identificacion es obligatoria", Toast.LENGTH_SHORT).show();
-            edtIdentificacion.requestFocus();
-            return false;
-        }
-        if (edtDirrecion.getText().toString().isEmpty()) {
-            Toast.makeText(getContext(), "La direccion es obligatoria", Toast.LENGTH_SHORT).show();
-            edtDirrecion.requestFocus();
-            return false;
+        if (edtIdentificacion.getText().toString().trim().isEmpty()) {
+            edtIdentificacion.setError("La identificación es obligatoria");
+            valido = false;
         }
 
-        if (edtTelefono.getText().toString().isEmpty()) {
-            Toast.makeText(getContext(), "El teléfono es obligatorio", Toast.LENGTH_SHORT).show();
-            edtTelefono.requestFocus();
-            return false;
+        if (edtDirrecion.getText().toString().trim().isEmpty()) {
+            edtDirrecion.setError("La dirección es obligatoria");
+            valido = false;
         }
-        return true;
+
+        if (edtTelefono.getText().toString().trim().isEmpty()) {
+            edtTelefono.setError("El teléfono es obligatorio");
+            valido = false;
+        }
+
+        return valido;
+    }
+
+    private boolean esCorreoValido(String correo) {
+        return Patterns.EMAIL_ADDRESS.matcher(correo).matches();
+    }
+
+    private void registrarUsuarioEnBackend() {
+        progressDialog.show();
+
+        // Obtener datos del formulario
+        String nombre = edtNombre.getText().toString().trim();
+        String apellido = edtApellido.getText().toString().trim();
+        String identificacion = edtIdentificacion.getText().toString().trim();
+        String direccion = edtDirrecion.getText().toString().trim();
+        String telefono = edtTelefono.getText().toString().trim();
+        String correo = edtCorreo.getText().toString().trim();
+        String contrasena = generarContrasenaSegura(edtContrasena.getText().toString().trim());
+
+        // Crear objeto de solicitud
+        RegisterRequest request = new RegisterRequest(
+                nombre,
+                apellido,
+                identificacion,
+                direccion,
+                telefono,
+                correo,
+                contrasena
+        );
+
+        // Configurar Retrofit
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl("https://qfinder-production.up.railway.app/")
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+
+        AuthService authService = retrofit.create(AuthService.class);
+
+        // Realizar la llamada al servidor
+        Call<RegisterResponse> call = authService.registerUser(request);
+        call.enqueue(new Callback<RegisterResponse>() {
+            @Override
+            public void onResponse(Call<RegisterResponse> call, Response<RegisterResponse> response) {
+                progressDialog.dismiss();
+
+                if (response.isSuccessful()) {
+                    manejarRegistroExitoso();
+
+                } else {
+                    manejarErrorRegistro(response);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<RegisterResponse> call, Throwable t) {
+                progressDialog.dismiss();
+                Toast.makeText(getContext(), "Error de conexión: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private String generarContrasenaSegura(String identificacion) {
+        // Genera una contraseña segura basada en la identificación
+        // Esto es solo un ejemplo - considera usar un método más seguro en producción
+        return identificacion;
+    }
+
+    private void manejarRegistroExitoso() {
+        Toast.makeText(getContext(), "Registro exitoso. Verifica tu correo electrónico.", Toast.LENGTH_LONG).show();
+        confirmCorreo();
+    }
+
+    private void manejarErrorRegistro(Response<RegisterResponse> response) {
+        try {
+            String errorBody = response.errorBody() != null ? response.errorBody().string() : "Error desconocido";
+            Toast.makeText(getContext(), "Error al registrar: " + errorBody, Toast.LENGTH_LONG).show();
+            System.out.println(errorBody);
+        } catch (IOException e) {
+            Toast.makeText(getContext(), "Error al procesar la respuesta", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void volverALogin() {
+        FragmentManager fragmentManager = getParentFragmentManager();
+        fragmentManager.beginTransaction()
+                .replace(R.id.fragment_container, new Login())
+                .commit();
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        if (progressDialog != null && progressDialog.isShowing()) {
+            progressDialog.dismiss();
+        }
+    }
+    private void confirmCorreo() {
+        String correo = edtCorreo.getText().toString().trim();
+        VerficacionCorreo fragment = VerficacionCorreo.newInstance(correo);
+
+        FragmentTransaction transaction = getParentFragmentManager().beginTransaction();
+        transaction.replace(R.id.fragment_container, fragment);
+        transaction.addToBackStack(null);
+        transaction.commit();
     }
 }
