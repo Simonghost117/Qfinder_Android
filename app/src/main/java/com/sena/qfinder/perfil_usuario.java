@@ -20,7 +20,6 @@ import com.sena.qfinder.models.PerfilUsuarioResponse;
 
 import retrofit2.Call;
 import retrofit2.Callback;
-import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
@@ -31,6 +30,9 @@ public class perfil_usuario extends Fragment {
 
     private AuthService authService;
     private Call<PerfilUsuarioResponse> perfilCall;
+    private Call<Void> logoutCall;
+
+    private Retrofit retrofit;
 
     @Nullable
     @Override
@@ -52,17 +54,25 @@ public class perfil_usuario extends Fragment {
 
         cardCerrarSesion = view.findViewById(R.id.cardCerrarSesion);
 
-        cardCerrarSesion.setOnClickListener(v -> {
-            logout();
-        });
+        setupRetrofit(); // Configura retrofit sin interceptor
+
+        cardCerrarSesion.setOnClickListener(v -> mostrarDialogoCerrarSesion());
 
 
-        setupRetrofit();
-        cargarPerfil();
+
+        cargarPerfil(); // Llama perfil con token manual
+    }
+    private void mostrarDialogoCerrarSesion() {
+        new androidx.appcompat.app.AlertDialog.Builder(requireContext())
+                .setTitle("Cerrar sesión")
+                .setMessage("¿Estás seguro de que deseas cerrar sesión?")
+                .setPositiveButton("Sí", (dialog, which) -> logout())
+                .setNegativeButton("Cancelar", null)
+                .show();
     }
 
     private void setupRetrofit() {
-        Retrofit retrofit = new Retrofit.Builder()
+        retrofit = new Retrofit.Builder()
                 .baseUrl("https://qfinder-production.up.railway.app/")
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
@@ -70,21 +80,50 @@ public class perfil_usuario extends Fragment {
         authService = retrofit.create(AuthService.class);
     }
 
-
     private void logout() {
         SharedPreferences preferences = requireContext().getSharedPreferences("usuario", Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = preferences.edit();
-        editor.clear(); // Borra todos los datos del usuario
-        editor.apply();
+        String token = preferences.getString("token", null);
 
-        Toast.makeText(requireContext(), "Sesión cerrada correctamente", Toast.LENGTH_SHORT).show();
+        if (token == null) {
+            Toast.makeText(requireContext(), "Token no encontrado. Inicia sesión nuevamente.", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
-        // Volver al fragmento de login o actividad principal
-        requireActivity().getSupportFragmentManager()
-                .beginTransaction()
-                .replace(R.id.fragment_container, new Login()) // Reemplaza "Login" con tu fragmento o actividad real
-                .commit();
+        logoutCall = authService.logout();
+
+        logoutCall.enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(@NonNull Call<Void> call, @NonNull retrofit2.Response<Void> response) {
+                if (!isAdded()) return;
+
+                // Borrar sesión
+                SharedPreferences.Editor editor = preferences.edit();
+                editor.clear();
+                editor.apply();
+
+                Toast.makeText(requireContext(), "Sesión cerrada correctamente", Toast.LENGTH_SHORT).show();
+
+                // Ocultar menú inferior
+                View bottomNav = requireActivity().findViewById(R.id.bottom_navigation);
+                if (bottomNav != null) {
+                    bottomNav.setVisibility(View.GONE);
+                }
+
+                // Navegar al login
+                requireActivity().getSupportFragmentManager()
+                        .beginTransaction()
+                        .replace(R.id.fragment_container, new Login())
+                        .commit();
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<Void> call, @NonNull Throwable t) {
+                if (!isAdded()) return;
+                Toast.makeText(requireContext(), "Error de red: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
     }
+
 
     private void cargarPerfil() {
         SharedPreferences preferences = requireContext().getSharedPreferences("usuario", Context.MODE_PRIVATE);
@@ -95,11 +134,11 @@ public class perfil_usuario extends Fragment {
             return;
         }
 
-        perfilCall = authService.obtenerPerfil("Bearer " + token);
+        perfilCall = authService.obtenerPerfil("Bearer " + token); 
 
         perfilCall.enqueue(new Callback<PerfilUsuarioResponse>() {
             @Override
-            public void onResponse(@NonNull Call<PerfilUsuarioResponse> call, @NonNull Response<PerfilUsuarioResponse> response) {
+            public void onResponse(@NonNull Call<PerfilUsuarioResponse> call, @NonNull retrofit2.Response<PerfilUsuarioResponse> response) {
                 if (!isAdded()) return;
 
                 if (response.isSuccessful() && response.body() != null) {
@@ -130,6 +169,9 @@ public class perfil_usuario extends Fragment {
         super.onDestroyView();
         if (perfilCall != null && !perfilCall.isCanceled()) {
             perfilCall.cancel();
+        }
+        if (logoutCall != null && !logoutCall.isCanceled()) {
+            logoutCall.cancel();
         }
     }
 }

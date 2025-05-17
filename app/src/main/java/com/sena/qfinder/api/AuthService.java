@@ -28,4 +28,7 @@ public interface AuthService {
 
     @GET("api/auth/perfil")
     Call<PerfilUsuarioResponse> obtenerPerfil(@Header("Authorization") String token);
+
+    @POST("api/auth/logout")
+    Call<Void> logout();
 }
