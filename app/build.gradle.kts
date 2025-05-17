@@ -12,7 +12,7 @@ android {
         minSdk = 24
         targetSdk = 35
         versionCode = 1
-        versionName = "2.0" // Puedes personalizar la versión
+        versionName = "2.5" // Puedes personalizar la versión
 
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
