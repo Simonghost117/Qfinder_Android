@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Qfinder-Android</string>
+    <string name="app_name">Qfinder</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="prompt_elige_paciente">Elige al paciente</string>
@@ -25,6 +25,12 @@
     <string name="patient_section">Pacientes</string>
     <string name="activities_section">Actividades</string>
     <string name="medications_section">Medicamentos</string>
+    <!--Alejandro modificacion en values-->
+    <string-array name="tipos_recordatorio">
+        <item>Medicamentos</item>
+        <item>Citas</item>
+    </string-array>
+    <!--hasta aqui-->
 
     <string name="text1RegUsuario">Registra tus datos</string>
     <string name="text2RegUsuario">Créate una cuenta</string>

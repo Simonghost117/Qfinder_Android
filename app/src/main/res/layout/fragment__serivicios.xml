@@ -83,6 +83,7 @@
 
         <!-- Tarjeta: Recordatorios -->
         <LinearLayout
+            android:id="@+id/cardRecordatorio"
             android:layout_width="392dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center"

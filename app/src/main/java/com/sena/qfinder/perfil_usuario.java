@@ -1,6 +1,7 @@
 package com.sena.qfinder;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
@@ -17,6 +18,7 @@ import androidx.fragment.app.Fragment;
 import com.google.android.material.card.MaterialCardView;
 import com.sena.qfinder.api.AuthService;
 import com.sena.qfinder.models.PerfilUsuarioResponse;
+import com.sena.qfinder.model.MainActivity;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -58,7 +60,8 @@ public class perfil_usuario extends Fragment {
 
         cardCerrarSesion.setOnClickListener(v -> mostrarDialogoCerrarSesion());
 
-
+        setupRetrofit();
+        cargarPerfil();
 
         cargarPerfil(); // Llama perfil con token manual
     }
@@ -89,6 +92,11 @@ public class perfil_usuario extends Fragment {
             return;
         }
 
+        // Redirigir a MainActivity
+        Intent intent = new Intent(requireActivity(), MainActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(intent);
+        requireActivity().finish();
         logoutCall = authService.logout();
 
         logoutCall.enqueue(new Callback<Void>() {

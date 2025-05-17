@@ -1,0 +1,5 @@
+<!-- bg_dialog_white.xml (en res/drawable) -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <solid android:color="#FFFFFF"/>
+    <corners android:radius="16dp"/>
+</shape>

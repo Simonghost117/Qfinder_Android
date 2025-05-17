@@ -98,6 +98,14 @@
                 android:inputType="number"
                 android:maxLength="1"
                 android:gravity="center"/>
+            <EditText
+                android:id="@+id/digit5"
+                style="@style/CodeEditText"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:inputType="number"
+                android:maxLength="1"
+                android:gravity="center"/>
         </LinearLayout>
 
         <!-- Enlace para reenviar código -->

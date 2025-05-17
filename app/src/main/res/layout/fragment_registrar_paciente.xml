@@ -28,7 +28,6 @@
                 android:layout_height="15dp"
                 android:layout_gravity="center"
                 android:src="@drawable/img"
-                android:tint="@color/black"
                 android:contentDescription="Volver" />
         </FrameLayout>
 
@@ -58,34 +57,78 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:layout_marginTop="20dp"
+                android:layout_marginTop="10dp"
                 android:text="Registrar tu familiar"
                 android:textColor="@color/black"
                 android:textSize="30sp"
+                android:layout_margin="12dp"
                 android:fontFamily="sans-serif-thin"
                 android:textStyle="bold" />
 
-            <TextView
-                android:id="@+id/tvNombres"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Nombres y apellidos"
-                android:layout_marginTop="20dp"
-                android:layout_marginBottom="8dp"
-                android:textColor="@color/black"
-                android:fontFamily="sans-serif-medium"
-                android:textSize="14sp"/>
-            <EditText
-                android:id="@+id/etNombresApellidos"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@drawable/edittext_azul"
-                android:padding="12dp"
-                android:textColor="@android:color/black"
-                android:textColorHint="#808080"
-                android:fontFamily="sans-serif"
-                android:textSize="14sp"
-                android:layout_marginBottom="16dp"/>
+                android:layout_marginBottom="16dp"
+                android:layout_marginTop="12dp"
+                android:orientation="horizontal"
+                android:padding="2dp">
+
+                <!-- Nombre -->
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="2dp"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="4dp"
+                        android:fontFamily="sans-serif-medium"
+                        android:text="Nombre"
+                        android:textColor="@color/black"
+                        android:textSize="14sp" />
+
+                    <EditText
+                        android:id="@+id/edtNombre"
+                        android:layout_width="match_parent"
+                        android:layout_height="50dp"
+                        android:layout_marginBottom="16dp"
+                        android:background="@drawable/edittext_azul"
+                        android:inputType="text"
+                        android:padding="10dp"
+                        android:textColor="@color/black" />
+                </LinearLayout>
+
+                <!-- Apellido -->
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:paddingLeft="8dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="4dp"
+                        android:fontFamily="sans-serif-medium"
+                        android:text="Apellido"
+                        android:textColor="@color/black"
+                        android:textSize="14sp" />
+
+                    <EditText
+                        android:id="@+id/edtApellido"
+                        android:layout_width="match_parent"
+                        android:layout_height="50dp"
+                        android:background="@drawable/edittext_azul"
+                        android:inputType="text"
+                        android:padding="10dp"
+                        android:textColor="@color/black" />
+                </LinearLayout>
+
+            </LinearLayout>
 
             <TextView
                 android:id="@+id/tvFechaNacimiento"
