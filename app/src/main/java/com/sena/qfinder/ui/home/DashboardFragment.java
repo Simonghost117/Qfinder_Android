@@ -3,6 +3,7 @@ package com.sena.qfinder.ui.home;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,16 +20,27 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.sena.qfinder.PerfilPaciente;
 import com.sena.qfinder.R;
 import com.sena.qfinder.RegistrarPaciente;
+import com.sena.qfinder.api.AuthService;
+import com.sena.qfinder.models.PerfilUsuarioResponse;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 public class DashboardFragment extends Fragment {
 
     private LinearLayout patientsContainer, activitiesContainer;
     private RecyclerView rvMedications;
     private SharedPreferences sharedPreferences;
+    private TextView tvUserName;
+
+    private final String BASE_URL = "https://qfinder-production.up.railway.app/";
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -36,7 +48,9 @@ public class DashboardFragment extends Fragment {
 
         sharedPreferences = requireContext().getSharedPreferences("prefs_qfinder", Context.MODE_PRIVATE);
 
-        setupUserInfo(root);
+        tvUserName = root.findViewById(R.id.tvUserName);
+        setupUserInfo();
+
         setupPatientsSection(inflater, root);
         setupActivitiesSection(inflater, root);
         setupMedicationsSection(root);
@@ -44,22 +58,58 @@ public class DashboardFragment extends Fragment {
         return root;
     }
 
-    private void setupUserInfo(View root) {
-        TextView tvUserName = root.findViewById(R.id.tvUserName);
+    private void setupUserInfo() {
+        // Usar el mismo nombre de SharedPreferences que en perfil_usuario
+        SharedPreferences preferences = requireContext().getSharedPreferences("usuario", Context.MODE_PRIVATE);
+        String token = preferences.getString("token", null);
 
-        // Datos quemados
-        String nombre = "Juan";
-        String apellido = "Pérez";
-        String nombreCompleto = nombre + " " + apellido;
+        if (token == null) {
+            tvUserName.setText("Usuario desconocido");
+            return;
+        }
 
-        tvUserName.setText(nombreCompleto);
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(BASE_URL)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+
+        AuthService authService = retrofit.create(AuthService.class);
+        Call<PerfilUsuarioResponse> call = authService.obtenerPerfil("Bearer " + token);
+
+        call.enqueue(new Callback<PerfilUsuarioResponse>() {
+            @Override
+            public void onResponse(@NonNull Call<PerfilUsuarioResponse> call, @NonNull Response<PerfilUsuarioResponse> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    PerfilUsuarioResponse usuario = response.body();
+                    // Mostrar solo nombre y apellido como en el ejemplo
+                    String nombreCompleto = usuario.getNombre_usuario() + " " + usuario.getApellido_usuario();
+                    tvUserName.setText(nombreCompleto);
+
+                    // Opcional: Guardar en SharedPreferences para no hacer la llamada cada vez
+                    SharedPreferences.Editor editor = preferences.edit();
+                    editor.putString("nombre_completo", nombreCompleto);
+                    editor.apply();
+                } else {
+                    // Intentar obtener de SharedPreferences si falla la llamada
+                    String nombreGuardado = preferences.getString("nombre_completo", "Usuario");
+                    tvUserName.setText(nombreGuardado);
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<PerfilUsuarioResponse> call, @NonNull Throwable t) {
+                Log.e("DashboardFragment", "Error al obtener perfil", t);
+                // Intentar obtener de SharedPreferences si falla la conexión
+                String nombreGuardado = preferences.getString("nombre_completo", "Usuario");
+                tvUserName.setText(nombreGuardado);
+            }
+        });
     }
 
     private void setupPatientsSection(LayoutInflater inflater, View root) {
         patientsContainer = root.findViewById(R.id.patientsContainer);
         patientsContainer.removeAllViews();
 
-        // Datos quemados para pacientes
         List<HashMap<String, String>> pacientes = new ArrayList<>();
 
         HashMap<String, String> paciente1 = new HashMap<>();
