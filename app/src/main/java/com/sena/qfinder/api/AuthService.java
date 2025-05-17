@@ -45,4 +45,6 @@ public interface AuthService {
             @Header("Authorization") String token,
             @Body RegisterPacienteRequest request
     );
+    @POST("api/auth/logout")
+    Call<Void> logout();
 }
