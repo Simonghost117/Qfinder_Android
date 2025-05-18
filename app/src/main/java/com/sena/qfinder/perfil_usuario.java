@@ -18,7 +18,7 @@ import androidx.fragment.app.Fragment;
 import com.google.android.material.card.MaterialCardView;
 import com.sena.qfinder.api.AuthService;
 import com.sena.qfinder.models.PerfilUsuarioResponse;
-import com.sena.qfinder.model.MainActivity;
+import com.sena.qfinder.controller.MainActivity;
 
 import retrofit2.Call;
 import retrofit2.Callback;

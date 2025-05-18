@@ -3,12 +3,14 @@ package com.sena.qfinder.ui.home;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -19,16 +21,30 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.sena.qfinder.PerfilPaciente;
 import com.sena.qfinder.R;
 import com.sena.qfinder.RegistrarPaciente;
+import com.sena.qfinder.api.AuthService;
+import com.sena.qfinder.models.PacienteListResponse;
+import com.sena.qfinder.models.PacienteResponse;
+import com.sena.qfinder.models.PerfilUsuarioResponse;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
+
+import okhttp3.OkHttpClient;
+import okhttp3.logging.HttpLoggingInterceptor;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 public class DashboardFragment extends Fragment {
 
     private LinearLayout patientsContainer, activitiesContainer;
     private RecyclerView rvMedications;
     private SharedPreferences sharedPreferences;
+    private TextView tvUserName;
+
+    private final String BASE_URL = "https://qfinder-production.up.railway.app/";
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -36,7 +52,9 @@ public class DashboardFragment extends Fragment {
 
         sharedPreferences = requireContext().getSharedPreferences("prefs_qfinder", Context.MODE_PRIVATE);
 
-        setupUserInfo(root);
+        tvUserName = root.findViewById(R.id.tvUserName);
+        setupUserInfo();
+
         setupPatientsSection(inflater, root);
         setupActivitiesSection(inflater, root);
         setupMedicationsSection(root);
@@ -44,46 +62,149 @@ public class DashboardFragment extends Fragment {
         return root;
     }
 
-    private void setupUserInfo(View root) {
-        TextView tvUserName = root.findViewById(R.id.tvUserName);
+    private void setupUserInfo() {
+        SharedPreferences preferences = requireContext().getSharedPreferences("usuario", Context.MODE_PRIVATE);
+        String token = preferences.getString("token", null);
 
-        // Datos quemados
-        String nombre = "Juan";
-        String apellido = "Pérez";
-        String nombreCompleto = nombre + " " + apellido;
+        if (token == null) {
+            tvUserName.setText("Usuario desconocido");
+            return;
+        }
 
-        tvUserName.setText(nombreCompleto);
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(BASE_URL)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+
+        AuthService authService = retrofit.create(AuthService.class);
+        Call<PerfilUsuarioResponse> call = authService.obtenerPerfil("Bearer " + token);
+
+        call.enqueue(new Callback<PerfilUsuarioResponse>() {
+            @Override
+            public void onResponse(@NonNull Call<PerfilUsuarioResponse> call, @NonNull Response<PerfilUsuarioResponse> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    PerfilUsuarioResponse usuario = response.body();
+                    String nombreCompleto = usuario.getNombre_usuario() + " " + usuario.getApellido_usuario();
+                    tvUserName.setText(nombreCompleto);
+
+                    SharedPreferences.Editor editor = preferences.edit();
+                    editor.putString("nombre_completo", nombreCompleto);
+                    editor.apply();
+                } else {
+                    String nombreGuardado = preferences.getString("nombre_completo", "Usuario");
+                    tvUserName.setText(nombreGuardado);
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<PerfilUsuarioResponse> call, @NonNull Throwable t) {
+                Log.e("DashboardFragment", "Error al obtener perfil", t);
+                String nombreGuardado = preferences.getString("nombre_completo", "Usuario");
+                tvUserName.setText(nombreGuardado);
+            }
+        });
     }
 
     private void setupPatientsSection(LayoutInflater inflater, View root) {
         patientsContainer = root.findViewById(R.id.patientsContainer);
         patientsContainer.removeAllViews();
 
-        // Datos quemados para pacientes
-        List<HashMap<String, String>> pacientes = new ArrayList<>();
+        SharedPreferences preferences = requireContext().getSharedPreferences("usuario", Context.MODE_PRIVATE);
+        String token = preferences.getString("token", null);
 
-        HashMap<String, String> paciente1 = new HashMap<>();
-        paciente1.put("nombres", "Ana");
-        paciente1.put("apellidos", "Gómez");
-        paciente1.put("diagnostico", "Asma");
-        paciente1.put("id", "1");
-
-        HashMap<String, String> paciente2 = new HashMap<>();
-        paciente2.put("nombres", "Luis");
-        paciente2.put("apellidos", "Martínez");
-        paciente2.put("diagnostico", "Diabetes tipo 1");
-        paciente2.put("id", "2");
-
-        pacientes.add(paciente1);
-        pacientes.add(paciente2);
-
-        for (HashMap<String, String> paciente : pacientes) {
-            String nombreCompleto = paciente.get("nombres") + " " + paciente.get("apellidos");
-            String diagnostico = paciente.get("diagnostico");
-            int patientId = Integer.parseInt(paciente.get("id"));
-            addPatientCard(inflater, nombreCompleto, "Paciente", diagnostico, R.drawable.perfil_paciente, patientId);
+        if (token == null) {
+            if (getContext() != null) {
+                Toast.makeText(getContext(), "No se encontró token de autenticación", Toast.LENGTH_SHORT).show();
+            }
+            // Mostrar solo la tarjeta de agregar si no hay token
+            mostrarPacientes(inflater, new ArrayList<>());
+            return;
         }
 
+        HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
+        logging.setLevel(HttpLoggingInterceptor.Level.BODY);
+
+        OkHttpClient client = new OkHttpClient.Builder()
+                .addInterceptor(logging)
+                .build();
+
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(BASE_URL)
+                .client(client)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+
+        AuthService authService = retrofit.create(AuthService.class);
+        Call<PacienteListResponse> call = authService.listarPacientes("Bearer " + token);
+
+        call.enqueue(new Callback<PacienteListResponse>() {
+            @Override
+            public void onResponse(@NonNull Call<PacienteListResponse> call, @NonNull Response<PacienteListResponse> response) {
+                if (!isAdded()) return;
+
+                try {
+                    if (response.isSuccessful()) {
+                        if (response.body() != null) {
+                            List<PacienteResponse> pacientes = response.body().getData();
+                            mostrarPacientes(inflater, pacientes != null ? pacientes : new ArrayList<>());
+
+                            if (pacientes == null || pacientes.isEmpty()) {
+                                if (getContext() != null) {
+                                    Toast.makeText(getContext(), "No hay pacientes registrados", Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                        }
+                    } else {
+                        String errorBody = response.errorBody() != null ? response.errorBody().string() : "Sin detalles";
+                        Log.e("API", "Error: " + response.code() + " - " + errorBody);
+                        if (getContext() != null) {
+                            Toast.makeText(getContext(), "Error al obtener pacientes", Toast.LENGTH_SHORT).show();
+                        }
+                        // Mostrar solo la tarjeta de agregar si hay error
+                        mostrarPacientes(inflater, new ArrayList<>());
+                    }
+                } catch (Exception e) {
+                    Log.e("API", "Error procesando respuesta", e);
+                    if (getContext() != null) {
+                        Toast.makeText(getContext(), "Error procesando datos", Toast.LENGTH_SHORT).show();
+                    }
+                    // Mostrar solo la tarjeta de agregar si hay excepción
+                    mostrarPacientes(inflater, new ArrayList<>());
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<PacienteListResponse> call, @NonNull Throwable t) {
+                if (!isAdded()) return;
+                Log.e("API", "Fallo en la conexión", t);
+                if (getContext() != null) {
+                    Toast.makeText(getContext(), "Error de conexión: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+                // Mostrar solo la tarjeta de agregar si falla la conexión
+                mostrarPacientes(inflater, new ArrayList<>());
+            }
+        });
+    }
+
+    private void mostrarPacientes(LayoutInflater inflater, List<PacienteResponse> pacientes) {
+        patientsContainer.removeAllViews();
+
+        // Añadir tarjetas de pacientes
+        for (PacienteResponse paciente : pacientes) {
+            String nombreCompleto = paciente.getNombre() + " " + paciente.getApellido();
+            String diagnostico = paciente.getDiagnostico_principal() != null ?
+                    paciente.getDiagnostico_principal() : "Sin diagnóstico";
+
+            String relacion = paciente.isEs_cuidador_principal() ?
+                    "Cuidador principal" :
+                    (paciente.getParentesco() != null ?
+                            paciente.getParentesco() : "Paciente");
+
+            addPatientCard(inflater, nombreCompleto, relacion, diagnostico,
+                    R.drawable.perfil_paciente, paciente.getId());
+        }
+
+        // Añadir tarjeta de agregar paciente al final
         View addCard = inflater.inflate(R.layout.item_add_patient_card, patientsContainer, false);
         addCard.setOnClickListener(v -> navigateToAddPatient());
         patientsContainer.addView(addCard);
@@ -111,7 +232,6 @@ public class DashboardFragment extends Fragment {
 
         patientsContainer.addView(patientCard);
     }
-
     private void setupActivitiesSection(LayoutInflater inflater, View root) {
         activitiesContainer = root.findViewById(R.id.activitiesContainer);
         activitiesContainer.removeAllViews();
