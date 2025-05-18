@@ -4,6 +4,11 @@
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="prompt_elige_paciente">Elige al paciente</string>
 
+    <string-array name="sexo_array">
+        <item>masculino</item>
+        <item>femenino</item>
+    </string-array>
+
     <string-array name="frecuencia_opciones">
         <item>Selecciones Frecuencia</item>
         <item>Diaria</item>
@@ -94,6 +99,7 @@ Teléfono: 31022589685
     <string name="Qfinder">Qfinder</string>
     <string name="correo">Correo</string>
     <string name="contraseña">Contraseña</string>
+
 </resources>
 
 

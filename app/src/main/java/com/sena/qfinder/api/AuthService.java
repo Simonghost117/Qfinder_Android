@@ -3,6 +3,7 @@ package com.sena.qfinder.api;
 import com.sena.qfinder.models.CodeVerificationRequest;
 import com.sena.qfinder.models.CodeVerificationResponse;
 import com.sena.qfinder.models.PacienteListResponse;
+import com.sena.qfinder.models.PacienteRequest;
 import com.sena.qfinder.models.PacienteResponse;
 import com.sena.qfinder.models.RegisterPacienteRequest;
 import com.sena.qfinder.models.RegisterPacienteResponse;
@@ -16,13 +17,12 @@ import com.sena.qfinder.models.RegisterResponse;
 import com.sena.qfinder.models.VerificarCodigoRequest;
 import com.sena.qfinder.models.CambiarPasswordRequest;
 
-import java.util.List;
-
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.GET;
 import retrofit2.http.Header;
 import retrofit2.http.POST;
+import retrofit2.http.PUT;
 import retrofit2.http.Path;
 
 public interface AuthService {
@@ -61,6 +61,13 @@ public interface AuthService {
     Call<PacienteListResponse> listarPacientes(@Header("Authorization") String token);
     @POST("api/auth/logout")
     Call<Void> logout();
+
+    @PUT("api/paciente/actualizarPaciente/{id_paciente}")
+    Call<Void> actualizarPaciente(
+            @Header("Authorization") String token,
+            @Path("id_paciente") int pacienteId,
+            @Body PacienteRequest pacienteRequest
+    );
 
 
 }

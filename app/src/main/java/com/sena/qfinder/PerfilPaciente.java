@@ -18,10 +18,12 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
+import com.google.android.material.card.MaterialCardView;
 import com.sena.qfinder.api.AuthService;
 import com.sena.qfinder.models.PacienteListResponse;
 import com.sena.qfinder.models.PacienteResponse;
 import com.sena.qfinder.ui.home.DashboardFragment;
+import com.sena.qfinder.ui.home.EditarPacienteDialogFragment;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -36,7 +38,7 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-public class PerfilPaciente extends Fragment {
+public class PerfilPaciente extends Fragment implements EditarPacienteDialogFragment.OnPacienteActualizadoListener {
 
     private static final String ARG_PACIENTE_ID = "paciente_id";
     private static final String BASE_URL = "https://qfinder-production.up.railway.app/";
@@ -48,9 +50,9 @@ public class PerfilPaciente extends Fragment {
     private ImageView btnBack;
     private ProgressBar progressBar;
 
-    public PerfilPaciente() {
-        // Constructor vacío requerido
-    }
+    private PacienteResponse pacienteActual;
+
+    public PerfilPaciente() {}
 
     public static PerfilPaciente newInstance(int pacienteId) {
         PerfilPaciente fragment = new PerfilPaciente();
@@ -74,6 +76,9 @@ public class PerfilPaciente extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_perfil_paciente, container, false);
 
+        MaterialCardView btnEditar = view.findViewById(R.id.boton);
+        btnEditar.setOnClickListener(v -> abrirDialogoEditar());
+
         initViews(view);
         setupBackButton();
         loadPacienteData();
@@ -82,20 +87,13 @@ public class PerfilPaciente extends Fragment {
     }
 
     private void initViews(View view) {
-        try {
-            tvNombreApellido = view.findViewById(R.id.tvNombreApellido);
-            tvFechaNacimiento = view.findViewById(R.id.tvFechaNacimiento);
-            tvSexo = view.findViewById(R.id.tvSexo);
-            tvDiagnostico = view.findViewById(R.id.tvDiagnostico);
-            tvIdentificacion = view.findViewById(R.id.tvIdentificacion);
-            btnBack = view.findViewById(R.id.btnBack);
-            progressBar = view.findViewById(R.id.progressBar);
-
-            Log.d("PerfilPaciente", "Vistas inicializadas correctamente");
-        } catch (Exception e) {
-            Log.e("PerfilPaciente", "Error inicializando vistas", e);
-            showToast("Error inicializando la vista");
-        }
+        tvNombreApellido = view.findViewById(R.id.tvNombreApellido);
+        tvFechaNacimiento = view.findViewById(R.id.tvFechaNacimiento);
+        tvSexo = view.findViewById(R.id.tvSexo);
+        tvDiagnostico = view.findViewById(R.id.tvDiagnostico);
+        tvIdentificacion = view.findViewById(R.id.tvIdentificacion);
+        btnBack = view.findViewById(R.id.btnBack);
+        progressBar = view.findViewById(R.id.progressBar);
     }
 
     private void setupBackButton() {
@@ -113,7 +111,6 @@ public class PerfilPaciente extends Fragment {
 
         showLoading(true);
 
-        // Configurar interceptor para logging
         HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
         logging.setLevel(HttpLoggingInterceptor.Level.BODY);
 
@@ -128,46 +125,23 @@ public class PerfilPaciente extends Fragment {
                 .build();
 
         AuthService authService = retrofit.create(AuthService.class);
-
-        // Llamar al endpoint que lista todos los pacientes
         Call<PacienteListResponse> call = authService.listarPacientes("Bearer " + token);
 
         call.enqueue(new Callback<PacienteListResponse>() {
             @Override
             public void onResponse(Call<PacienteListResponse> call, Response<PacienteListResponse> response) {
                 showLoading(false);
-
                 if (response.isSuccessful() && response.body() != null && response.body().isSuccess()) {
                     List<PacienteResponse> pacientes = response.body().getData();
-                    if (pacientes != null && !pacientes.isEmpty()) {
-                        boolean pacienteEncontrado = false;
-
-                        // Buscar el paciente con el ID correspondiente
-                        for (PacienteResponse paciente : pacientes) {
-                            if (paciente.getId() == pacienteId) {
-                                pacienteEncontrado = true;
-                                Log.d("PerfilPaciente", "Paciente encontrado: " + paciente.toString());
-                                displayPacienteData(paciente);
-                                break;
-                            }
+                    for (PacienteResponse paciente : pacientes) {
+                        if (paciente.getId() == pacienteId) {
+                            displayPacienteData(paciente);
+                            return;
                         }
-
-                        if (!pacienteEncontrado) {
-                            showError("Paciente no encontrado en la lista");
-                        }
-                    } else {
-                        showError("No hay pacientes registrados");
                     }
+                    showError("Paciente no encontrado");
                 } else {
-                    String errorMsg = "Error en la respuesta";
-                    if (response.errorBody() != null) {
-                        try {
-                            errorMsg += ": " + response.errorBody().string();
-                        } catch (Exception e) {
-                            Log.e("PerfilPaciente", "Error leyendo errorBody", e);
-                        }
-                    }
-                    showError(errorMsg);
+                    showError("Error al cargar datos del paciente");
                 }
             }
 
@@ -175,66 +149,57 @@ public class PerfilPaciente extends Fragment {
             public void onFailure(Call<PacienteListResponse> call, Throwable t) {
                 showLoading(false);
                 showError("Error de conexión: " + t.getMessage());
-                Log.e("PerfilPaciente", "Error en la llamada API", t);
             }
         });
     }
 
     private void displayPacienteData(PacienteResponse paciente) {
-        if (!isAdded() || getActivity() == null || paciente == null) {
-            return;
-        }
+        if (!isAdded() || getActivity() == null || paciente == null) return;
+
+        pacienteActual = paciente;
 
         getActivity().runOnUiThread(() -> {
-            try {
-                // Nombre completo
-                if (tvNombreApellido != null) {
-                    String nombre = paciente.getNombre() != null ? paciente.getNombre() : "";
-                    String apellido = paciente.getApellido() != null ? paciente.getApellido() : "";
-                    String nombreCompleto = (nombre + " " + apellido).trim();
-                    tvNombreApellido.setText(nombreCompleto.isEmpty() ? "Nombre no disponible" : nombreCompleto);
-                }
+            String nombreCompleto = (paciente.getNombre() + " " + paciente.getApellido()).trim();
+            tvNombreApellido.setText(nombreCompleto);
 
-                // Fecha de nacimiento (con formato)
-                if (tvFechaNacimiento != null) {
-                    String fecha = paciente.getFecha_nacimiento() != null ?
-                            formatFecha(paciente.getFecha_nacimiento()) : "No especificada";
-                    tvFechaNacimiento.setText("FECHA DE NACIMIENTO: " + fecha);
-                }
+            String fecha = paciente.getFecha_nacimiento() != null ?
+                    formatFecha(paciente.getFecha_nacimiento()) : "No especificada";
+            tvFechaNacimiento.setText("FECHA DE NACIMIENTO: " + fecha);
 
-                // Sexo (con capitalización)
-                if (tvSexo != null) {
-                    String sexo = paciente.getSexo() != null ?
-                            capitalizeFirstLetter(paciente.getSexo()) : "No especificado";
-                    tvSexo.setText("SEXO: " + sexo);
-                }
+            String sexo = paciente.getSexo() != null ? capitalizeFirstLetter(paciente.getSexo()) : "No especificado";
+            tvSexo.setText("SEXO: " + sexo);
 
-                // Diagnóstico
-                if (tvDiagnostico != null) {
-                    String diagnostico = paciente.getDiagnostico_principal() != null ?
-                            paciente.getDiagnostico_principal() : "Sin diagnóstico";
-                    tvDiagnostico.setText("DIAGNÓSTICO: " + diagnostico);
-                }
+            String diagnostico = paciente.getDiagnostico_principal() != null ?
+                    paciente.getDiagnostico_principal() : "Sin diagnóstico";
+            tvDiagnostico.setText("DIAGNÓSTICO: " + diagnostico);
 
-                // Identificación
-                if (tvIdentificacion != null) {
-                    String identificacion = paciente.getIdentificacion() != null ?
-                            paciente.getIdentificacion() : "No especificada";
-                    tvIdentificacion.setText("IDENTIFICACIÓN: " + identificacion);
-                }
-            } catch (Exception e) {
-                Log.e("PerfilPaciente", "Error actualizando UI", e);
-                showToast("Error mostrando información");
-            }
+            String identificacion = paciente.getIdentificacion() != null ?
+                    paciente.getIdentificacion() : "No especificada";
+            tvIdentificacion.setText("IDENTIFICACIÓN: " + identificacion);
         });
     }
 
-    // Métodos auxiliares
+    private void abrirDialogoEditar() {
+        if (pacienteActual == null) {
+            showToast("No hay paciente cargado para editar");
+            return;
+        }
+
+        EditarPacienteDialogFragment dialog = new EditarPacienteDialogFragment(pacienteActual);
+        dialog.setOnPacienteActualizadoListener(this); // Setear el listener
+        dialog.show(getParentFragmentManager(), "editarPaciente");
+    }
+
+    @Override
+    public void onPacienteActualizado() {
+        loadPacienteData(); // Recargar datos del paciente cuando se edite
+    }
+
     private String formatFecha(String fechaOriginal) {
         try {
-            SimpleDateFormat formatoOriginal = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+            SimpleDateFormat original = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
             SimpleDateFormat formatoDeseado = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
-            Date fecha = formatoOriginal.parse(fechaOriginal);
+            Date fecha = original.parse(fechaOriginal);
             return formatoDeseado.format(fecha);
         } catch (Exception e) {
             return fechaOriginal;
@@ -242,9 +207,7 @@ public class PerfilPaciente extends Fragment {
     }
 
     private String capitalizeFirstLetter(String str) {
-        if (str == null || str.isEmpty()) {
-            return str;
-        }
+        if (str == null || str.isEmpty()) return str;
         return str.substring(0, 1).toUpperCase() + str.substring(1).toLowerCase();
     }
 
@@ -256,13 +219,8 @@ public class PerfilPaciente extends Fragment {
 
     private void showError(String message) {
         if (!isAdded() || getActivity() == null) return;
-
-        getActivity().runOnUiThread(() -> {
-            Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
-            if (tvNombreApellido != null) {
-                tvNombreApellido.setText(message);
-            }
-        });
+        getActivity().runOnUiThread(() ->
+                Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show());
     }
 
     private void showToast(String message) {
@@ -272,8 +230,6 @@ public class PerfilPaciente extends Fragment {
     }
 
     private void navigateBack() {
-        if (!isAdded() || getActivity() == null) return;
-
         FragmentManager fragmentManager = getParentFragmentManager();
         if (fragmentManager.getBackStackEntryCount() > 0) {
             fragmentManager.popBackStack();
