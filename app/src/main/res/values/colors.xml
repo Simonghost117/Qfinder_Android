@@ -20,4 +20,15 @@
     <color name="rojosuave">#FF292D</color>
     <color name="colorUnido">#4CAF50</color>
     <color name="colorUnirse">#FF5722</color>
+    <color name="card_background">#EAF2FF</color>
+    <color name="card_stroke">#80FFFFFF</color>
+    <color name="text_primary">#000000</color>
+    <color name="text_secondary">#6200EE</color>
+
+
+    <!-- Colores de estado -->
+    <color name="status_pending">#FFA000</color>
+    <color name="status_completed">#4CAF50</color>
+    <color name="status_cancelled">#F44336</color>
+    <color name="status_in_progress">#2196F3</color>
 </resources>

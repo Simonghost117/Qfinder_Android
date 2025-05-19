@@ -1,5 +1,7 @@
 package com.sena.qfinder.api;
 
+import com.sena.qfinder.models.ActividadRequest;
+import com.sena.qfinder.models.ActividadResponse;
 import com.sena.qfinder.models.CodeVerificationRequest;
 import com.sena.qfinder.models.CodeVerificationResponse;
 import com.sena.qfinder.models.PacienteListResponse;
@@ -69,5 +71,11 @@ public interface AuthService {
             @Body PacienteRequest pacienteRequest
     );
 
-
+    // En tu AuthService.java
+    @POST("api/actividades/crearActivdad/{id_paciente}")
+    Call<ActividadResponse> crearActividad(
+            @Header("Authorization") String token,
+            @Path("id_paciente") int idPaciente,
+            @Body ActividadRequest request
+    );
 }

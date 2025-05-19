@@ -8,44 +8,41 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ActividadViewModel extends ViewModel {
-    // MutableLiveData para mantener la lista de actividades
     private final MutableLiveData<List<Actividad>> actividades = new MutableLiveData<>(new ArrayList<>());
 
-    // Getter para obtener las actividades
     public LiveData<List<Actividad>> getActividades() {
         return actividades;
     }
 
-    // Método para agregar una nueva actividad a la lista
     public void agregarActividad(Actividad actividad) {
         List<Actividad> actual = actividades.getValue();
         if (actual != null) {
             actual.add(actividad);
-            actividades.setValue(actual);  // Actualiza el LiveData
+            actividades.setValue(actual);
         }
     }
 
-    // Método para actualizar una actividad en un índice específico
+    public void actualizarActividad(int index, Actividad actividad) {
+        List<Actividad> actual = actividades.getValue();
+        if (actual != null && index >= 0 && index < actual.size()) {
+            actual.set(index, actividad);
+            actividades.setValue(actual);
+        }
+    }
+
     public void marcarActividadComoRealizada(int index) {
         List<Actividad> actual = actividades.getValue();
         if (actual != null && index >= 0 && index < actual.size()) {
-            actual.remove(index); // Elimina la actividad
-            actividades.setValue(actual); // Actualiza LiveData
+            actual.remove(index);
+            actividades.setValue(actual);
         }
     }
 
-    // Método para eliminar una actividad de la lista en un índice específico
     public void eliminarActividad(int index) {
         List<Actividad> actual = actividades.getValue();
         if (actual != null && index >= 0 && index < actual.size()) {
             actual.remove(index);
-            actividades.setValue(actual);  // Actualiza el LiveData
+            actividades.setValue(actual);
         }
-    }
-
-    // Método para verificar si la lista de actividades está vacía
-    public boolean tieneActividades() {
-        List<Actividad> actual = actividades.getValue();
-        return actual != null && !actual.isEmpty();
     }
 }
