@@ -1,4 +1,4 @@
-package com.sena.qfinder.model;
+package com.sena.qfinder.controller;
 
 import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
@@ -19,6 +19,8 @@ public class MainActivity extends AppCompatActivity {
             loadFragment(new Inicio());
             isInicioFragmentShown = true;
         }
+
+
     }
 
     @Override

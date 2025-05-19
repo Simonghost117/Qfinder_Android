@@ -1,9 +1,10 @@
 package com.sena.qfinder;
 
 import android.app.DatePickerDialog;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,65 +16,56 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
-import com.sena.qfinder.model.ManagerDB;
+import com.sena.qfinder.api.AuthService;
+import com.sena.qfinder.models.RegisterPacienteRequest;
+import com.sena.qfinder.models.RegisterPacienteResponse;
 import com.sena.qfinder.ui.home.DashboardFragment;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
+
 public class RegistrarPaciente extends Fragment {
 
-    ManagerDB managerDB;
-
-    ImageView btnBack;
-
+    private EditText editNombre, editApellido, editFechaNacimiento, editDiagnostico, editIdentificacion;
     private AutoCompleteTextView editSexo;
-
-    private EditText editNombreApellido, editFechaNacimiento, editDiagnostico, editIdentificacion;
     private Button btnRegistrar;
+    private ImageView btnBack;
 
-    public RegistrarPaciente() {
-    }
-
-    public static RegistrarPaciente newInstance(String param1, String param2) {
-        RegistrarPaciente fragment = new RegistrarPaciente();
-        Bundle args = new Bundle();
-        args.putString("param1", param1);
-        args.putString("param2", param2);
-        fragment.setArguments(args);
-        return fragment;
-    }
-
+    @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_registrar_paciente, container, false);
 
-        editNombreApellido = view.findViewById(R.id.etNombresApellidos);
+        // Inicializar vistas
+        editNombre = view.findViewById(R.id.edtNombre);
+        editApellido = view.findViewById(R.id.edtApellido);
         editFechaNacimiento = view.findViewById(R.id.etFechaNacimiento);
         editSexo = view.findViewById(R.id.etSexo);
         editDiagnostico = view.findViewById(R.id.etDiagnostico);
         editIdentificacion = view.findViewById(R.id.etIdentificacion);
         btnRegistrar = view.findViewById(R.id.btnRegistrar);
+        btnBack = view.findViewById(R.id.btnBack);
 
-        String[] generos = {"Masculino", "Femenino", "Otro"};
+        // Configurar selección de género
+        String[] generos = {"masculino", "femenino", "otro"};
         ArrayAdapter<String> adapter = new ArrayAdapter<>(requireContext(), android.R.layout.simple_dropdown_item_1line, generos);
-        ((AutoCompleteTextView) editSexo).setAdapter(adapter);
-
-// Forzar que muestre la lista al tocar
-        editSexo.setOnClickListener(v -> ((AutoCompleteTextView) editSexo).showDropDown());
-
-        editSexo = view.findViewById(R.id.etSexo);
-
-
-// Detectar selección y permitir escritura si es "Otro"
+        editSexo.setAdapter(adapter);
+        editSexo.setOnClickListener(v -> editSexo.showDropDown());
         editSexo.setOnItemClickListener((parent, view1, position, id) -> {
             String seleccion = (String) parent.getItemAtPosition(position);
-            if ("Otro".equals(seleccion)) {
+            if ("otro".equals(seleccion)) {
                 editSexo.setInputType(android.text.InputType.TYPE_CLASS_TEXT);
                 editSexo.setText("");
                 editSexo.setHint("Escribe tu género");
@@ -83,33 +75,28 @@ public class RegistrarPaciente extends Fragment {
             }
         });
 
-
-        // Mostrar el selector de fecha con clic o foco
+        // Configurar selector de fecha
         editFechaNacimiento.setOnClickListener(v -> showDatePickerDialog());
         editFechaNacimiento.setOnFocusChangeListener((v, hasFocus) -> {
-            if (hasFocus) {
-                showDatePickerDialog();
-            }
+            if (hasFocus) showDatePickerDialog();
         });
+        editFechaNacimiento.setKeyListener(null); // evitar entrada manual
 
-        // Bloquear escritura directa en el campo
-        editFechaNacimiento.setKeyListener(null);
-
+        // Botón para registrar paciente
         btnRegistrar.setOnClickListener(v -> registrarPaciente());
-        btnBack = view.findViewById(R.id.btnBack);
+
+        // Botón para volver al dashboard
         btnBack.setOnClickListener(v -> {
             FragmentManager fragmentManager = getParentFragmentManager();
             FragmentTransaction transaction = fragmentManager.beginTransaction();
-            transaction.replace(R.id.fragment_container, new DashboardFragment()); // o el fragmento que represente tu dashboard
+            transaction.replace(R.id.fragment_container, new DashboardFragment());
             transaction.addToBackStack(null);
             transaction.commit();
         });
 
-
         return view;
     }
 
-    // Mostrar DatePickerDialog para seleccionar la fecha
     private void showDatePickerDialog() {
         final Calendar calendar = Calendar.getInstance();
         int year = calendar.get(Calendar.YEAR);
@@ -120,8 +107,8 @@ public class RegistrarPaciente extends Fragment {
                 (view, selectedYear, selectedMonth, selectedDay) -> {
                     Calendar selectedDate = Calendar.getInstance();
                     selectedDate.set(selectedYear, selectedMonth, selectedDay);
-
-                    SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+                    // Cambiar formato a ISO 8601
+                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
                     editFechaNacimiento.setText(sdf.format(selectedDate.getTime()));
                     editFechaNacimiento.clearFocus();
                 }, year, month, day);
@@ -130,60 +117,65 @@ public class RegistrarPaciente extends Fragment {
     }
 
     private void registrarPaciente() {
-        String nombreApellido = editNombreApellido.getText().toString().trim();
+        String nombre = editNombre.getText().toString().trim();
+        String apellido = editApellido.getText().toString().trim();
         String fechaNacimiento = editFechaNacimiento.getText().toString().trim();
         String sexo = editSexo.getText().toString().trim();
         String diagnostico = editDiagnostico.getText().toString().trim();
         String identificacionStr = editIdentificacion.getText().toString().trim();
 
-        if (TextUtils.isEmpty(nombreApellido) || TextUtils.isEmpty(fechaNacimiento) ||
-                TextUtils.isEmpty(sexo) || TextUtils.isEmpty(diagnostico) || TextUtils.isEmpty(identificacionStr)) {
+        if (TextUtils.isEmpty(nombre) || TextUtils.isEmpty(apellido) || TextUtils.isEmpty(fechaNacimiento)
+                || TextUtils.isEmpty(sexo) || TextUtils.isEmpty(diagnostico) || TextUtils.isEmpty(identificacionStr)) {
             Toast.makeText(getContext(), "Todos los campos son obligatorios", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        int identificacion;
-        try {
-            identificacion = Integer.parseInt(identificacionStr);
-        } catch (NumberFormatException e) {
-            Toast.makeText(getContext(), "Identificación no válida", Toast.LENGTH_SHORT).show();
+        RegisterPacienteRequest request = new RegisterPacienteRequest(
+                nombre, apellido, fechaNacimiento, sexo, diagnostico, identificacionStr
+        );
+
+        SharedPreferences sharedPreferences = requireActivity().getSharedPreferences("usuario", Context.MODE_PRIVATE);
+        String token = sharedPreferences.getString("token", null);
+
+        if (token == null || token.isEmpty()) {
+            Toast.makeText(getContext(), "Token no encontrado. Inicia sesión nuevamente.", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        String[] nombresApellidos = nombreApellido.split(" ", 2);
-        String nombres = nombresApellidos[0];
-        String apellidos = nombresApellidos.length > 1 ? nombresApellidos[1] : "";
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl("https://qfinder-production.up.railway.app/")
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
 
-        managerDB = new ManagerDB(getContext());
-        long resultado = managerDB.insertarPaciente(nombres, apellidos, fechaNacimiento, sexo, diagnostico, identificacion);
-        Log.d("debugger", "resultadocreacionuser: " + resultado);
-        if (resultado != -1) {
-            Toast.makeText(getContext(), "Paciente registrado correctamente", Toast.LENGTH_SHORT).show();
-            limpiarCampos();
-            Integer resultadoConvert = Integer.parseInt(resultado + "");
-            mostrarPerfilPaciente(resultadoConvert);
-        } else {
-            Toast.makeText(getContext(), "Error al registrar paciente", Toast.LENGTH_SHORT).show();
-        }
-    }
+        AuthService authService = retrofit.create(AuthService.class);
 
-    private void mostrarPerfilPaciente(int pacienteId) {
-        Log.d("debugger", "ID: " + pacienteId);
-        PerfilPaciente perfilFragment = PerfilPaciente.newInstance(pacienteId);
-        FragmentManager fragmentManager = getFragmentManager();
-        if (fragmentManager != null) {
-            FragmentTransaction transaction = fragmentManager.beginTransaction();
-            transaction.replace(R.id.fragment_container, perfilFragment);
-            transaction.addToBackStack(null);
-            transaction.commit();
-        }
-    }
+        // CORRECCIÓN: agregar espacio después de "Bearer "
+        authService.registerPaciente("Bearer " + token, request).enqueue(new Callback<RegisterPacienteResponse>() {
+            @Override
+            public void onResponse(@NonNull Call<RegisterPacienteResponse> call, @NonNull Response<RegisterPacienteResponse> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    Toast.makeText(getContext(), "Paciente registrado exitosamente", Toast.LENGTH_SHORT).show();
+                    // Volver al dashboard
+                    FragmentManager fragmentManager = getParentFragmentManager();
+                    FragmentTransaction transaction = fragmentManager.beginTransaction();
+                    transaction.replace(R.id.fragment_container, new DashboardFragment());
+                    transaction.commit();
+                } else {
+                    String errorMensaje = "Error al registrar paciente";
+                    try {
+                        if (response.errorBody() != null) {
+                            errorMensaje = response.errorBody().string();
+                        }
+                    } catch (Exception ignored) {
+                    }
+                    Toast.makeText(getContext(), errorMensaje, Toast.LENGTH_LONG).show();
+                }
+            }
 
-    private void limpiarCampos() {
-        editNombreApellido.setText("");
-        editFechaNacimiento.setText("");
-        editSexo.setText("");
-        editDiagnostico.setText("");
-        editIdentificacion.setText("");
+            @Override
+            public void onFailure(@NonNull Call<RegisterPacienteResponse> call, @NonNull Throwable t) {
+                Toast.makeText(getContext(), "Error de conexión: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 }
