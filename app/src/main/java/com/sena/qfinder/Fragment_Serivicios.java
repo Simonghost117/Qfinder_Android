@@ -29,15 +29,17 @@ public class Fragment_Serivicios extends Fragment {
             transaction.commit();
         });
 
-        // Card para actividad
-        LinearLayout cardActividad = view.findViewById(R.id.cardActividad);
-        cardActividad.setOnClickListener(v -> {
-            // Reemplazar fragmento actual por Actividad1Fragment
+        LinearLayout cardRegistroSalud = view.findViewById(R.id.registrosalud);
+        cardRegistroSalud.setOnClickListener(v -> {
+            // Reemplazar fragmento actual por GestionPacienteFragment
             FragmentTransaction transaction = getParentFragmentManager().beginTransaction();
-            transaction.replace(R.id.fragment_container, new Actividad1Fragment()); // Aquí carga el nuevo fragmento
+            transaction.replace(R.id.fragment_container, new registro_salud()); // Asegúrate de que R.id.fragment_container exista
             transaction.addToBackStack(null); // Para poder volver atrás
             transaction.commit();
         });
+
+
+
 
         return view;
 
