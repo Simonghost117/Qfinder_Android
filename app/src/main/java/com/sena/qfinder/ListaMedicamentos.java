@@ -1,10 +1,15 @@
 package com.sena.qfinder;
 
+import android.app.AlertDialog;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
 
+import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,6 +18,26 @@ import android.widget.ImageButton;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import com.google.android.material.textfield.TextInputEditText;
+import com.sena.qfinder.api.AuthService;
+import com.sena.qfinder.models.MedicamentoRequest;
+import com.sena.qfinder.models.MedicamentoResponse;
+import com.sena.qfinder.models.MedicamentosResponse;
+import com.sena.qfinder.models.PacienteListResponse;
+import com.sena.qfinder.models.PacienteResponse;
+import com.sena.qfinder.models.RetrofitClient;
+
+import java.util.List;
+
+import okhttp3.OkHttpClient;
+import okhttp3.logging.HttpLoggingInterceptor;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -21,7 +46,7 @@ import android.widget.TextView;
  */
 public class ListaMedicamentos extends Fragment {
     private TableLayout tablaMedicamentos;
-    private Button btnAgregar;
+    private Button btnAgregarMedicamento;
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -69,37 +94,194 @@ public class ListaMedicamentos extends Fragment {
         View view = inflater.inflate(R.layout.fragment_lista_medicamentos, container, false);
 
         tablaMedicamentos = view.findViewById(R.id.tablaMedicamentos);
-        btnAgregar = view.findViewById(R.id.btnAgregar);
+        btnAgregarMedicamento = view.findViewById(R.id.btnAgregarMedicamento);
 
         // Datos de prueba
-        agregarFila("Silazina", "200mg", "Tomar una pastilla al día");
-        agregarFila("Acetaminofén", "100mg", "Una pastilla cada 8 horas");
-        agregarFila("Ibuprofeno", "150mg", "Una pastilla cada 8 horas");
+        MedicamentoResponse medicamento = new MedicamentoResponse("Silazina", "200mg", "Tomar una pastilla al día");
+        agregarFila(medicamento);
 
-        btnAgregar.setOnClickListener(v -> {
+        btnAgregarMedicamento.setOnClickListener(v -> {
             // Aquí puedes abrir un diálogo o nueva pantalla para ingresar datos
-            agregarFila("Nuevo", "0mg", "Descripción");
+            //agregarFila("Nuevo", "0mg", "Descripción");
+
+            mostrarDialogoAgregarMedicamento();
         });
+
+        obtenerMedicamentos();
+
         // Inflate the layout for this fragment
         return view;
     }
 
-    private void agregarFila(String nombre, String dosis, String descripcion) {
+    private void mostrarDialogoAgregarMedicamento() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        View viewInflated = LayoutInflater.from(getContext()).inflate(R.layout.fragment_agregar_medicamento, (ViewGroup) getView(), false);
+        builder.setView(viewInflated);
+
+        TextInputEditText editTextNombre = viewInflated.findViewById(R.id.edtNombreMedicamento);
+        TextInputEditText editTextDosis = viewInflated.findViewById(R.id.edtDosisMedicamento);
+        TextInputEditText editTextDescripcion = viewInflated.findViewById(R.id.edtDosisMedicamento);
+        Button btnCancelar = viewInflated.findViewById(R.id.btnCancelar);
+        Button btnGuardar = viewInflated.findViewById(R.id.btnGuardarMedicamento);
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
+
+        btnGuardar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String nombre = editTextNombre.getText().toString().trim();
+                String tipo = editTextDosis.getText().toString().trim();
+                String descripcion = editTextDescripcion.getText().toString().trim();
+
+                if (!nombre.isEmpty() && !tipo.isEmpty()) {
+                    MedicamentoResponse nuevoMedicamento = new MedicamentoResponse(nombre, tipo, descripcion);
+                    agregarFila(nuevoMedicamento);
+                    dialog.dismiss();
+                    Toast.makeText(getContext(), "Medicamento agregado", Toast.LENGTH_SHORT).show();
+                    // Aquí podrías guardar la información en una base de datos o lista
+
+
+                    Log.d("AgregarMedicamento", "Nombre: " + nombre);
+                    Log.d("AgregarMedicamento", "Tipo: " + tipo);
+                    Log.d("AgregarMedicamento", "Descripción: " + descripcion);
+
+                    // Crear objeto de solicitud
+                    MedicamentoRequest request = new MedicamentoRequest(
+                            nombre,
+                            tipo,
+                            descripcion
+                    );
+
+                    Log.d("AgregarMedicamento", "Request Nombre: " + request.getNombre());
+                    Log.d("AgregarMedicamento", "Request Tipo: " + request.getTipo());
+                    Log.d("AgregarMedicamento", "Request Descripción: " + request.getDescripcion());
+
+                    SharedPreferences sharedPreferences = requireActivity().getSharedPreferences("usuario", Context.MODE_PRIVATE);
+                    String token = sharedPreferences.getString("token", null);
+
+
+                    if (token == null || token.isEmpty()) {
+                        Toast.makeText(getContext(), "Token no encontrado. Inicia sesión nuevamente.", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    // Configurar Retrofit
+                    Retrofit retrofit = new Retrofit.Builder()
+                            .baseUrl("https://qfinder-production.up.railway.app/")
+                            .addConverterFactory(GsonConverterFactory.create())
+                            .build();
+
+                    AuthService authService = retrofit.create(AuthService.class);
+
+                    // Realizar la llamada al servidor
+                    Call<MedicamentoResponse> call = authService.agregarMedicamento("Bearer " + token, request);
+                    call.enqueue(new Callback<MedicamentoResponse>() {
+                        @Override
+                        public void onResponse(Call<MedicamentoResponse> call, Response<MedicamentoResponse> response) {
+
+                            Log.d("AgregarMedicamento", "Código de respuesta: " + response.code());
+
+                            if (response.isSuccessful()) {
+                                Log.d("AgregarMedicamento", "Respuesta exitosa del servidor: " + response.body().getMessage());
+                                Toast.makeText(getContext(), "Se registro el medicamento correctamente", Toast.LENGTH_SHORT).show();
+
+                            } else {
+                                Log.d("AgregarMedicamento", "Error en la respuesta del servidor: " + response.code());
+                                try {
+                                    Log.d("AgregarMedicamento", "Cuerpo del error: " + response.errorBody().string());
+                                } catch (Exception e) {
+                                    Log.d("AgregarMedicamento", "Error al leer el cuerpo del error: " + e.getMessage());
+                                }
+                                Toast.makeText(getContext(), "No se registro el medicamento correctamente", Toast.LENGTH_SHORT).show();
+                            }
+                        }
+
+                        @Override
+                        public void onFailure(Call<MedicamentoResponse> call, Throwable t) {
+
+                            Log.e("AgregarMedicamento", "Error de conexión: " + t.getMessage());
+                            Toast.makeText(getContext(), "Error de conexión: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                } else {
+                    Toast.makeText(getContext(), "El nombre y la dosis son obligatorios", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
+        btnCancelar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+            }
+        });
+    }
+
+    private void obtenerMedicamentos() {
+        SharedPreferences sharedPreferences = requireActivity().getSharedPreferences("usuario", Context.MODE_PRIVATE);
+        String token = sharedPreferences.getString("token", null);
+
+        if (token == null || token.isEmpty()) {
+            Toast.makeText(getContext(), "Token no encontrado. Inicia sesión nuevamente.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        Toast.makeText(getContext(), "Token: "+token, Toast.LENGTH_SHORT).show();
+
+        AuthService apiService = RetrofitClient.getRetrofitInstance().create(AuthService.class);
+        Call<List<MedicamentoResponse>> call = apiService.listarMedicamentos("Bearer " + token);
+
+        call.enqueue(new Callback<List<MedicamentoResponse>>() {
+            @Override
+            public void onResponse(Call<List<MedicamentoResponse>> call, Response<List<MedicamentoResponse>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    for (MedicamentoResponse m : response.body()) {
+                        agregarFila(m);
+                    }
+                } else {
+                    Toast.makeText(getContext(), "Error al obtener medicamentos", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<MedicamentoResponse>> call, Throwable t) {
+                Toast.makeText(getContext(), "Fallo en la conexión: " + t.getMessage(), Toast.LENGTH_LONG).show();
+            }
+        });
+    }
+    private TextView createTextView(String text, boolean isHeader) {
+        TextView textView = new TextView(getContext());
+        textView.setText(text);
+        textView.setPadding(8, 8, 8, 8);
+        if (isHeader) {
+            textView.setTextColor(Color.BLACK);
+            textView.setTextSize(16);
+            textView.setTypeface(textView.getTypeface(), android.graphics.Typeface.BOLD);
+        }
+        textView.setLayoutParams(new TableRow.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, isHeader ? 1 : 1));
+        return textView;
+    }
+
+    private void agregarFila(MedicamentoResponse medicamento) {
         TableRow fila = new TableRow(getContext());
 
-        TextView tvNombre = new TextView(getContext());
-        tvNombre.setText(nombre);
-
-        TextView tvDosis = new TextView(getContext());
-        tvDosis.setText(dosis);
-
-        TextView tvDescripcion = new TextView(getContext());
-        tvDescripcion.setText(descripcion);
+        TextView tvNombre = createTextView(medicamento.getNombre(), false);
+        TextView tvDosis = createTextView(medicamento.getTipo(), false);
+        TextView tvDescripcion = createTextView(medicamento.getDescripcion(), false);
 
         ImageButton btnEliminar = new ImageButton(getContext());
         btnEliminar.setImageResource(android.R.drawable.ic_menu_delete);
-        btnEliminar.setBackgroundColor(Color.rgb(255,117,177));
-        btnEliminar.setOnClickListener(v -> tablaMedicamentos.removeView(fila));
+        btnEliminar.setBackgroundColor(Color.TRANSPARENT);
+        int padding = (int) getResources().getDimension(R.dimen.padding_eliminar_boton);
+        btnEliminar.setPadding(padding, padding, padding, padding);
+        TableRow.LayoutParams btnParams = new TableRow.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        btnParams.gravity = Gravity.CENTER;
+        btnEliminar.setLayoutParams(btnParams);
+        btnEliminar.setOnClickListener(v -> {
+            Toast.makeText(getContext(), "Eliminar " + medicamento.getNombre(), Toast.LENGTH_SHORT).show();
+            // Aquí puedes agregar lógica para eliminar el medicamento del servidor y de la UI
+        });
 
         fila.addView(tvNombre);
         fila.addView(tvDosis);

@@ -88,7 +88,8 @@
             android:background="@android:color/transparent"
             android:inputType="textEmailAddress"
             android:textColor="#000000"
-            android:textColorHint="#000000" />
+            android:textColorHint="#000000"
+            android:text="juanmoriones012@gmail.com"/>
     </LinearLayout>
 
     <!-- Campo Contraseña -->
@@ -118,7 +119,8 @@
             android:inputType="textPassword"
             android:background="@android:color/transparent"
             android:textColorHint="#000000"
-            android:textColor="#000000" />
+            android:textColor="#000000"
+            android:text="Juan1234@"/>
     </LinearLayout>
 
     <!-- ¿Olvidaste tu contraseña? -->

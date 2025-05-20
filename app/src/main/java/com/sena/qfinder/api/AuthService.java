@@ -2,6 +2,9 @@ package com.sena.qfinder.api;
 
 import com.sena.qfinder.models.CodeVerificationRequest;
 import com.sena.qfinder.models.CodeVerificationResponse;
+import com.sena.qfinder.models.MedicamentoRequest;
+import com.sena.qfinder.models.MedicamentoResponse;
+import com.sena.qfinder.models.MedicamentosResponse;
 import com.sena.qfinder.models.PacienteListResponse;
 import com.sena.qfinder.models.PacienteRequest;
 import com.sena.qfinder.models.PacienteResponse;
@@ -16,6 +19,8 @@ import com.sena.qfinder.models.RegisterRequest;
 import com.sena.qfinder.models.RegisterResponse;
 import com.sena.qfinder.models.VerificarCodigoRequest;
 import com.sena.qfinder.models.CambiarPasswordRequest;
+
+import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.http.Body;
@@ -68,6 +73,14 @@ public interface AuthService {
             @Path("id_paciente") int pacienteId,
             @Body PacienteRequest pacienteRequest
     );
+
+    @POST("/api/medicamentos/crear")
+    Call<MedicamentoResponse> agregarMedicamento(
+            @Header("Authorization") String token,
+            @Body MedicamentoRequest request
+    );
+    @GET("api/medicamentos/listar")
+    Call<List<MedicamentoResponse>> listarMedicamentos(@Header("Authorization") String token);
 
 
 }

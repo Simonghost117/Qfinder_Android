@@ -17,6 +17,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.QfinderAndroid"
+        android:usesCleartextTraffic="true"
         tools:targetApi="31">
 
         <!-- Configuración para notch y barra de estado -->
