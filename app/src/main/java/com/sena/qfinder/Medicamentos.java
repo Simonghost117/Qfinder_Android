@@ -71,6 +71,14 @@ public class Medicamentos extends Fragment {
             transaction.commit();
         });
 
+        LinearLayout btnAsignarMedicamentos = view.findViewById(R.id.btnAsignarMedicamentos);
+        btnAsignarMedicamentos.setOnClickListener(v -> {
+            FragmentTransaction transaction = getParentFragmentManager().beginTransaction();
+            transaction.replace(R.id.fragment_container, new ListaAsignarMedicamentos());
+            transaction.addToBackStack(null); // Para poder volver atrás
+            transaction.commit();
+        });
+
         // Inflate the layout for this fragment
         return view;
     }
