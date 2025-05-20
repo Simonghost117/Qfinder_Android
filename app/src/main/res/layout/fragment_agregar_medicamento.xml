@@ -25,16 +25,36 @@
             android:inputType="text" />
     </com.google.android.material.textfield.TextInputLayout>
 
-    <com.google.android.material.textfield.TextInputLayout
+    <!--<com.google.android.material.textfield.TextInputLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Dosis">
         <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/edtDosisMedicamento"
+            android:id="@+id/edtDosis"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:inputType="text" />
-    </com.google.android.material.textfield.TextInputLayout>
+    </com.google.android.material.textfield.TextInputLayout>-->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginVertical="10dp"
+        android:orientation="vertical"
+        android:background="@drawable/border"
+        android:paddingVertical="4dp"
+        android:paddingHorizontal="5dp">
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Selecciona un tipo:"
+            android:textSize="17sp"/>
+        <Spinner
+            android:id="@+id/spTipo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:spinnerMode="dropdown"
+            />
+    </LinearLayout>
 
     <com.google.android.material.textfield.TextInputLayout
         android:layout_width="match_parent"

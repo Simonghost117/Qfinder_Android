@@ -11,7 +11,10 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.google.android.material.textfield.TextInputEditText;
@@ -45,8 +48,9 @@ public class fragment_agregar_medicamento extends Fragment {
 
     Button btnGuardarMedicamento;
     TextInputEditText edtNombreMedicamento;
-    TextInputEditText edtDosisMedicamento;
+    TextInputEditText edtDosis;
     TextInputEditText edtDescripcion;
+
 
     private ProgressDialog progressDialog;
 
@@ -88,76 +92,26 @@ public class fragment_agregar_medicamento extends Fragment {
 
         initViews(view);
 
-        btnGuardarMedicamento.setOnClickListener(new View.OnClickListener() {
+        Spinner spinnerTipo = view.findViewById(R.id.spTipo);
+
+        String[] tipos = {"psiquiatrico", "neurologico", "general", "otro"};
+
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(requireContext(), android.R.layout.simple_spinner_item, tipos);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+
+        // Asignar adaptador al Spinner
+        spinnerTipo.setAdapter(adapter);
+
+        spinnerTipo.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
-            public void onClick(View view) {
-                String nombre = edtNombreMedicamento.getText().toString().trim();
-                String tipo = edtDosisMedicamento.getText().toString().trim();
-                String descripcion = edtDescripcion.getText().toString().trim();
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                String tipoSeleccionado = parent.getItemAtPosition(position).toString();
+                Toast.makeText(requireContext(), "Seleccionaste: " + tipoSeleccionado, Toast.LENGTH_SHORT).show();
+            }
 
-                Log.d("AgregarMedicamento", "Nombre: " + nombre);
-                Log.d("AgregarMedicamento", "Tipo: " + tipo);
-                Log.d("AgregarMedicamento", "Descripción: " + descripcion);
-
-                // Crear objeto de solicitud
-                MedicamentoRequest request = new MedicamentoRequest(
-                        nombre,
-                        tipo,
-                        descripcion
-                );
-
-                Log.d("AgregarMedicamento", "Request Nombre: " + request.getNombre());
-                Log.d("AgregarMedicamento", "Request Tipo: " + request.getTipo());
-                Log.d("AgregarMedicamento", "Request Descripción: " + request.getDescripcion());
-
-                SharedPreferences sharedPreferences = requireActivity().getSharedPreferences("usuario", Context.MODE_PRIVATE);
-                String token = sharedPreferences.getString("token", null);
-                Toast.makeText(getContext(), "aaaa" + token, Toast.LENGTH_SHORT).show();
-
-
-                if (token == null || token.isEmpty()) {
-                    Toast.makeText(getContext(), "Token no encontrado. Inicia sesión nuevamente.", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-
-                // Configurar Retrofit
-                Retrofit retrofit = new Retrofit.Builder()
-                        .baseUrl("https://qfinder-production.up.railway.app/")
-                        .addConverterFactory(GsonConverterFactory.create())
-                        .build();
-
-                AuthService authService = retrofit.create(AuthService.class);
-
-                // Realizar la llamada al servidor
-                Call<MedicamentoResponse> call = authService.agregarMedicamento("Bearer " + token, request);
-                call.enqueue(new Callback<MedicamentoResponse>() {
-                    @Override
-                    public void onResponse(Call<MedicamentoResponse> call, Response<MedicamentoResponse> response) {
-
-                        Log.d("AgregarMedicamento", "Código de respuesta: " + response.code());
-
-                        if (response.isSuccessful()) {
-                            Log.d("AgregarMedicamento", "Respuesta exitosa del servidor: " + response.body().getMessage());
-                            Toast.makeText(getContext(), "Se registro el medicamento correctamente", Toast.LENGTH_SHORT).show();
-
-                        } else {
-                            Log.d("AgregarMedicamento", "Error en la respuesta del servidor: " + response.code());
-                            try {
-                                Log.d("AgregarMedicamento", "Cuerpo del error: " + response.errorBody().string());
-                            } catch (Exception e) {
-                                Log.d("AgregarMedicamento", "Error al leer el cuerpo del error: " + e.getMessage());
-                            }
-                            Toast.makeText(getContext(), "No se registro el medicamento correctamente", Toast.LENGTH_SHORT).show();
-                        }
-                    }
-
-                    @Override
-                    public void onFailure(Call<MedicamentoResponse> call, Throwable t) {
-                        progressDialog.dismiss();
-                        Log.e("AgregarMedicamento", "Error de conexión: " + t.getMessage());
-                        Toast.makeText(getContext(), "Error de conexión: " + t.getMessage(), Toast.LENGTH_SHORT).show();
-                    }
-                });
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                // Puedes dejarlo vacío
             }
         });
 
@@ -167,7 +121,7 @@ public class fragment_agregar_medicamento extends Fragment {
 
     private void initViews(View view) {
         edtNombreMedicamento = view.findViewById(R.id.edtNombreMedicamento);
-        edtDosisMedicamento = view.findViewById(R.id.edtDosisMedicamento);
+        //edtDosis = view.findViewById(R.id.edtDosis);
         edtDescripcion = view.findViewById(R.id.edtDescripcion);
         btnGuardarMedicamento = view.findViewById(R.id.btnGuardarMedicamento);
 

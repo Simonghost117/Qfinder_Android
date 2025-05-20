@@ -4,6 +4,7 @@ import com.sena.qfinder.models.CodeVerificationRequest;
 import com.sena.qfinder.models.CodeVerificationResponse;
 import com.sena.qfinder.models.MedicamentoRequest;
 import com.sena.qfinder.models.MedicamentoResponse;
+import com.sena.qfinder.models.MedicamentoSimpleResponse;
 import com.sena.qfinder.models.MedicamentosResponse;
 import com.sena.qfinder.models.PacienteListResponse;
 import com.sena.qfinder.models.PacienteRequest;
@@ -24,6 +25,7 @@ import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.http.Body;
+import retrofit2.http.DELETE;
 import retrofit2.http.GET;
 import retrofit2.http.Header;
 import retrofit2.http.POST;
@@ -82,5 +84,10 @@ public interface AuthService {
     @GET("api/medicamentos/listar")
     Call<List<MedicamentoResponse>> listarMedicamentos(@Header("Authorization") String token);
 
+    @DELETE("api/medicamentos/eliminar/{id}")
+    Call<MedicamentoSimpleResponse> eliminarMedicamento(
+            @Header("Authorization") String token,
+            @Path("id") int id
+    );
 
 }

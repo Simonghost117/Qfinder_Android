@@ -13,17 +13,21 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.Spinner;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.material.textfield.TextInputEditText;
+import com.sena.qfinder.api.ApiClient;
 import com.sena.qfinder.api.AuthService;
 import com.sena.qfinder.models.MedicamentoRequest;
 import com.sena.qfinder.models.MedicamentoResponse;
+import com.sena.qfinder.models.MedicamentoSimpleResponse;
 import com.sena.qfinder.models.MedicamentosResponse;
 import com.sena.qfinder.models.PacienteListResponse;
 import com.sena.qfinder.models.PacienteResponse;
@@ -47,6 +51,8 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class ListaMedicamentos extends Fragment {
     private TableLayout tablaMedicamentos;
     private Button btnAgregarMedicamento;
+
+    Spinner tipoDato;
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -114,28 +120,40 @@ public class ListaMedicamentos extends Fragment {
     }
 
     private void mostrarDialogoAgregarMedicamento() {
+
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
         View viewInflated = LayoutInflater.from(getContext()).inflate(R.layout.fragment_agregar_medicamento, (ViewGroup) getView(), false);
         builder.setView(viewInflated);
 
         TextInputEditText editTextNombre = viewInflated.findViewById(R.id.edtNombreMedicamento);
-        TextInputEditText editTextDosis = viewInflated.findViewById(R.id.edtDosisMedicamento);
-        TextInputEditText editTextDescripcion = viewInflated.findViewById(R.id.edtDosisMedicamento);
+        //TextInputEditText editTextDosis = viewInflated.findViewById(R.id.edtDosis);
+        Spinner tipo = viewInflated.findViewById(R.id.spTipo);
+        TextInputEditText editTextDescripcion = viewInflated.findViewById(R.id.edtDescripcion);
         Button btnCancelar = viewInflated.findViewById(R.id.btnCancelar);
         Button btnGuardar = viewInflated.findViewById(R.id.btnGuardarMedicamento);
 
         AlertDialog dialog = builder.create();
         dialog.show();
 
+        Spinner tipoSS = viewInflated.findViewById(R.id.spTipo);
+
+        // Lista de opciones para el spinner
+        String[] opciones = {"psiquiatrico", "neurologico", "general", "otro"}; // Cambia según tus tipos reales
+
+        // Adaptador para el spinner
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_item, opciones);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        tipoSS.setAdapter(adapter);
+
         btnGuardar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 String nombre = editTextNombre.getText().toString().trim();
-                String tipo = editTextDosis.getText().toString().trim();
+                String tipoDD = tipo.getSelectedItem().toString();
                 String descripcion = editTextDescripcion.getText().toString().trim();
 
-                if (!nombre.isEmpty() && !tipo.isEmpty()) {
-                    MedicamentoResponse nuevoMedicamento = new MedicamentoResponse(nombre, tipo, descripcion);
+                if (!nombre.isEmpty() && !tipoDD.isEmpty()) {
+                    MedicamentoResponse nuevoMedicamento = new MedicamentoResponse(nombre, tipoDD, descripcion);
                     agregarFila(nuevoMedicamento);
                     dialog.dismiss();
                     Toast.makeText(getContext(), "Medicamento agregado", Toast.LENGTH_SHORT).show();
@@ -143,14 +161,14 @@ public class ListaMedicamentos extends Fragment {
 
 
                     Log.d("AgregarMedicamento", "Nombre: " + nombre);
-                    Log.d("AgregarMedicamento", "Tipo: " + tipo);
+                    Log.d("AgregarMedicamento", "Tipo: " + tipoDD);
                     Log.d("AgregarMedicamento", "Descripción: " + descripcion);
 
                     // Crear objeto de solicitud
                     MedicamentoRequest request = new MedicamentoRequest(
                             nombre,
-                            tipo,
-                            descripcion
+                            descripcion,
+                            tipoDD
                     );
 
                     Log.d("AgregarMedicamento", "Request Nombre: " + request.getNombre());
@@ -218,6 +236,14 @@ public class ListaMedicamentos extends Fragment {
         });
     }
 
+    private void limpiarTabla() {
+        // Preserva la fila de encabezado (índice 0), elimina las demás
+        int childCount = tablaMedicamentos.getChildCount();
+        if (childCount > 1) {
+            tablaMedicamentos.removeViews(1, childCount - 1);
+        }
+    }
+
     private void obtenerMedicamentos() {
         SharedPreferences sharedPreferences = requireActivity().getSharedPreferences("usuario", Context.MODE_PRIVATE);
         String token = sharedPreferences.getString("token", null);
@@ -227,9 +253,7 @@ public class ListaMedicamentos extends Fragment {
             return;
         }
 
-        Toast.makeText(getContext(), "Token: "+token, Toast.LENGTH_SHORT).show();
-
-        AuthService apiService = RetrofitClient.getRetrofitInstance().create(AuthService.class);
+        AuthService apiService = ApiClient.getClient().create(AuthService.class);
         Call<List<MedicamentoResponse>> call = apiService.listarMedicamentos("Bearer " + token);
 
         call.enqueue(new Callback<List<MedicamentoResponse>>() {
@@ -239,9 +263,12 @@ public class ListaMedicamentos extends Fragment {
                     for (MedicamentoResponse m : response.body()) {
                         agregarFila(m);
                     }
+                    Log.d("MDDD3", "Descripción: " + response.body());
                 } else {
                     Toast.makeText(getContext(), "Error al obtener medicamentos", Toast.LENGTH_SHORT).show();
                 }
+
+                Log.d("MDDD3", "Descripción: " + response.body());
             }
 
             @Override
@@ -266,6 +293,8 @@ public class ListaMedicamentos extends Fragment {
     private void agregarFila(MedicamentoResponse medicamento) {
         TableRow fila = new TableRow(getContext());
 
+        Log.d("MDDD2", medicamento.toString());
+
         TextView tvNombre = createTextView(medicamento.getNombre(), false);
         TextView tvDosis = createTextView(medicamento.getTipo(), false);
         TextView tvDescripcion = createTextView(medicamento.getDescripcion(), false);
@@ -278,9 +307,51 @@ public class ListaMedicamentos extends Fragment {
         TableRow.LayoutParams btnParams = new TableRow.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         btnParams.gravity = Gravity.CENTER;
         btnEliminar.setLayoutParams(btnParams);
+
+        // ACCION PARA EL BOTON DE ELIMINAR CADA MEDICAMENTO
         btnEliminar.setOnClickListener(v -> {
-            Toast.makeText(getContext(), "Eliminar " + medicamento.getNombre(), Toast.LENGTH_SHORT).show();
+            //Toast.makeText(getContext(), "Eliminar " + medicamento.getNombre(), Toast.LENGTH_SHORT).show();
             // Aquí puedes agregar lógica para eliminar el medicamento del servidor y de la UI
+
+            SharedPreferences sharedPreferences = requireActivity().getSharedPreferences("usuario", Context.MODE_PRIVATE);
+            String token = sharedPreferences.getString("token", null);
+
+            if (token == null || token.isEmpty()) {
+                Toast.makeText(getContext(), "Token no encontrado. Inicia sesión nuevamente.", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            Toast.makeText(getContext(), "ID: "+medicamento.getId_medicamento(), Toast.LENGTH_SHORT).show();
+
+            AuthService apiService = ApiClient.getClient().create(AuthService.class);
+            Call<MedicamentoSimpleResponse> call = apiService.eliminarMedicamento("Bearer " + token, medicamento.getId_medicamento());
+
+
+
+
+            call.enqueue(new Callback<MedicamentoSimpleResponse>() {
+                @Override
+                public void onResponse(Call<MedicamentoSimpleResponse> call, Response<MedicamentoSimpleResponse> response) {
+                    if (response.isSuccessful() && response.body() != null) {
+                        Toast.makeText(getContext(), response.body().getMessage(), Toast.LENGTH_SHORT).show();
+                        // Opcional: refrescar la lista
+                        limpiarTabla(); // Limpia la tabla
+                        obtenerMedicamentos();
+                    } else {
+                        Toast.makeText(getContext(), "Error al eliminar", Toast.LENGTH_SHORT).show();
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<MedicamentoSimpleResponse> call, Throwable t) {
+                    Toast.makeText(getContext(), "Fallo en la conexión: " + t.getMessage(), Toast.LENGTH_LONG).show();
+                }
+            });
+
+
+
+
+
         });
 
         fila.addView(tvNombre);
