@@ -14,9 +14,11 @@ import com.sena.qfinder.models.SendCodeRequest;
 import com.sena.qfinder.models.SendCodeResponse;
 import com.sena.qfinder.models.RegisterRequest;
 import com.sena.qfinder.models.RegisterResponse;
+import com.sena.qfinder.models.UsuarioRequest;
 import com.sena.qfinder.models.VerificarCodigoRequest;
 import com.sena.qfinder.models.CambiarPasswordRequest;
 
+import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.GET;
@@ -69,5 +71,7 @@ public interface AuthService {
             @Body PacienteRequest pacienteRequest
     );
 
+    @PUT("api/auth/actualizarUser")
+    Call<ResponseBody> actualizarUsuario(@Body UsuarioRequest usuario, @Header("Authorization") String token);
 
 }
