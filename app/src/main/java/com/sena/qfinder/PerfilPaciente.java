@@ -76,7 +76,7 @@ public class PerfilPaciente extends Fragment implements EditarPacienteDialogFrag
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_perfil_paciente, container, false);
 
-        MaterialCardView btnEditar = view.findViewById(R.id.boton);
+        ImageView btnEditar = view.findViewById(R.id.boton_imagen);
         btnEditar.setOnClickListener(v -> abrirDialogoEditar());
 
         initViews(view);
