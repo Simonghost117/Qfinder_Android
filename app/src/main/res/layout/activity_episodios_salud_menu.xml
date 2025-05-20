@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    tools:context=".episodios_salud_menu">
+
+
+<LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <!-- Encabezado -->
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="99dp">
+
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="centerCrop"
+                android:src="@drawable/ic_header"
+                android:contentDescription="Imagen de encabezado" />
+
+            <TextView
+                android:id="@+id/tituloServicios"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Registros de salud"
+                android:textColor="#000000"
+                android:textSize="26sp"
+                android:textStyle="bold"
+                android:layout_centerInParent="true"
+                android:layout_marginTop="33dp"/>
+        </RelativeLayout>
+
+        <!-- Info de registros -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:paddingVertical="16dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Episodios salud"
+                android:textSize="26sp"
+                android:textStyle="bold"/>
+
+            <TextView
+                android:id="@+id/cantidadRegistros"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0 Registros"
+                android:textStyle="bold"
+                android:textColor="@color/cantidadregistros"/>
+        </LinearLayout>
+
+        <!-- Línea divisoria -->
+        <View
+            android:id="@+id/divider"
+            android:layout_width="match_parent"
+            android:layout_height="2dp"
+            android:layout_marginHorizontal="16dp"
+            android:background="?android:attr/listDivider"/>
+
+        <!-- Herramientas -->
+        <LinearLayout
+            android:id="@+id/herramientas"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:orientation="horizontal"
+            android:paddingHorizontal="10dp"
+            android:elevation="2dp"
+            android:gravity="center_vertical">
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/search"
+                android:contentDescription="Buscar"/>
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_weight="1" />
+
+            <ImageView
+                android:layout_width="23dp"
+                android:layout_height="20dp"
+                android:src="@drawable/organizar"
+                android:contentDescription="Organizar"/>
+
+            <Spinner
+                android:id="@+id/spinner_organizar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:spinnerMode="dropdown"
+                android:layout_marginStart="8dp"/>
+        </LinearLayout>
+
+
+
+    </LinearLayout>
+
+    <!-- Botón flotante -->
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/btnNuevaNota"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="36dp"
+        android:src="@drawable/nuevoregistro"
+        android:backgroundTint="@color/fondo"
+        android:contentDescription="Agregar nuevo registro"/>
+</FrameLayout>

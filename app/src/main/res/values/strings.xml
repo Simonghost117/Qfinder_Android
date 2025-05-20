@@ -100,6 +100,28 @@ Teléfono: 31022589685
     <string name="correo">Correo</string>
     <string name="contraseña">Contraseña</string>
 
+    <!--Opciones de organizar notas-->
+    <string-array name="Opciones_de_organizar">
+        <item>Organizar por hora</item>
+        <item>Organizar por fecha</item>
+        <item>Organizar por titulo </item>
+    </string-array>
+
+    <!--Opciones de organizar notas-->
+    <string-array name="Tamaño_de_letra">
+        <item>22</item>
+        <item>20</item>
+        <item>18</item>
+        <item>16</item>
+        <item>14</item>
+        <item>12</item>
+        <item>10</item>
+        <item>8</item>
+        <item>6</item>
+        <item>4</item>
+        <item>2</item>
+    </string-array>
+
 </resources>
 
 
