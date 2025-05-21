@@ -4,6 +4,8 @@ import com.sena.qfinder.models.ActividadGetResponse;
 import com.sena.qfinder.models.ActividadListResponse;
 import com.sena.qfinder.models.ActividadRequest;
 import com.sena.qfinder.models.ActividadResponse;
+import com.sena.qfinder.models.AsignarMedicamentoRequest;
+import com.sena.qfinder.models.AsignarMedicamentoResponse;
 import com.sena.qfinder.models.CodeVerificationRequest;
 import com.sena.qfinder.models.CodeVerificationResponse;
 import com.sena.qfinder.models.MedicamentoRequest;
@@ -112,5 +114,10 @@ public interface AuthService {
     Call<ActividadListResponse> listarActividades(
             @Header("Authorization") String token,
             @Path("id_paciente") int pacienteId
+    );
+    @POST("api/paciente-medicamento/crear")
+    Call<AsignarMedicamentoResponse> asignarMedicamento(
+            @Header("Authorization") String token,
+            @Body AsignarMedicamentoRequest request
     );
 }

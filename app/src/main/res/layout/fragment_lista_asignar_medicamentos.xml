@@ -4,8 +4,14 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".ListaAsignarMedicamentos">
-
+    <!-- Agrega esto cerca del btnOpenModalAsignar -->
+    <Spinner
+        android:id="@+id/spinner_patients_main"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp" />
     <!-- TODO: Update blank fragment layout -->
+
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/layoutMedicamentos"
         android:layout_width="match_parent"
@@ -23,7 +29,7 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Medicamentos"
+                android:text="Asignar Medicamentos"
                 android:textColor="@color/black"
                 android:textSize="25sp"
                 android:fontFamily="sans-serif-black"
@@ -39,28 +45,21 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:paddingHorizontal="10dp">
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical">
-                    <!-- Subtítulo -->
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="Asignar"
-                        android:textAlignment="center"
-                        android:textStyle="bold"
-                        android:textColor="@color/black"
-                        android:textSize="22sp"/>
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="Medicamentos"
-                        android:textAlignment="center"
-                        android:textStyle="bold"
-                        android:textColor="@color/black"
-                        android:textSize="22sp"/>
-                </LinearLayout>
+<!--                <LinearLayout-->
+<!--                    android:layout_width="match_parent"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:orientation="vertical">-->
+<!--                    &lt;!&ndash; Subtítulo &ndash;&gt;-->
+<!--                -->
+<!--                    <TextView-->
+<!--                        android:layout_width="match_parent"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        android:text="Medicamentos"-->
+<!--                        android:textAlignment="center"-->
+<!--                        android:textStyle="bold"-->
+<!--                        android:textColor="@color/black"-->
+<!--                        android:textSize="22sp"/>-->
+<!--                </LinearLayout>-->
 
                 <!-- Línea divisora -->
                 <View
@@ -91,7 +90,7 @@
                     android:id="@+id/btnOpenModalAsignar"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Asignacion"
+                    android:text="Asignar medicamento"
                     android:backgroundTint="#005BEA"
                     android:textStyle="bold"
                     android:textColor="#FFFFFF"

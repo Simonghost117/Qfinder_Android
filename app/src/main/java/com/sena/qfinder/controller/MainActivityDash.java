@@ -62,7 +62,6 @@ public class MainActivityDash extends AppCompatActivity {
                 if (itemId == R.id.nav_home) {
                     selectedFragment = new DashboardFragment();
                 } else if (itemId == R.id.nav_services) {
-                    Toast.makeText(this, "ksdnfjsndfkj", Toast.LENGTH_SHORT).show();
                     selectedFragment = new Fragment_Serivicios();
                 } else if (itemId == R.id.nav_comunidad) {
                     selectedFragment = new Comunidad();
