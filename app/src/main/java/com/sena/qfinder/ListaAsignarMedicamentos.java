@@ -24,6 +24,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
+import com.google.gson.Gson;
 import com.sena.qfinder.api.ApiClient;
 import com.sena.qfinder.api.AuthService;
 import com.sena.qfinder.models.AsignarMedicamentoRequest;
@@ -277,8 +278,12 @@ public class ListaAsignarMedicamentos extends Fragment {
 
                 if (response.isSuccessful()) {
                     List<AsignacionMedicamentoResponse> asignaciones = response.body();
+
+                    Log.d("API_RESPONSE", "Respuesta cruda: " + response.toString());
+                    Log.d("API_RESPONSE", "Cuerpo de respuesta: " + new Gson().toJson(asignaciones));
                     if (asignaciones != null && !asignaciones.isEmpty()) {
                         mostrarMedicamentosAsignados(asignaciones);
+
                     } else {
                         showEmptyState("No hay medicamentos asignados para " + selectedPatientName);
                     }
@@ -328,6 +333,9 @@ public class ListaAsignarMedicamentos extends Fragment {
     }
 
     private void agregarItemMedicamento(AsignacionMedicamentoResponse asignacion) {
+        Log.d("MEDICAMENTO_DEBUG", "Asignación recibida: " + new Gson().toJson(asignacion));
+        Log.d("MEDICAMENTO_DEBUG", "ID Medicamento: " + asignacion.getIdAsignacion());
+        Log.d("MEDICAMENTO_DEBUG", "Objeto Medicamento: " + (asignacion.getMedicamento() != null ? "Presente" : "Nulo"));
         View itemView = LayoutInflater.from(getContext())
                 .inflate(R.layout.item_medicamento_asignado, medicamentosContainer, false);
 
