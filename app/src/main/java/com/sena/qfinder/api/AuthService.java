@@ -4,6 +4,7 @@ import com.sena.qfinder.models.ActividadRequest;
 import com.sena.qfinder.models.ActividadResponse;
 import com.sena.qfinder.models.CodeVerificationRequest;
 import com.sena.qfinder.models.CodeVerificationResponse;
+import com.sena.qfinder.models.NotaEpisodio;
 import com.sena.qfinder.models.PacienteListResponse;
 import com.sena.qfinder.models.PacienteRequest;
 import com.sena.qfinder.models.PacienteResponse;
@@ -20,9 +21,12 @@ import com.sena.qfinder.models.UsuarioRequest;
 import com.sena.qfinder.models.VerificarCodigoRequest;
 import com.sena.qfinder.models.CambiarPasswordRequest;
 
+import java.util.List;
+
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.http.Body;
+import retrofit2.http.DELETE;
 import retrofit2.http.GET;
 import retrofit2.http.Header;
 import retrofit2.http.POST;
@@ -61,6 +65,7 @@ public interface AuthService {
             @Header("Authorization") String token,
             @Path("id_paciente") int pacienteId
     );
+
     @GET("api/paciente/listarPacientes")
     Call<PacienteListResponse> listarPacientes(@Header("Authorization") String token);
     @POST("api/auth/logout")
@@ -84,6 +89,43 @@ public interface AuthService {
 
     @PUT("api/auth/actualizarUser")
     Call<ResponseBody> actualizarUsuario(@Body UsuarioRequest usuario, @Header("Authorization") String token);
+
+
+    // Rutas de episodios salud
+
+    // -------------------------------
+// EPISODIOS DE SALUD
+// -------------------------------
+
+    @GET("episodioSalud/{id_paciente}")
+    Call<List<NotaEpisodio>> obtenerEpisodios(
+            @Header("Authorization") String token,
+            @Path("id_paciente") int pacienteId
+    );
+
+    @POST("episodioSalud/{id_paciente}")
+    Call<NotaEpisodio> crearEpisodio(
+            @Header("Authorization") String token,
+            @Path("id_paciente") int pacienteId,
+            @Body NotaEpisodio episodio
+    );
+
+    @PUT("pacientes/{id_paciente}/episodioSalud/{id_episodio}")
+    Call<NotaEpisodio> actualizarEpisodio(
+            @Header("Authorization") String token,
+            @Path("id_paciente") int pacienteId,
+            @Path("id_episodio") int idEpisodio,
+            @Body NotaEpisodio episodio
+    );
+
+    @DELETE("eliminarEpis/{id_paciente}/{id_episodio}")
+    Call<Void> eliminarEpisodio(
+            @Header("Authorization") String token,
+            @Path("id_paciente") int pacienteId,
+            @Path("id_episodio") int idEpisodio
+    );
+
+
 
 
 }

@@ -5,6 +5,7 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public class ApiClient {
+
     private static Retrofit retrofit = null;
     private static String resetToken = null;  // Variable para almacenar el token
     private static String userEmail = null;
@@ -17,7 +18,7 @@ public class ApiClient {
                     .build();
 
             retrofit = new Retrofit.Builder()
-                    .baseUrl("https://qfinder-production.up.railway.app/")
+                    .baseUrl("https://qfinder-production.up.railway.app/") // Asegúrate de que esta URL base sea correcta
                     .client(okHttpClient)
                     .addConverterFactory(GsonConverterFactory.create())
                     .build();
@@ -25,13 +26,19 @@ public class ApiClient {
         return retrofit;
     }
 
-    // Añade estos métodos para manejar el token
+    // Método para obtener el token de forma centralizada
+    public static String getToken() {
+        return resetToken; // Devuelve el token almacenado
+    }
+
     public static void setResetToken(String token) {
         resetToken = token;
     }
+
     public static void setUserEmail(String email) {
         userEmail = email;
     }
+
     public static String getResetToken() {
         return resetToken;
     }

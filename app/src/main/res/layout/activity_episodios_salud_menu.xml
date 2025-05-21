@@ -69,12 +69,20 @@
             android:layout_marginHorizontal="16dp"
             android:background="?android:attr/listDivider"/>
 
+    <Spinner
+        android:id="@+id/SeleccionarPaciente"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:spinnerMode="dropdown"
+        android:layout_gravity="center"
+        android:layout_marginTop="10dp"/>
+
         <!-- Herramientas -->
         <LinearLayout
             android:id="@+id/herramientas"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
+            android:layout_marginTop="20dp"
             android:orientation="horizontal"
             android:paddingHorizontal="10dp"
             android:elevation="2dp"
@@ -105,8 +113,14 @@
                 android:layout_marginStart="8dp"/>
         </LinearLayout>
 
-
-
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerNotas"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:padding="16dp"
+        android:clipToPadding="false"
+        tools:listitem="@layout/item_nota" />
     </LinearLayout>
 
     <!-- Botón flotante -->
