@@ -1,383 +1,270 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:background="#FFFFFF">
+    android:background="@android:color/white"
+    android:fitsSystemWindows="true">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:gravity="center_horizontal">
+        android:orientation="vertical">
 
+
+        <!-- Portada -->
+
+        <!-- Imagen de perfil centrada y superpuesta -->
         <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="160dp"
+            android:layout_height="220dp"
             android:background="@color/azulitoPrincipio"
-            android:padding="16dp">
+            android:paddingStart="16dp"
+            android:paddingTop="32dp"
+            android:paddingEnd="16dp">
 
-            <TextView
-                android:id="@+id/tvTitulo"
+            <ImageView
+                android:id="@+id/btnBack"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:src="@drawable/img"
+                android:background="@drawable/circle_azul"
+                android:padding="10dp"
+                android:tint="@color/black"
+                android:contentDescription="Volver" />
+
+            <!-- Botón editar (arriba a la derecha) -->
+            <ImageView
+                android:id="@+id/boton_imagen"
+                android:layout_width="28dp"
+                android:layout_height="28dp"
+                android:layout_marginTop="30dp"
+                android:layout_alignParentEnd="true"
+            android:src="@drawable/img_1"
+            app:tint="@color/black" />
+            <!-- Botón cerrar sesión (arriba a la izquierda) -->
+
+
+            <LinearLayout
+                android:id="@+id/ivLogout"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_centerInParent="true"
-                android:text="PERFIL CUIDADOR"
-                android:textColor="#000000"
-                android:textStyle="bold"
-                android:textSize="20sp" />
+                android:layout_alignParentStart="true"
+                android:layout_marginLeft="220dp"
+                android:layout_marginTop="-3dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_marginEnd="8dp"
+                    android:src="@drawable/logout"
+                    android:tint="@color/black" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Cerrar sesión"
+                    android:textColor="@android:color/black"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
         </RelativeLayout>
 
         <FrameLayout
-            android:layout_width="120dp"
-            android:layout_height="120dp"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginTop="-40dp">
-
-            <ImageView
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="@drawable/circle_mask"
-                android:scaleType="centerCrop" />
-
-
-            <ImageView
-                android:layout_width="100dp"
-                android:layout_height="100dp"
-                android:layout_gravity="center"
-                android:background="@drawable/circle_azul"
-                android:scaleType="centerCrop" />
-
-            <ImageView
-                android:id="@+id/imgAvatar"
-                android:layout_width="90dp"
-                android:layout_height="90dp"
-                android:layout_gravity="center"
-                android:src="@drawable/cuidador"
-                android:scaleType="centerCrop"
-                android:padding="2dp" />
-
-            <ImageView
-                android:id="@+id/btnEditarFoto"
-                android:layout_width="32dp"
-                android:layout_height="32dp"
-                android:layout_gravity="bottom|end"
-                android:layout_margin="4dp"
-                android:src="@drawable/img_7"
-                android:background="@drawable/circle_white_border_azul"
-                android:padding="6dp" />
-        </FrameLayout>
-
-        <TextView
-            android:id="@+id/tvNombre"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Usuario"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            android:layout_marginTop="8dp" />
-        <TextView
-            android:id="@+id/tvApellido"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Usuario"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            android:layout_marginTop="8dp" />
-
-        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="right"
-            android:orientation="horizontal">
+            android:layout_marginTop="-60dp"
+            android:gravity="center">
 
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/boton"
+            <!-- Contenedor horizontal para nombre y apellido -->
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                app:cardCornerRadius="30dp"
-                app:cardBackgroundColor="@color/azulitoPrincipio"
-                app:cardElevation="8dp"
-                android:layout_margin="16dp"
-                android:clickable="true"
-                android:focusable="true">
+                android:orientation="horizontal"
+                android:layout_marginLeft="30dp"
+                android:layout_gravity="top|center_horizontal"
+                android:layout_marginTop="12dp">
 
-                <LinearLayout
-                    android:id="@+id/btnEditar"
+                <TextView
+                    android:id="@+id/tvNombre"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:paddingHorizontal="20dp"
-                    android:paddingVertical="10dp"
-                    android:gravity="center_vertical">
-                    <TextView
-                        android:id="@+id/boton_texto"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Editar"
-                        android:textColor="@android:color/black"
-                        android:textStyle="bold"
-                        android:textSize="18dp"
-                        android:layout_marginStart="8dp" />
+                    android:text="Nombre"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    android:textColor="@android:color/black"
+                    />
 
-                    <ImageView
-                        android:id="@+id/boton_imagen"
-                        android:layout_width="20dp"
-                        android:layout_height="20dp"
-                        android:src="@drawable/img_1"
-                        android:layout_marginLeft="10dp"
-                        app:tint="@color/black" />
-                </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
-        </LinearLayout>
+                <TextView
+                    android:id="@+id/tvApellido"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="6dp"
+                    android:text=" Apellido"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    android:textColor="@android:color/black" />
+            </LinearLayout>
+
+            <!-- Imagen de perfil superpuesta -->
+            <FrameLayout
+                android:layout_width="130dp"
+                android:layout_height="130dp"
+                android:layout_marginLeft="20dp">
+
+                <ImageView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/circle_azul"
+                    android:scaleType="centerCrop" />
+
+                <ImageView
+                    android:id="@+id/imgAvatar"
+                    android:layout_width="110dp"
+                    android:layout_height="110dp"
+                    android:layout_gravity="center"
+                    android:src="@drawable/cuidador"
+                    android:scaleType="centerCrop"
+                    android:background="@drawable/circle_white_border_azul"
+                    android:padding="4dp" />
+
+                <ImageView
+                    android:id="@+id/btnEditarFoto"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:layout_gravity="bottom|end"
+                    android:layout_margin="6dp"
+                    android:src="@drawable/img_7"
+                    android:background="@drawable/circle_white_border_azul"
+                    android:padding="6dp" />
+            </FrameLayout>
+        </FrameLayout>
 
 
+
+        <!-- Tarjetas de información personal -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="16dp">
+            android:padding="40dp">
 
+            <!-- Teléfono -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:paddingVertical="12dp"
                 android:orientation="horizontal"
-                android:layout_marginTop="8dp"
-                android:layout_marginLeft="50dp"
-                android:layout_marginBottom="12dp">
+                android:gravity="center_vertical">
 
                 <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
                     android:src="@drawable/numero" />
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="left|center_vertical">
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="12dp"
-                        android:text="Telefono:"
-                        android:textStyle="bold" />
-                    <TextView
-                        android:id="@+id/tvTelefono"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="12dp"
-                        android:text=""
-                        android:textStyle="bold" />
-                </LinearLayout>
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginTop="8dp"
-                android:layout_marginLeft="50dp"
-                android:layout_marginBottom="12dp">
-
-                <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:src="@drawable/email" />
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="left|center_vertical">
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="12dp"
-                        android:text="Email:"
-                        android:textStyle="bold" />
-                    <TextView
-                        android:id="@+id/tvCorreo"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="12dp"
-                        android:text=""
-                        android:textStyle="bold" />
-                </LinearLayout>
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginTop="10dp"
-                android:layout_marginLeft="50dp"
-                android:layout_marginBottom="12dp">
-
-                <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:src="@drawable/direccion" />
-
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="left|center_vertical">
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="12dp"
-                        android:text="Direccion:"
-                        android:textStyle="bold" />
-                    <TextView
-                        android:id="@+id/tvDireccion"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="12dp"
-                        android:text=""
-                        android:textStyle="bold" />
-                </LinearLayout>
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginTop="10dp"
-                android:layout_marginLeft="50dp"
-                android:layout_marginBottom="12dp">
-
-                <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:src="@drawable/img_5" />
-
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="left|center_vertical">
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="12dp"
-                        android:text="Identificacion:"
-                        android:textStyle="bold" />
-                    <TextView
-                        android:id="@+id/tvIdentificacion"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="12dp"
-                        android:text=""
-                        android:textStyle="bold" />
-                </LinearLayout>
-            </LinearLayout>
-
-
-        </LinearLayout>
-
-        <TextView
-            android:id="@+id/Certificados"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
-            android:text="CERTIFICADOS:"
-            android:textColor="#000000"
-            android:textStyle="bold"
-            android:textSize="20sp"
-            android:layout_gravity="left"
-            android:layout_marginLeft="24dp"/>
-
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:orientation="horizontal">
-
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/AgregarCertificados"
-                android:layout_width="269dp"
-                android:layout_height="wrap_content"
-                app:cardCornerRadius="30dp"
-                app:cardBackgroundColor="@color/azulitoPrincipio"
-                app:cardElevation="8dp"
-                android:layout_margin="16dp"
-                android:clickable="true"
-                android:focusable="true">
-
-                <LinearLayout
-                    android:id="@+id/btnActuCertificados"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:paddingHorizontal="20dp"
-                    android:paddingVertical="10dp"
-                    android:gravity="center_vertical|center_horizontal">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Agregar certificados"
-                        android:textColor="@android:color/black"
-                        android:textStyle="bold"
-                        android:textSize="18dp"
-                        android:layout_marginStart="8dp" />
-
-                    <ImageView
-                        android:layout_width="20dp"
-                        android:layout_height="20dp"
-                        android:src="@drawable/img_1"
-                        android:layout_marginLeft="10dp"
-                        android:tint="@color/black" />
-                </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
-        </LinearLayout>
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:orientation="horizontal">
-
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/cardCerrarSesion"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                app:cardCornerRadius="30dp"
-                app:cardBackgroundColor="@color/rojosuave"
-                app:cardElevation="8dp"
-                android:layout_margin="16dp"
-                android:clickable="true"
-                android:focusable="true">
-
-                <LinearLayout
-                    android:id="@+id/ivLogout"
+                <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:paddingHorizontal="20dp"
-                    android:paddingVertical="10dp"
-                    android:gravity="center_vertical">
+                    android:textSize="16dp"
+                    android:text=" Teléfono: "
+                    android:textStyle="bold"
+                    android:layout_marginStart="8dp" />
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Cerrar sesion"
-                        android:textColor="@android:color/black"
-                        android:textStyle="bold"
-                        android:textSize="18dp"
-                        android:layout_marginStart="8dp" />
+                <TextView
+                    android:id="@+id/tvTelefono"
+                    android:layout_width="wrap_content"
+                    android:textStyle="bold"
+                    android:layout_height="wrap_content"
+                    android:text="" />
+            </LinearLayout>
 
-                    <ImageView
-                        android:layout_width="20dp"
-                        android:layout_height="20dp"
-                        android:src="@drawable/logout"
-                        android:layout_marginLeft="10dp"
-                        android:tint="@color/black" />
-                </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
+            <!-- Email -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingVertical="12dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <ImageView
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:src="@drawable/email" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="16dp"
+                    android:text=" Email: "
+                    android:textStyle="bold"
+                    android:layout_marginStart="8dp" />
+
+                <TextView
+                    android:id="@+id/tvCorreo"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textStyle="bold"
+                    android:text="" />
+            </LinearLayout>
+
+            <!-- Dirección -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingVertical="12dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <ImageView
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:src="@drawable/direccion" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text=" Dirección: "
+                    android:textSize="16dp"
+                    android:textStyle="bold"
+                    android:layout_marginStart="8dp" />
+
+                <TextView
+                    android:id="@+id/tvDireccion"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textStyle="bold"
+                    android:text="" />
+            </LinearLayout>
+
+            <!-- Identificación -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingVertical="12dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <ImageView
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:src="@drawable/img_5" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text=" Identificación: "
+                    android:textSize="16dp"
+                    android:textStyle="bold"
+                    android:layout_marginStart="8dp" />
+
+                <TextView
+                    android:id="@+id/tvIdentificacion"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textStyle="bold"
+                    android:text="" />
+            </LinearLayout>
         </LinearLayout>
     </LinearLayout>
 </ScrollView>

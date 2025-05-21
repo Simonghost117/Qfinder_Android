@@ -36,12 +36,7 @@
                 android:textStyle="bold"
                 android:textColor="#000000"/>
 
-            <ImageView
-                android:id="@+id/notis"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:src="@drawable/logo_qfinder"
-                android:layout_marginStart="12dp"/>
+
         </LinearLayout>
 
         <!-- CONTENEDOR CON PADDING PARA LAS SECCIONES -->
@@ -84,14 +79,13 @@
                 android:text="Actividades"
                 android:textStyle="bold"
                 android:textSize="18sp"
-                android:layout_marginBottom="8dp"/>
+              />
 
             <ScrollView
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:layout_weight="1"
                 android:background="#EAF2FF"
-                android:padding="12dp"
                 android:layout_marginBottom="16dp">
 
                 <LinearLayout

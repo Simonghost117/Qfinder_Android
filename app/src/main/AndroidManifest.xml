@@ -40,7 +40,7 @@
             android:name=".controller.Registro_paciente"
             android:exported="false" />
         <activity
-            android:name=".model.MainActivity"
+            android:name=".controller.MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
