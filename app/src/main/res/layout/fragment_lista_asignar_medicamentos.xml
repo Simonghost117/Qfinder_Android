@@ -4,14 +4,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".ListaAsignarMedicamentos">
-    <!-- Agrega esto cerca del btnOpenModalAsignar -->
-    <Spinner
-        android:id="@+id/spinner_patients_main"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp" />
-    <!-- TODO: Update blank fragment layout -->
 
+    <!-- TODO: Update blank fragment layout -->
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/layoutMedicamentos"
         android:layout_width="match_parent"
@@ -19,85 +13,68 @@
         android:orientation="vertical"
         android:background="#FFFFFF">
 
-        <!-- Título -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="#4B9AF6"
-            android:layout_marginBottom="25dp"
-            android:paddingVertical="10dp">
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Asignar Medicamentos"
-                android:textColor="@color/black"
-                android:textSize="25sp"
-                android:fontFamily="sans-serif-black"
-                android:gravity="center"
-                />
-        </LinearLayout>
-        <ScrollView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            >
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:paddingHorizontal="10dp">
-<!--                <LinearLayout-->
-<!--                    android:layout_width="match_parent"-->
-<!--                    android:layout_height="wrap_content"-->
-<!--                    android:orientation="vertical">-->
-<!--                    &lt;!&ndash; Subtítulo &ndash;&gt;-->
-<!--                -->
-<!--                    <TextView-->
-<!--                        android:layout_width="match_parent"-->
-<!--                        android:layout_height="wrap_content"-->
-<!--                        android:text="Medicamentos"-->
-<!--                        android:textAlignment="center"-->
-<!--                        android:textStyle="bold"-->
-<!--                        android:textColor="@color/black"-->
-<!--                        android:textSize="22sp"/>-->
-<!--                </LinearLayout>-->
-
-                <!-- Línea divisora -->
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:background="#DDD"
-                    android:layout_marginTop="16dp" />
-
-                <!-- Tabla de medicamentos -->
-                <TableLayout
-                    android:id="@+id/tablaMedicamentosUsuario"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
-                    android:stretchColumns="*"
-                    android:background="#CFE3FF">
-
-                    <!-- Encabezados -->
-                    <TableRow android:background="#4787FF">
-                        <TextView android:text="Paciente" android:textSize="15sp" android:textColor="@color/black" />
-                        <TextView android:text="Medicamento" android:textSize="15sp" android:textColor="@color/black" />
-                        <TextView android:text="Especificacion" android:textSize="15sp" android:textColor="@color/black" />
-                    </TableRow>
-                </TableLayout>
-
-                <!-- Botón agregar -->
-                <Button
-                    android:id="@+id/btnOpenModalAsignar"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Asignar medicamento"
-                    android:backgroundTint="#005BEA"
-                    android:textStyle="bold"
-                    android:textColor="#FFFFFF"
-                    android:layout_gravity="center"
-                    android:layout_marginTop="24dp" />
-            </LinearLayout>
-        </ScrollView>
+    <!-- Título -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#4B9AF6"
+        android:layout_marginBottom="25dp"
+        android:paddingVertical="10dp">
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Medicamentos"
+        android:textColor="@color/black"
+        android:textSize="25sp"
+        android:fontFamily="sans-serif-black"
+        android:gravity="center"
+        />
     </LinearLayout>
+    <Spinner
+        android:id="@+id/spinner_patients_main"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginBottom="16dp"/>
 
+        <Button
+            android:id="@+id/btnOpenModalAsignar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Asignar Medicamento"
+            android:backgroundTint="#005BEA"
+            android:textStyle="bold"
+            android:textColor="#FFFFFF"
+            android:layout_gravity="center"
+            android:layout_marginTop="24dp" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+    <ProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="center"
+        android:visibility="gone"/>
+
+
+    <LinearLayout
+        android:id="@+id/medicamentosContainer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"/>
+<!--    <Button-->
+<!--        android:id="@+id/btnOpenModalAsignar"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:text="Asignar Nuevo Medicamento"-->
+<!--        android:layout_marginBottom="16dp"/>-->
+    </LinearLayout>
+    </ScrollView>
+
+    </LinearLayout>
 </FrameLayout>

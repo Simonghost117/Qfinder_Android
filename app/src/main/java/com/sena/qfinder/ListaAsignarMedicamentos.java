@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,6 +16,7 @@ import android.widget.EditText;
 import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -29,6 +31,7 @@ import com.sena.qfinder.models.AsignarMedicamentoResponse;
 import com.sena.qfinder.models.MedicamentoResponse;
 import com.sena.qfinder.models.PacienteListResponse;
 import com.sena.qfinder.models.PacienteResponse;
+import com.sena.qfinder.models.AsignacionMedicamentoResponse;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -49,13 +52,20 @@ public class ListaAsignarMedicamentos extends Fragment {
     private Calendar startDate, endDate;
     private boolean isSelectingStartDate = true;
     private SimpleDateFormat dateFormatter;
-    private LinearLayout patientsContainer;
+    private LinearLayout patientsContainer, medicamentosContainer;
     private Spinner spinnerPatientsMain;
     private SharedPreferences sharedPreferences;
     private Map<Integer, String> pacientesMap = new HashMap<>();
     private Map<Integer, String> medicamentosMap = new HashMap<>();
     private int selectedPatientId = -1;
     private String selectedPatientName = "";
+    private ProgressBar progressBar;
+
+    // Llamadas Retrofit para poder cancelarlas
+    private Call<PacienteListResponse> pacientesCall;
+    private Call<List<AsignacionMedicamentoResponse>> medicamentosCall;
+    private Call<AsignarMedicamentoResponse> asignarMedicamentoCall;
+    private Call<List<MedicamentoResponse>> listarMedicamentosCall;
 
     public ListaAsignarMedicamentos() {}
 
@@ -76,12 +86,25 @@ public class ListaAsignarMedicamentos extends Fragment {
 
         btnOpenModalAsignar = view.findViewById(R.id.btnOpenModalAsignar);
         spinnerPatientsMain = view.findViewById(R.id.spinner_patients_main);
+        medicamentosContainer = view.findViewById(R.id.medicamentosContainer);
+        progressBar = view.findViewById(R.id.progressBar);
 
+        spinnerPatientsMain.setVisibility(View.GONE);
         setupPatientsSection(view, inflater);
 
         btnOpenModalAsignar.setOnClickListener(view1 -> mostrarDialogoAgregarMedicamento());
 
         return view;
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        // Cancelar todas las llamadas en curso
+        if (pacientesCall != null) pacientesCall.cancel();
+        if (medicamentosCall != null) medicamentosCall.cancel();
+        if (asignarMedicamentoCall != null) asignarMedicamentoCall.cancel();
+        if (listarMedicamentosCall != null) listarMedicamentosCall.cancel();
     }
 
     private void setupPatientsSection(View rootView, LayoutInflater inflater) {
@@ -106,26 +129,29 @@ public class ListaAsignarMedicamentos extends Fragment {
     }
 
     private void loadPatients() {
+        showLoading(true);
         sharedPreferences = requireContext().getSharedPreferences("usuario", Context.MODE_PRIVATE);
         String token = sharedPreferences.getString("token", null);
 
         if (token == null) {
             Toast.makeText(getContext(), "No se encontró token de autenticación", Toast.LENGTH_SHORT).show();
+            showLoading(false);
             return;
         }
 
         Retrofit retrofit = ApiClient.getClient();
         AuthService authService = retrofit.create(AuthService.class);
-        Call<PacienteListResponse> call = authService.listarPacientes("Bearer " + token);
+        pacientesCall = authService.listarPacientes("Bearer " + token);
 
-        call.enqueue(new Callback<PacienteListResponse>() {
+        pacientesCall.enqueue(new Callback<PacienteListResponse>() {
             @Override
             public void onResponse(@NonNull Call<PacienteListResponse> call, @NonNull Response<PacienteListResponse> response) {
+                showLoading(false);
                 if (!isAdded()) return;
 
                 if (response.isSuccessful() && response.body() != null) {
                     List<PacienteResponse> pacientes = response.body().getData();
-                    if (pacientes != null) {
+                    if (pacientes != null && !pacientes.isEmpty()) {
                         pacientesMap.clear();
                         List<String> pacientesNombres = new ArrayList<>();
 
@@ -143,16 +169,34 @@ public class ListaAsignarMedicamentos extends Fragment {
                         spinnerPatientsMain.setAdapter(adapter);
 
                         mostrarPacientes(pacientes);
+
+                        // Seleccionar el primer paciente por defecto
+                        if (!pacientes.isEmpty()) {
+                            selectedPatientId = pacientes.get(0).getId();
+                            selectedPatientName = pacientesNombres.get(0);
+                            cargarMedicamentosPaciente(selectedPatientId);
+                        }
+                    } else {
+                        showEmptyState("No hay pacientes registrados");
                     }
                 } else {
-                    Toast.makeText(getContext(), "Error al obtener pacientes", Toast.LENGTH_SHORT).show();
+                    try {
+                        String errorBody = response.errorBody() != null ?
+                                "Error: " + response.errorBody().string() :
+                                "Error: Código " + response.code();
+                        Toast.makeText(getContext(), errorBody, Toast.LENGTH_SHORT).show();
+                    } catch (Exception e) {
+                        Toast.makeText(getContext(), "Error al obtener pacientes", Toast.LENGTH_SHORT).show();
+                    }
                 }
             }
 
             @Override
             public void onFailure(@NonNull Call<PacienteListResponse> call, @NonNull Throwable t) {
-                if (!isAdded()) return;
+                showLoading(false);
+                if (!isAdded() || call.isCanceled()) return;
                 Toast.makeText(getContext(), "Error de conexión: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                Log.e("API Error", "Error al obtener pacientes", t);
             }
         });
     }
@@ -164,7 +208,8 @@ public class ListaAsignarMedicamentos extends Fragment {
             String nombreCompleto = paciente.getNombre() + " " + paciente.getApellido();
             String diagnostico = paciente.getDiagnostico_principal() != null ?
                     paciente.getDiagnostico_principal() : "Sin diagnóstico";
-            String fechaNacimiento = paciente.getFecha_nacimiento();
+            String fechaNacimiento = paciente.getFecha_nacimiento() != null ?
+                    paciente.getFecha_nacimiento() : "Fecha desconocida";
 
             addPatientCard(nombreCompleto, fechaNacimiento, diagnostico,
                     R.drawable.perfil_paciente, paciente.getId());
@@ -202,10 +247,156 @@ public class ListaAsignarMedicamentos extends Fragment {
             selectedPatientId = patientId;
             selectedPatientName = name;
             updatePatientSelection();
-            Toast.makeText(getContext(), "Mostrando medicamentos de " + name, Toast.LENGTH_SHORT).show();
+            cargarMedicamentosPaciente(patientId);
         });
 
         patientsContainer.addView(patientCard);
+    }
+
+    private void cargarMedicamentosPaciente(int pacienteId) {
+        showLoading(true);
+        sharedPreferences = requireContext().getSharedPreferences("usuario", Context.MODE_PRIVATE);
+        String token = sharedPreferences.getString("token", null);
+
+        if (token == null) {
+            Toast.makeText(getContext(), "No se encontró token de autenticación", Toast.LENGTH_SHORT).show();
+            showLoading(false);
+            return;
+        }
+
+        Retrofit retrofit = ApiClient.getClient();
+        AuthService authService = retrofit.create(AuthService.class);
+        medicamentosCall = authService.listarAsignacionesMedicamentos("Bearer " + token, pacienteId);
+
+        medicamentosCall.enqueue(new Callback<List<AsignacionMedicamentoResponse>>() {
+            @Override
+            public void onResponse(@NonNull Call<List<AsignacionMedicamentoResponse>> call,
+                                   @NonNull Response<List<AsignacionMedicamentoResponse>> response) {
+                showLoading(false);
+                if (!isAdded()) return;
+
+                if (response.isSuccessful()) {
+                    List<AsignacionMedicamentoResponse> asignaciones = response.body();
+                    if (asignaciones != null && !asignaciones.isEmpty()) {
+                        mostrarMedicamentosAsignados(asignaciones);
+                    } else {
+                        showEmptyState("No hay medicamentos asignados para " + selectedPatientName);
+                    }
+                } else {
+                    try {
+                        String errorBody = response.errorBody() != null ?
+                                "Error: " + response.errorBody().string() :
+                                "Error: Código " + response.code();
+                        Toast.makeText(getContext(), errorBody, Toast.LENGTH_SHORT).show();
+                    } catch (Exception e) {
+                        Toast.makeText(getContext(), "Error al procesar la respuesta", Toast.LENGTH_SHORT).show();
+                    }
+                    showEmptyState("Error al cargar medicamentos");
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<List<AsignacionMedicamentoResponse>> call,
+                                  @NonNull Throwable t) {
+                showLoading(false);
+                if (!isAdded() || call.isCanceled()) return;
+                Toast.makeText(getContext(), "Error de conexión: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                Log.e("API Error", "Error al obtener medicamentos", t);
+                showEmptyState("Error de conexión");
+            }
+        });
+    }
+
+    private void mostrarMedicamentosAsignados(List<AsignacionMedicamentoResponse> asignaciones) {
+        medicamentosContainer.removeAllViews();
+
+        if (asignaciones == null || asignaciones.isEmpty()) {
+            showEmptyState("No hay medicamentos asignados para " + selectedPatientName);
+            return;
+        }
+
+        TextView title = new TextView(getContext());
+        title.setText("Medicamentos asignados a " + selectedPatientName);
+        title.setTextSize(18);
+        title.setGravity(Gravity.CENTER);
+        title.setPadding(0, 16, 0, 16);
+        medicamentosContainer.addView(title);
+
+        for (AsignacionMedicamentoResponse asignacion : asignaciones) {
+            agregarItemMedicamento(asignacion);
+        }
+    }
+
+    private void agregarItemMedicamento(AsignacionMedicamentoResponse asignacion) {
+        View itemView = LayoutInflater.from(getContext())
+                .inflate(R.layout.item_medicamento_asignado, medicamentosContainer, false);
+
+        TextView tvNombre = itemView.findViewById(R.id.tvNombreMedicamento);
+        TextView tvDosis = itemView.findViewById(R.id.tvDosis);
+        TextView tvFrecuencia = itemView.findViewById(R.id.tvFrecuencia);
+        TextView tvFechas = itemView.findViewById(R.id.tvFechas);
+        TextView tvEstado = itemView.findViewById(R.id.tvEstado);
+
+        MedicamentoResponse medicamento = asignacion.getMedicamento();
+        if (medicamento != null) {
+            tvNombre.setText(medicamento.getNombre());
+        } else {
+            tvNombre.setText("Medicamento desconocido");
+        }
+
+        tvDosis.setText("Dosis: " + (asignacion.getDosis() != null ? asignacion.getDosis() : "No especificada"));
+        tvFrecuencia.setText("Frecuencia: " + (asignacion.getFrecuencia() != null ? asignacion.getFrecuencia() : "No especificada"));
+
+        // Validación de fechas
+        String fechaInicio = asignacion.getFechaInicio();
+        String fechaFin = asignacion.getFechaFin();
+        String textoFechas = "Período: ";
+
+        if (fechaInicio != null && fechaFin != null) {
+            textoFechas += fechaInicio + " - " + fechaFin;
+        } else if (fechaInicio != null) {
+            textoFechas += fechaInicio + " - Sin fecha fin";
+        } else if (fechaFin != null) {
+            textoFechas += "Sin fecha inicio - " + fechaFin;
+        } else {
+            textoFechas += "Fechas no especificadas";
+        }
+
+        tvFechas.setText(textoFechas);
+
+        // Determinar estado basado en fechas
+        try {
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+            Calendar hoy = Calendar.getInstance();
+
+            // Solo intentar parsear si ambas fechas existen
+            if (fechaInicio != null && fechaFin != null) {
+                Calendar inicio = Calendar.getInstance();
+                inicio.setTime(sdf.parse(fechaInicio));
+                Calendar fin = Calendar.getInstance();
+                fin.setTime(sdf.parse(fechaFin));
+
+                if (hoy.before(inicio)) {
+                    tvEstado.setText("Pendiente");
+                    tvEstado.setTextColor(getResources().getColor(R.color.rojopasion));
+                } else if (hoy.after(fin)) {
+                    tvEstado.setText("Finalizado");
+                    tvEstado.setTextColor(getResources().getColor(R.color.green));
+                } else {
+                    tvEstado.setText("En curso");
+                    tvEstado.setTextColor(getResources().getColor(R.color.azul_link));
+                }
+            } else {
+                tvEstado.setText("Fechas incompletas");
+                tvEstado.setTextColor(getResources().getColor(R.color.gray));
+            }
+        } catch (Exception e) {
+            Log.e("DateError", "Error al parsear fechas", e);
+            tvEstado.setText("Error en fechas");
+            tvEstado.setTextColor(getResources().getColor(R.color.gray));
+        }
+
+        medicamentosContainer.addView(itemView);
     }
 
     private void updatePatientSelection() {
@@ -235,16 +426,23 @@ public class ListaAsignarMedicamentos extends Fragment {
         setupSpinners(spinnerPatients, spinnerMedications);
         setupDatePicker(layoutDatePicker, tvSelectedDates);
 
+        // Seleccionar el paciente actual por defecto
+        if (selectedPatientId != -1 && pacientesMap.containsKey(selectedPatientId)) {
+            String selectedName = pacientesMap.get(selectedPatientId);
+            int position = ((ArrayAdapter<String>) spinnerPatients.getAdapter()).getPosition(selectedName);
+            if (position >= 0) {
+                spinnerPatients.setSelection(position);
+            }
+        }
+
         btnSave.setOnClickListener(v -> {
             if (validarCampos(spinnerPatients, spinnerMedications, etDosage, tvSelectedDates)) {
-                // Obtener los datos del formulario
                 String pacienteNombre = spinnerPatients.getSelectedItem().toString();
                 String medicamentoNombre = spinnerMedications.getSelectedItem().toString();
                 String dosis = etDosage.getText().toString();
                 String frecuencia = etFrequency.getText().toString();
                 String[] fechas = tvSelectedDates.getText().toString().split(" - ");
 
-                // Obtener IDs de los maps
                 int idPaciente = obtenerIdPorNombre(pacientesMap, pacienteNombre);
                 int idMedicamento = obtenerIdPorNombre(medicamentosMap, medicamentoNombre);
 
@@ -253,17 +451,15 @@ public class ListaAsignarMedicamentos extends Fragment {
                     return;
                 }
 
-                // Crear request
                 AsignarMedicamentoRequest request = new AsignarMedicamentoRequest(
                         idPaciente,
                         idMedicamento,
-                        fechas[0], // fecha inicio
-                        fechas[1], // fecha fin
+                        fechas[0],
+                        fechas[1],
                         dosis,
                         frecuencia
                 );
 
-                // Llamar al API
                 asignarMedicamento(request);
             }
         });
@@ -272,46 +468,44 @@ public class ListaAsignarMedicamentos extends Fragment {
         builder.create().show();
     }
 
-    private int obtenerIdPorNombre(Map<Integer, String> map, String nombre) {
-        for (Map.Entry<Integer, String> entry : map.entrySet()) {
-            if (entry.getValue().equals(nombre)) {
-                return entry.getKey();
-            }
-        }
-        return -1;
-    }
-
     private void asignarMedicamento(AsignarMedicamentoRequest request) {
+        showLoading(true);
         sharedPreferences = requireContext().getSharedPreferences("usuario", Context.MODE_PRIVATE);
         String token = sharedPreferences.getString("token", null);
 
         if (token == null) {
             Toast.makeText(getContext(), "No se encontró token de autenticación", Toast.LENGTH_SHORT).show();
+            showLoading(false);
             return;
         }
 
         Retrofit retrofit = ApiClient.getClient();
         AuthService authService = retrofit.create(AuthService.class);
-        Call<AsignarMedicamentoResponse> call = authService.asignarMedicamento("Bearer " + token, request);
+        asignarMedicamentoCall = authService.asignarMedicamento("Bearer " + token, request);
 
-        call.enqueue(new Callback<AsignarMedicamentoResponse>() {
+        asignarMedicamentoCall.enqueue(new Callback<AsignarMedicamentoResponse>() {
             @Override
             public void onResponse(@NonNull Call<AsignarMedicamentoResponse> call,
                                    @NonNull Response<AsignarMedicamentoResponse> response) {
+                showLoading(false);
                 if (!isAdded()) return;
 
                 if (response.isSuccessful() && response.body() != null) {
                     AsignarMedicamentoResponse apiResponse = response.body();
                     if (apiResponse.isSuccess()) {
                         Toast.makeText(getContext(), "Medicamento asignado correctamente", Toast.LENGTH_SHORT).show();
-                        // Aquí puedes actualizar la UI si es necesario
+                        if (selectedPatientId != -1) {
+                            cargarMedicamentosPaciente(selectedPatientId);
+                        }
                     } else {
                         Toast.makeText(getContext(), "Error: " + apiResponse.getMessage(), Toast.LENGTH_SHORT).show();
                     }
                 } else {
                     try {
-                        String errorBody = response.errorBody() != null ? response.errorBody().string() : "Error desconocido";
-                        Toast.makeText(getContext(), "Error en la respuesta: " + errorBody, Toast.LENGTH_SHORT).show();
+                        String errorBody = response.errorBody() != null ?
+                                "Error: " + response.errorBody().string() :
+                                "Error: Código " + response.code();
+                        Toast.makeText(getContext(), errorBody, Toast.LENGTH_SHORT).show();
                     } catch (Exception e) {
                         Toast.makeText(getContext(), "Error al procesar la respuesta", Toast.LENGTH_SHORT).show();
                     }
@@ -321,7 +515,8 @@ public class ListaAsignarMedicamentos extends Fragment {
             @Override
             public void onFailure(@NonNull Call<AsignarMedicamentoResponse> call,
                                   @NonNull Throwable t) {
-                if (!isAdded()) return;
+                showLoading(false);
+                if (!isAdded() || call.isCanceled()) return;
                 Toast.makeText(getContext(), "Error de conexión: " + t.getMessage(), Toast.LENGTH_SHORT).show();
                 Log.e("API Error", "Error al asignar medicamento", t);
             }
@@ -329,7 +524,6 @@ public class ListaAsignarMedicamentos extends Fragment {
     }
 
     private void setupSpinners(Spinner spinnerPatients, Spinner spinnerMedications) {
-        // Configurar spinner de pacientes
         List<String> pacientesNombres = new ArrayList<>(pacientesMap.values());
         ArrayAdapter<String> patientsAdapter = new ArrayAdapter<>(
                 getContext(),
@@ -339,7 +533,6 @@ public class ListaAsignarMedicamentos extends Fragment {
         patientsAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerPatients.setAdapter(patientsAdapter);
 
-        // Configurar spinner de medicamentos
         ArrayAdapter<String> medicationsAdapter = new ArrayAdapter<>(
                 getContext(),
                 android.R.layout.simple_spinner_item,
@@ -348,7 +541,6 @@ public class ListaAsignarMedicamentos extends Fragment {
         medicationsAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerMedications.setAdapter(medicationsAdapter);
 
-        // Cargar medicamentos desde la API
         loadMedications(spinnerMedications);
     }
 
@@ -363,9 +555,9 @@ public class ListaAsignarMedicamentos extends Fragment {
 
         Retrofit retrofit = ApiClient.getClient();
         AuthService authService = retrofit.create(AuthService.class);
-        Call<List<MedicamentoResponse>> call = authService.listarMedicamentos("Bearer " + token);
+        listarMedicamentosCall = authService.listarMedicamentos("Bearer " + token);
 
-        call.enqueue(new Callback<List<MedicamentoResponse>>() {
+        listarMedicamentosCall.enqueue(new Callback<List<MedicamentoResponse>>() {
             @Override
             public void onResponse(@NonNull Call<List<MedicamentoResponse>> call,
                                    @NonNull Response<List<MedicamentoResponse>> response) {
@@ -386,14 +578,21 @@ public class ListaAsignarMedicamentos extends Fragment {
                     adapter.addAll(nombresMedicamentos);
                     adapter.notifyDataSetChanged();
                 } else {
-                    Toast.makeText(getContext(), "Error al obtener medicamentos", Toast.LENGTH_SHORT).show();
+                    try {
+                        String errorBody = response.errorBody() != null ?
+                                "Error: " + response.errorBody().string() :
+                                "Error: Código " + response.code();
+                        Toast.makeText(getContext(), errorBody, Toast.LENGTH_SHORT).show();
+                    } catch (Exception e) {
+                        Toast.makeText(getContext(), "Error al obtener medicamentos", Toast.LENGTH_SHORT).show();
+                    }
                 }
             }
 
             @Override
             public void onFailure(@NonNull Call<List<MedicamentoResponse>> call,
                                   @NonNull Throwable t) {
-                if (!isAdded()) return;
+                if (!isAdded() || call.isCanceled()) return;
                 Toast.makeText(getContext(), "Error de conexión: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
@@ -402,9 +601,8 @@ public class ListaAsignarMedicamentos extends Fragment {
     private void setupDatePicker(LinearLayout layout, TextView tv) {
         startDate = Calendar.getInstance();
         endDate = Calendar.getInstance();
-        endDate.add(Calendar.DAY_OF_MONTH, 7); // Fecha fin por defecto: 7 días después
+        endDate.add(Calendar.DAY_OF_MONTH, 7);
 
-        // Mostrar fechas iniciales
         String fechaInicio = dateFormatter.format(startDate.getTime());
         String fechaFin = dateFormatter.format(endDate.getTime());
         tv.setText(fechaInicio + " - " + fechaFin);
@@ -417,7 +615,6 @@ public class ListaAsignarMedicamentos extends Fragment {
                         currentDate.set(year, month, dayOfMonth);
                         isSelectingStartDate = !isSelectingStartDate;
 
-                        // Asegurar que fecha fin no sea anterior a fecha inicio
                         if (endDate.before(startDate)) {
                             endDate = (Calendar) startDate.clone();
                             endDate.add(Calendar.DAY_OF_MONTH, 1);
@@ -431,7 +628,6 @@ public class ListaAsignarMedicamentos extends Fragment {
                     currentDate.get(Calendar.MONTH),
                     currentDate.get(Calendar.DAY_OF_MONTH));
 
-            // Establecer fecha mínima si es para fecha fin
             if (!isSelectingStartDate) {
                 datePickerDialog.getDatePicker().setMinDate(startDate.getTimeInMillis());
             }
@@ -454,10 +650,35 @@ public class ListaAsignarMedicamentos extends Fragment {
             Toast.makeText(getContext(), "Ingresa la dosis", Toast.LENGTH_SHORT).show();
             return false;
         }
-        if (tvSelectedDates.getText().toString().trim().isEmpty()) {
-            Toast.makeText(getContext(), "Selecciona las fechas", Toast.LENGTH_SHORT).show();
+        String fechas = tvSelectedDates.getText().toString().trim();
+        if (fechas.isEmpty() || !fechas.contains(" - ")) {
+            Toast.makeText(getContext(), "Selecciona un rango de fechas válido", Toast.LENGTH_SHORT).show();
             return false;
         }
         return true;
+    }
+
+    private int obtenerIdPorNombre(Map<Integer, String> map, String nombre) {
+        for (Map.Entry<Integer, String> entry : map.entrySet()) {
+            if (entry.getValue().equals(nombre)) {
+                return entry.getKey();
+            }
+        }
+        return -1;
+    }
+
+    private void showLoading(boolean show) {
+        progressBar.setVisibility(show ? View.VISIBLE : View.GONE);
+        medicamentosContainer.setVisibility(show ? View.GONE : View.VISIBLE);
+    }
+
+    private void showEmptyState(String message) {
+        medicamentosContainer.removeAllViews();
+        TextView tvEmpty = new TextView(getContext());
+        tvEmpty.setText(message);
+        tvEmpty.setTextSize(16);
+        tvEmpty.setGravity(Gravity.CENTER);
+        tvEmpty.setPadding(0, 32, 0, 32);
+        medicamentosContainer.addView(tvEmpty);
     }
 }
