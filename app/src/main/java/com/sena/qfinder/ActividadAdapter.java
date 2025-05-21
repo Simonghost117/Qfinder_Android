@@ -9,24 +9,25 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.sena.qfinder.models.ActividadGetResponse;
+
 import java.util.List;
 
 public class ActividadAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
-    private List<Actividad> listaActividades;
+    private List<ActividadGetResponse> listaActividades;
     private OnItemClickListener listener;
 
     // Tipo de vista
     private static final int TYPE_HEADER = 0;
     private static final int TYPE_ITEM = 1;
 
-    // Interfaz solo con editar y eliminar
     public interface OnItemClickListener {
         void onEditarClick(int position);
         void onEliminarClick(int position);
     }
 
-    public ActividadAdapter(List<Actividad> listaActividades) {
+    public ActividadAdapter(List<ActividadGetResponse> listaActividades) {
         this.listaActividades = listaActividades;
     }
 
@@ -34,7 +35,7 @@ public class ActividadAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         this.listener = listener;
     }
 
-    public void setActividades(List<Actividad> actividades) {
+    public void setActividades(List<ActividadGetResponse> actividades) {
         this.listaActividades = actividades;
         notifyDataSetChanged();
     }
@@ -65,19 +66,17 @@ public class ActividadAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         if (holder instanceof ItemViewHolder) {
             int realPosition = position - 1; // restamos 1 por el encabezado
-            Actividad actividad = listaActividades.get(realPosition);
+            ActividadGetResponse actividad = listaActividades.get(realPosition);
             ((ItemViewHolder) holder).bind(actividad);
         }
     }
 
-    // ViewHolder para el encabezado
     public static class HeaderViewHolder extends RecyclerView.ViewHolder {
         public HeaderViewHolder(@NonNull View itemView) {
             super(itemView);
         }
     }
 
-    // ViewHolder para los ítems
     public static class ItemViewHolder extends RecyclerView.ViewHolder {
         TextView txtNombre, txtFecha, txtHora, txtActividad;
         ImageButton btnEliminar, btnEditar;
@@ -104,11 +103,30 @@ public class ActividadAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             });
         }
 
-        public void bind(Actividad actividad) {
-            txtNombre.setText(actividad.getPaciente());
-            txtFecha.setText(actividad.getFecha());
-            txtHora.setText(actividad.getHora());
+        public void bind(ActividadGetResponse actividad) {
+
+            txtFecha.setText(formatDate(actividad.getFecha()));
+            txtHora.setText(formatTime(actividad.getHora()));
             txtActividad.setText(actividad.getDescripcion());
+        }
+
+        private String formatDate(String fecha) {
+            try {
+                // Asume formato YYYY-MM-DD de la API
+                String[] partes = fecha.split("-");
+                return partes[2] + "/" + partes[1] + "/" + partes[0];
+            } catch (Exception e) {
+                return fecha;
+            }
+        }
+
+        private String formatTime(String hora) {
+            try {
+                // Asume formato HH:MM:SS de la API
+                return hora.substring(0, 5);
+            } catch (Exception e) {
+                return hora;
+            }
         }
     }
 }
