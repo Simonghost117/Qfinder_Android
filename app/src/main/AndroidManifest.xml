@@ -16,7 +16,10 @@
         android:theme="@style/Theme.QfinderAndroid"
         tools:targetApi="31">
         <activity
-            android:name=".registros_salud"
+            android:name=".episodios_salud_nota"
+            android:exported="false" />
+        <activity
+            android:name=".episodios_salud_menu"
             android:exported="false" />
         <!-- Configuración para notch y barra de estado -->
         <meta-data

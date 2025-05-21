@@ -39,7 +39,7 @@
 
             <!-- Tarjeta: Episodios salud -->
             <LinearLayout
-                android:id="@+id/registroSalud"
+                android:id="@+id/EpisodiosSalud"
                 android:layout_width="392dp"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
@@ -84,6 +84,7 @@
 
             <!-- Tarjeta: Registro cuidados -->
             <LinearLayout
+                android:id="@+id/RegistroCuidados"
                 android:layout_width="392dp"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
@@ -127,6 +128,7 @@
 
             <!-- Tarjeta: Registros de sintomas -->
             <LinearLayout
+                android:id="@+id/RegistrosSintomas"
                 android:layout_width="392dp"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
