@@ -13,6 +13,7 @@ import com.sena.qfinder.ui.home.RecordatoriosFragment;
 
 public class Fragment_Serivicios extends Fragment {
 
+
     public Fragment_Serivicios() {
         // Constructor requerido
     }
@@ -21,6 +22,15 @@ public class Fragment_Serivicios extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment__serivicios, container, false);
+
+        //Llamamentos fragment medicamentos
+        LinearLayout cardGestionMedicamentos = view.findViewById(R.id.btnMedicamentos);
+        cardGestionMedicamentos.setOnClickListener(v -> {
+            FragmentTransaction transaction = getParentFragmentManager().beginTransaction();
+            transaction.replace(R.id.fragment_container, new Medicamentos());
+            transaction.addToBackStack(null); // Para poder volver atrás
+            transaction.commit();
+        });
 
         LinearLayout cardGestionPacientes = view.findViewById(R.id.cardGestionPacientes);
         cardGestionPacientes.setOnClickListener(v -> {

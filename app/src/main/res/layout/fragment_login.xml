@@ -1,20 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@android:color/white"
     tools:context=".Login">
 
-
-    <ImageView
-        android:id="@+id/curveTop"
-        android:layout_width="match_parent"
-        android:layout_height="143dp"
-        android:layout_alignParentTop="true"
-        android:layout_marginTop="-33dp"
-        android:scaleType="fitEnd"
-        android:src="@drawable/curva_superior" />
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/white"
+    tools:context=".Login">
 
     <ImageView
         android:id="@+id/logoImage"
@@ -88,7 +85,8 @@
             android:background="@android:color/transparent"
             android:inputType="textEmailAddress"
             android:textColor="#000000"
-            android:textColorHint="#000000" />
+            android:textColorHint="#000000"
+            android:text="juanmoriones012@gmail.com"/>
     </LinearLayout>
 
     <!-- Campo Contraseña -->
@@ -118,7 +116,8 @@
             android:inputType="textPassword"
             android:background="@android:color/transparent"
             android:textColorHint="#000000"
-            android:textColor="#000000" />
+            android:textColor="#000000"
+            android:text="Juan1234@"/>
     </LinearLayout>
 
     <!-- ¿Olvidaste tu contraseña? -->
@@ -159,7 +158,8 @@
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:layout_marginBottom="100dp">
 
             <TextView
                 android:id="@+id/registerPrompt"
@@ -183,6 +183,18 @@
         </LinearLayout>
     </LinearLayout>
 
+    <!-- Curva superior -->
+    <ImageView
+        android:id="@+id/curveTop"
+        android:layout_width="match_parent"
+        android:layout_height="143dp"
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="-33dp"
+        android:scaleType="fitEnd"
+        android:src="@drawable/curva_superior" />
+
+    <!-- Resto del contenido igual... -->
+
     <!-- Curva inferior -->
     <ImageView
         android:id="@+id/curveBottom"
@@ -193,3 +205,4 @@
         android:scaleType="fitStart"
         android:src="@drawable/curva_inferior" />
 </RelativeLayout>
+</ScrollView>

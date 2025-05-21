@@ -6,6 +6,10 @@ import com.sena.qfinder.models.ActividadRequest;
 import com.sena.qfinder.models.ActividadResponse;
 import com.sena.qfinder.models.CodeVerificationRequest;
 import com.sena.qfinder.models.CodeVerificationResponse;
+import com.sena.qfinder.models.MedicamentoRequest;
+import com.sena.qfinder.models.MedicamentoResponse;
+import com.sena.qfinder.models.MedicamentoSimpleResponse;
+import com.sena.qfinder.models.MedicamentosResponse;
 import com.sena.qfinder.models.PacienteListResponse;
 import com.sena.qfinder.models.PacienteRequest;
 import com.sena.qfinder.models.PacienteResponse;
@@ -27,6 +31,7 @@ import java.util.List;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.http.Body;
+import retrofit2.http.DELETE;
 import retrofit2.http.GET;
 import retrofit2.http.Header;
 import retrofit2.http.POST;
@@ -78,6 +83,19 @@ public interface AuthService {
             @Body PacienteRequest pacienteRequest
     );
 
+    @POST("/api/medicamentos/crear")
+    Call<MedicamentoResponse> agregarMedicamento(
+            @Header("Authorization") String token,
+            @Body MedicamentoRequest request
+    );
+    @GET("api/medicamentos/listar")
+    Call<List<MedicamentoResponse>> listarMedicamentos(@Header("Authorization") String token);
+
+    @DELETE("api/medicamentos/eliminar/{id}")
+    Call<MedicamentoSimpleResponse> eliminarMedicamento(
+            @Header("Authorization") String token,
+            @Path("id") int id
+    );
 
     // En tu AuthService.java
     @POST("api/actividades/crearActivdad/{id_paciente}")
