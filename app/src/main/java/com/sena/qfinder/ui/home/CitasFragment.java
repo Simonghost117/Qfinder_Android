@@ -25,7 +25,7 @@ import com.prolificinteractive.materialcalendarview.MaterialCalendarView;
 import com.prolificinteractive.materialcalendarview.DayViewDecorator;
 import com.prolificinteractive.materialcalendarview.DayViewFacade;
 import com.sena.qfinder.R;
-import com.sena.qfinder.adapters.CitaAdapter;
+import com.sena.qfinder.ui.home.CitaAdapter;
 import com.sena.qfinder.api.ApiClient;
 import com.sena.qfinder.api.AuthService;
 import com.sena.qfinder.models.CitaMedica;
@@ -45,6 +45,9 @@ import java.util.Set;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+import com.prolificinteractive.materialcalendarview.spans.DotSpan;
+
+
 
 public class CitasFragment extends Fragment {
 
@@ -213,7 +216,7 @@ public class CitasFragment extends Fragment {
 
             @Override
             public void decorate(DayViewFacade view) {
-                view.addSpan(new ForegroundColorSpan(Color.GREEN));
+                view.addSpan(new DotSpan(10, Color.GREEN));
             }
         });
     }

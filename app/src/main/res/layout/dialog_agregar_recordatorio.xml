@@ -22,13 +22,15 @@
         android:hint="Título" />
 
     <!-- Fecha y hora (de momento como texto o luego con date picker) -->
-    <TextView
-        android:id="@+id/tvFechaHora"
+    <EditText
+        android:id="@+id/etFecha"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text=" 1 de mayo 2025 - 10:00 am"
+        android:hint="Selecciona la fecha"
+        android:focusable="false"
+        android:clickable="true"
         android:drawableStart="@drawable/baseline_access_time_24"
-        android:padding="8dp"/>
+        android:padding="8dp" />
 
     <!-- Checkboxes -->
 

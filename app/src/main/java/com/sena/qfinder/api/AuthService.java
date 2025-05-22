@@ -142,7 +142,6 @@ public interface AuthService {
             @Path("id_paciente") int idPaciente,
             @Path("id_cita") int idCita
     );
-
 }
 
 
