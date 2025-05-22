@@ -1,7 +1,18 @@
 package com.sena.qfinder.api;
 
+import com.sena.qfinder.models.ActividadGetResponse;
+import com.sena.qfinder.models.ActividadListResponse;
+import com.sena.qfinder.models.ActividadRequest;
+import com.sena.qfinder.models.ActividadResponse;
+import com.sena.qfinder.models.AsignacionMedicamentoResponse;
+import com.sena.qfinder.models.AsignarMedicamentoRequest;
+import com.sena.qfinder.models.AsignarMedicamentoResponse;
 import com.sena.qfinder.models.CodeVerificationRequest;
 import com.sena.qfinder.models.CodeVerificationResponse;
+import com.sena.qfinder.models.MedicamentoRequest;
+import com.sena.qfinder.models.MedicamentoResponse;
+import com.sena.qfinder.models.MedicamentoSimpleResponse;
+import com.sena.qfinder.models.MedicamentosResponse;
 import com.sena.qfinder.models.PacienteListResponse;
 import com.sena.qfinder.models.PacienteRequest;
 import com.sena.qfinder.models.PacienteResponse;
@@ -18,14 +29,18 @@ import com.sena.qfinder.models.UsuarioRequest;
 import com.sena.qfinder.models.VerificarCodigoRequest;
 import com.sena.qfinder.models.CambiarPasswordRequest;
 
+import java.util.List;
+
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.http.Body;
+import retrofit2.http.DELETE;
 import retrofit2.http.GET;
 import retrofit2.http.Header;
 import retrofit2.http.POST;
 import retrofit2.http.PUT;
 import retrofit2.http.Path;
+import retrofit2.http.Query;
 
 public interface AuthService {
     @POST("api/auth/register")
@@ -71,7 +86,45 @@ public interface AuthService {
             @Body PacienteRequest pacienteRequest
     );
 
+    @POST("/api/medicamentos/crear")
+    Call<MedicamentoResponse> agregarMedicamento(
+            @Header("Authorization") String token,
+            @Body MedicamentoRequest request
+    );
+    @GET("api/medicamentos/listar")
+    Call<List<MedicamentoResponse>> listarMedicamentos(@Header("Authorization") String token);
+
+    @DELETE("api/medicamentos/eliminar/{id}")
+    Call<MedicamentoSimpleResponse> eliminarMedicamento(
+            @Header("Authorization") String token,
+            @Path("id") int id
+    );
+
+    // En tu AuthService.java
+    @POST("api/actividades/crearActivdad/{id_paciente}")
+    Call<ActividadResponse> crearActividad(
+            @Header("Authorization") String token,
+            @Path("id_paciente") int idPaciente,
+            @Body ActividadRequest request
+    );
+
     @PUT("api/auth/actualizarUser")
     Call<ResponseBody> actualizarUsuario(@Body UsuarioRequest usuario, @Header("Authorization") String token);
 
+    @GET("api/actividades/listarActividades/{id_paciente}")
+    Call<ActividadListResponse> listarActividades(
+            @Header("Authorization") String token,
+            @Path("id_paciente") int pacienteId
+    );
+    @POST("api/paciente-medicamento/crear")
+    Call<AsignarMedicamentoResponse> asignarMedicamento(
+            @Header("Authorization") String token,
+            @Body AsignarMedicamentoRequest request
+    );
+    // En tu AuthService.java
+    @GET("api/paciente-medicamento/asignaciones/{id_paciente}")
+    Call<List<AsignacionMedicamentoResponse>> listarAsignacionesMedicamentos(
+            @Header("Authorization") String token,
+            @Path("id_paciente") int pacienteId
+    );
 }

@@ -1,9 +1,9 @@
 package com.sena.qfinder;
 
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.util.Patterns;
@@ -17,9 +17,11 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.gson.Gson;
 import com.sena.qfinder.api.AuthService;
 import com.sena.qfinder.controller.MainActivityDash;
@@ -39,7 +41,7 @@ public class Login extends Fragment {
     private EditText emailEditText, passwordEditText;
     private TextView btnRegistro, btnOlvidarContrasena;
     private Button btnLogin;
-    private ProgressDialog progressDialog;
+    private AlertDialog progressDialog;
     private AuthService authService;
 
     @Nullable
@@ -51,7 +53,6 @@ public class Login extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
         initViews(view);
         setupRetrofit();
         setupListeners();
@@ -63,11 +64,33 @@ public class Login extends Fragment {
         btnLogin = view.findViewById(R.id.loginButton);
         btnRegistro = view.findViewById(R.id.registerLink);
         btnOlvidarContrasena = view.findViewById(R.id.forgotPassword);
+    }
 
-        progressDialog = new ProgressDialog(requireContext());
-        progressDialog.setTitle("Iniciando sesión");
-        progressDialog.setMessage("Por favor espere...");
-        progressDialog.setCancelable(false);
+    private void showProgressDialog() {
+        if (progressDialog != null && progressDialog.isShowing()) {
+            return;
+        }
+
+        View dialogView = LayoutInflater.from(requireContext())
+                .inflate(R.layout.dialog_progress_minimal, null);
+
+        progressDialog = new MaterialAlertDialogBuilder(requireContext(), R.style.MinimalProgressDialog)
+                .setView(dialogView)
+                .setCancelable(false)
+                .create();
+
+        // Configuración adicional para hacerlo transparente
+        if (progressDialog.getWindow() != null) {
+            progressDialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
+        }
+
+        progressDialog.show();
+    }
+
+    private void dismissProgressDialog() {
+        if (progressDialog != null && progressDialog.isShowing()) {
+            progressDialog.dismiss();
+        }
     }
 
     private void setupRetrofit() {
@@ -92,7 +115,6 @@ public class Login extends Fragment {
 
     private boolean validarCampos() {
         boolean valido = true;
-
         String email = emailEditText.getText().toString().trim();
         String password = passwordEditText.getText().toString().trim();
 
@@ -113,37 +135,22 @@ public class Login extends Fragment {
     }
 
     private void iniciarSesionEnBackend() {
-        progressDialog.show();
+        showProgressDialog();
 
         String email = emailEditText.getText().toString().trim();
         String password = passwordEditText.getText().toString().trim();
 
         LoginRequest request = new LoginRequest(email, password);
 
-        Log.d("LOGIN", "Attempting login with: " + email);
-        Log.d("LOGIN", "Request body: " + new Gson().toJson(request));
-
         authService.LoginUser(request).enqueue(new Callback<LoginResponse>() {
             @Override
             public void onResponse(@NonNull Call<LoginResponse> call, @NonNull Response<LoginResponse> response) {
-                progressDialog.dismiss();
-
-                Log.d("LOGIN", "Response code: " + response.code());
-                if (response.errorBody() != null) {
-                    try {
-                        Log.d("LOGIN", "Error response: " + response.errorBody().string());
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
+                dismissProgressDialog();
 
                 if (response.isSuccessful() && response.body() != null) {
                     String mensaje = response.body().getMensaje();
-                    if (mensaje != null && !mensaje.trim().isEmpty()) {
-                        Toast.makeText(getContext(), mensaje, Toast.LENGTH_SHORT).show();
-                    } else {
-                        Toast.makeText(getContext(), "Inicio de sesión exitoso", Toast.LENGTH_SHORT).show();
-                    }
+//                    Toast.makeText(getContext(), mensaje != null ? mensaje : "Inicio de sesión exitoso",
+//                            Toast.LENGTH_SHORT).show();
 
                     guardarDatosUsuario(email, response.body().getToken());
                     iniciarSesionExitoso();
@@ -154,7 +161,7 @@ public class Login extends Fragment {
 
             @Override
             public void onFailure(@NonNull Call<LoginResponse> call, @NonNull Throwable t) {
-                progressDialog.dismiss();
+                dismissProgressDialog();
                 Toast.makeText(getContext(), "Error de conexión: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
@@ -162,34 +169,30 @@ public class Login extends Fragment {
 
     private void guardarDatosUsuario(String email, String token) {
         SharedPreferences preferences = requireContext().getSharedPreferences("usuario", Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = preferences.edit();
-        editor.putString("correo_usuario", email);
-        editor.putString("token", token);
-        editor.apply();
+        preferences.edit()
+                .putString("correo_usuario", email)
+                .putString("token", token)
+                .apply();
     }
 
     private void iniciarSesionExitoso() {
         try {
-            Intent intent = new Intent(requireContext(), MainActivityDash.class);
-            startActivity(intent);
+            startActivity(new Intent(requireContext(), MainActivityDash.class));
             requireActivity().finish();
         } catch (Exception e) {
-            Log.e("LOGIN", "Error al iniciar MainActivityDash: ", e);
-            Toast.makeText(requireContext(), "Error al iniciar el dashboard: " + e.getMessage(), Toast.LENGTH_LONG).show();
+            Toast.makeText(requireContext(), "Error al iniciar: " + e.getMessage(), Toast.LENGTH_LONG).show();
         }
     }
 
     private void navegarARegistro() {
-        FragmentManager fragmentManager = getParentFragmentManager();
-        fragmentManager.beginTransaction()
+        getParentFragmentManager().beginTransaction()
                 .replace(R.id.fragment_container, new RegistroUsuario())
                 .addToBackStack(null)
                 .commit();
     }
 
     private void forgotPassword() {
-        FragmentManager fragmentManager = getParentFragmentManager();
-        fragmentManager.beginTransaction()
+        getParentFragmentManager().beginTransaction()
                 .replace(R.id.fragment_container, new Fragment_password_recovery())
                 .addToBackStack(null)
                 .commit();
@@ -198,8 +201,6 @@ public class Login extends Fragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        if (progressDialog != null && progressDialog.isShowing()) {
-            progressDialog.dismiss();
-        }
+        dismissProgressDialog();
     }
 }
