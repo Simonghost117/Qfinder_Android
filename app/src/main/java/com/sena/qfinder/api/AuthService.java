@@ -4,9 +4,15 @@ import com.sena.qfinder.models.ActividadGetResponse;
 import com.sena.qfinder.models.ActividadListResponse;
 import com.sena.qfinder.models.ActividadRequest;
 import com.sena.qfinder.models.ActividadResponse;
-import com.sena.qfinder.models.CitaMedica;
+import com.sena.qfinder.models.AsignacionMedicamentoResponse;
+import com.sena.qfinder.models.AsignarMedicamentoRequest;
+import com.sena.qfinder.models.AsignarMedicamentoResponse;
 import com.sena.qfinder.models.CodeVerificationRequest;
 import com.sena.qfinder.models.CodeVerificationResponse;
+import com.sena.qfinder.models.MedicamentoRequest;
+import com.sena.qfinder.models.MedicamentoResponse;
+import com.sena.qfinder.models.MedicamentoSimpleResponse;
+import com.sena.qfinder.models.MedicamentosResponse;
 import com.sena.qfinder.models.PacienteListResponse;
 import com.sena.qfinder.models.PacienteRequest;
 import com.sena.qfinder.models.PacienteResponse;
@@ -45,39 +51,31 @@ public interface AuthService {
 
     @POST("api/auth/login")
     Call<LoginResponse> LoginUser(@Body LoginRequest request);
-
     @POST("api/auth/recuperar")
     Call<SendCodeResponse> SendCode(@Body SendCodeRequest request);
-
     @POST("api/auth/verificar-codigo")
     Call<Void> verificarCodigo(@Body VerificarCodigoRequest request);
 
-    @POST("api/auth/cambiar-password")
-        // o "/api/auth/change-password" según tu backend
+    @POST("api/auth/cambiar-password") // o "/api/auth/change-password" según tu backend
     Call<Void> cambiarPassword(
             @Header("Authorization") String authToken,
             @Body CambiarPasswordRequest request
     );
-
     @GET("api/auth/perfil")
     Call<PerfilUsuarioResponse> obtenerPerfil(@Header("Authorization") String token);
-
     @POST("api/paciente/register")
     Call<RegisterPacienteResponse> registerPaciente(
             @Header("Authorization") String token,
             @Body RegisterPacienteRequest request
     );
-
     // En tu AuthService, añade este método
     @GET("api/paciente/listarPacientes/{id_paciente}")
     Call<PacienteResponse> obtenerPacientePorId(
             @Header("Authorization") String token,
             @Path("id_paciente") int pacienteId
     );
-
     @GET("api/paciente/listarPacientes")
     Call<PacienteListResponse> listarPacientes(@Header("Authorization") String token);
-
     @POST("api/auth/logout")
     Call<Void> logout();
 
@@ -88,6 +86,19 @@ public interface AuthService {
             @Body PacienteRequest pacienteRequest
     );
 
+    @POST("/api/medicamentos/crear")
+    Call<MedicamentoResponse> agregarMedicamento(
+            @Header("Authorization") String token,
+            @Body MedicamentoRequest request
+    );
+    @GET("api/medicamentos/listar")
+    Call<List<MedicamentoResponse>> listarMedicamentos(@Header("Authorization") String token);
+
+    @DELETE("api/medicamentos/eliminar/{id}")
+    Call<MedicamentoSimpleResponse> eliminarMedicamento(
+            @Header("Authorization") String token,
+            @Path("id") int id
+    );
 
     // En tu AuthService.java
     @POST("api/actividades/crearActivdad/{id_paciente}")
@@ -97,7 +108,6 @@ public interface AuthService {
             @Body ActividadRequest request
     );
 
-
     @PUT("api/auth/actualizarUser")
     Call<ResponseBody> actualizarUsuario(@Body UsuarioRequest usuario, @Header("Authorization") String token);
 
@@ -106,42 +116,15 @@ public interface AuthService {
             @Header("Authorization") String token,
             @Path("id_paciente") int pacienteId
     );
-
-
-    @POST("crearCita/{id_paciente}")
-    Call<CitaMedica> crearCitaMedica(
+    @POST("api/paciente-medicamento/crear")
+    Call<AsignarMedicamentoResponse> asignarMedicamento(
             @Header("Authorization") String token,
-            @Path("id_paciente") int idPaciente,
-            @Body CitaMedica cita
+            @Body AsignarMedicamentoRequest request
     );
-
-    @GET("listarCitas/{id_paciente}")
-    Call<List<CitaMedica>> listarCitasMedicas(
+    // En tu AuthService.java
+    @GET("api/paciente-medicamento/asignaciones/{id_paciente}")
+    Call<List<AsignacionMedicamentoResponse>> listarAsignacionesMedicamentos(
             @Header("Authorization") String token,
-            @Path("id_paciente") int idPaciente
-    );
-
-    @GET("listarCitasId/{id_paciente}/{id_cita}")
-    Call<List<CitaMedica>> obtenerCitaPorId(
-            @Header("Authorization") String token,
-            @Path("id_paciente") int idPaciente,
-            @Path("id_cita") int idCita
-    );
-
-    @PUT("actualizarCita/{id_paciente}/{id_cita}")
-    Call<Void> actualizarCita(
-            @Header("Authorization") String token,
-            @Path("id_paciente") int idPaciente,
-            @Path("id_cita") int idCita,
-            @Body CitaMedica cita
-    );
-
-    @DELETE("eliminarCita/{id_paciente}/{id_cita}")
-    Call<Void> eliminarCita(
-            @Header("Authorization") String token,
-            @Path("id_paciente") int idPaciente,
-            @Path("id_cita") int idCita
+            @Path("id_paciente") int pacienteId
     );
 }
-
-

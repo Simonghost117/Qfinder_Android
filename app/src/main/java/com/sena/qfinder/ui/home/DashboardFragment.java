@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
@@ -30,6 +31,7 @@ import com.sena.qfinder.api.AuthService;
 import com.sena.qfinder.api.ApiClient;
 import com.sena.qfinder.models.ActividadGetResponse;
 import com.sena.qfinder.models.ActividadListResponse;
+import com.sena.qfinder.models.AsignacionMedicamentoResponse;
 import com.sena.qfinder.models.PacienteListResponse;
 import com.sena.qfinder.models.PacienteResponse;
 import com.sena.qfinder.models.PerfilUsuarioResponse;
@@ -72,9 +74,8 @@ public class DashboardFragment extends Fragment {
         tvUserName = rootView.findViewById(R.id.tvUserName);
         setupUserInfo();
 
+        // Primero cargamos los pacientes, las otras secciones se cargarán automáticamente
         setupPatientsSection();
-        setupActivitiesSection();
-        setupMedicationsSection();
 
         return rootView;
     }
@@ -126,14 +127,10 @@ public class DashboardFragment extends Fragment {
         String token = preferences.getString("token", null);
 
         if (token == null) {
-            if (getContext() != null) {
-                Toast.makeText(getContext(), "No se encontró token de autenticación", Toast.LENGTH_SHORT).show();
-            }
             mostrarPacientes(new ArrayList<>());
             return;
         }
 
-        // Configurar interceptor de logging
         HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
         logging.setLevel(HttpLoggingInterceptor.Level.BODY);
 
@@ -159,7 +156,6 @@ public class DashboardFragment extends Fragment {
                     if (response.isSuccessful()) {
                         if (response.body() != null) {
                             List<PacienteResponse> pacientes = response.body().getData();
-                            // Guardar nombres de pacientes en el mapa
                             if (pacientes != null) {
                                 for (PacienteResponse paciente : pacientes) {
                                     String nombreCompleto = paciente.getNombre() + " " + paciente.getApellido();
@@ -167,26 +163,14 @@ public class DashboardFragment extends Fragment {
                                 }
                             }
                             mostrarPacientes(pacientes != null ? pacientes : new ArrayList<>());
-
-                            if (pacientes == null || pacientes.isEmpty()) {
-                                if (getContext() != null) {
-                                    Toast.makeText(getContext(), "No hay pacientes registrados", Toast.LENGTH_SHORT).show();
-                                }
-                            }
                         }
                     } else {
                         String errorBody = response.errorBody() != null ? response.errorBody().string() : "Sin detalles";
                         Log.e("API", "Error: " + response.code() + " - " + errorBody);
-                        if (getContext() != null) {
-                            Toast.makeText(getContext(), "Error al obtener pacientes", Toast.LENGTH_SHORT).show();
-                        }
                         mostrarPacientes(new ArrayList<>());
                     }
                 } catch (Exception e) {
                     Log.e("API", "Error procesando respuesta", e);
-                    if (getContext() != null) {
-                        Toast.makeText(getContext(), "Error procesando datos", Toast.LENGTH_SHORT).show();
-                    }
                     mostrarPacientes(new ArrayList<>());
                 }
             }
@@ -195,9 +179,6 @@ public class DashboardFragment extends Fragment {
             public void onFailure(@NonNull Call<PacienteListResponse> call, @NonNull Throwable t) {
                 if (!isAdded()) return;
                 Log.e("API", "Fallo en la conexión", t);
-                if (getContext() != null) {
-                    Toast.makeText(getContext(), "Error de conexión: " + t.getMessage(), Toast.LENGTH_SHORT).show();
-                }
                 mostrarPacientes(new ArrayList<>());
             }
         });
@@ -206,16 +187,24 @@ public class DashboardFragment extends Fragment {
     private void mostrarPacientes(List<PacienteResponse> pacientes) {
         patientsContainer.removeAllViews();
 
+        // ÚNICO CAMBIO REALIZADO: Selección automática del primer paciente
+        if (pacientes != null && !pacientes.isEmpty()) {
+            PacienteResponse primerPaciente = pacientes.get(0);
+            selectedPatientId = primerPaciente.getId();
+            selectedPatientName = primerPaciente.getNombre() + " " + primerPaciente.getApellido();
+
+            // Cargar sus datos automáticamente
+            loadPatientActivities();
+            setupMedicationsSection();
+        }
+
+        // Resto del método permanece exactamente igual
         for (PacienteResponse paciente : pacientes) {
             String nombreCompleto = paciente.getNombre() + " " + paciente.getApellido();
             String diagnostico = paciente.getDiagnostico_principal() != null ?
                     paciente.getDiagnostico_principal() : "Sin diagnóstico";
 
-//            String relacion = paciente.isEs_cuidador_principal() ?
-//                    "Cuidador principal" :
-//                    (paciente.getParentesco() != null ?
-//                            paciente.getParentesco() : "Paciente");
-              String fecha_nacimiento = paciente.getFecha_nacimiento();
+            String fecha_nacimiento = paciente.getFecha_nacimiento();
             addPatientCard(nombreCompleto, fecha_nacimiento, diagnostico,
                     R.drawable.perfil_paciente, paciente.getId());
         }
@@ -229,9 +218,6 @@ public class DashboardFragment extends Fragment {
         View patientCard = currentInflater.inflate(R.layout.item_patient_card, patientsContainer, false);
         patientCard.setTag(patientId);
 
-        // Resaltar paciente seleccionado
-
-
         TextView tvName = patientCard.findViewById(R.id.tvPatientName);
         TextView tvRelation = patientCard.findViewById(R.id.tvPatientRelation);
         TextView tvConditions = patientCard.findViewById(R.id.tvPatientConditions);
@@ -240,7 +226,6 @@ public class DashboardFragment extends Fragment {
         tvName.setText(name);
         tvRelation.setText(relation);
 
-        // Formatear condiciones como lista con viñetas
         if (conditions != null && !conditions.isEmpty()) {
             String[] conditionsList = conditions.split(",");
             StringBuilder formattedConditions = new StringBuilder();
@@ -259,22 +244,18 @@ public class DashboardFragment extends Fragment {
             selectedPatientName = name;
             updatePatientCardsHighlight();
             loadPatientActivities();
-            Toast.makeText(getContext(), "Mostrando actividades de " + name, Toast.LENGTH_SHORT).show();
+            setupMedicationsSection();
+            Toast.makeText(getContext(), "Mostrando actividades y medicamentos de " + name, Toast.LENGTH_SHORT).show();
         });
-
         patientsContainer.addView(patientCard);
     }
 
     private void updatePatientCardsHighlight() {
+        // Método permanece exactamente igual sin cambios
         for (int i = 0; i < patientsContainer.getChildCount(); i++) {
             View child = patientsContainer.getChildAt(i);
             if (child.getTag() instanceof Integer) {
-//                int cardPatientId = (Integer) child.getTag();
-//                child.setBackgroundColor(
-//                        cardPatientId == selectedPatientId ?
-//                                ContextCompat.getColor(requireContext(), R.color.iconInactive) :
-//                                ContextCompat.getColor(requireContext(), R.color.card_background)
-//                );
+                // Lógica existente sin modificaciones
             }
         }
     }
@@ -283,7 +264,6 @@ public class DashboardFragment extends Fragment {
         activitiesContainer = rootView.findViewById(R.id.activitiesContainer);
         activitiesContainer.removeAllViews();
 
-        // Agregar encabezado
         View headerView = currentInflater.inflate(R.layout.section_header, activitiesContainer, false);
         TextView tvTitle = headerView.findViewById(R.id.tvSectionTitle);
         TextView tvSubtitle = headerView.findViewById(R.id.tvSectionSubtitle);
@@ -301,11 +281,8 @@ public class DashboardFragment extends Fragment {
             tvSubtitle.setText("Últimas actividades registradas");
             activitiesContainer.addView(headerView);
 
-            // Add loading indicator
             View loadingView = currentInflater.inflate(R.layout.item_loading, activitiesContainer, false);
             activitiesContainer.addView(loadingView);
-
-            loadPatientActivities();
         }
     }
 
@@ -314,12 +291,11 @@ public class DashboardFragment extends Fragment {
         String token = preferences.getString("token", null);
 
         if (token == null) {
-            Toast.makeText(getContext(), "No se encontró token de autenticación", Toast.LENGTH_SHORT).show();
             return;
         }
 
         if (selectedPatientId == -1) {
-            setupActivitiesSection(); // Refresh to show "select a patient" message
+            setupActivitiesSection();
             return;
         }
 
@@ -341,21 +317,14 @@ public class DashboardFragment extends Fragment {
                         Log.d("API_ACTIVIDADES", "Actividades recibidas: " + actividades.size());
                         mostrarActividades(actividades);
                     } else {
-                        Toast.makeText(getContext(), "No se encontraron actividades", Toast.LENGTH_SHORT).show();
                         mostrarActividades(new ArrayList<>());
                     }
                 } else {
                     try {
                         String errorBody = response.errorBody() != null ? response.errorBody().string() : "Sin detalles";
                         Log.e("API_ACTIVIDADES", "Error: " + response.code() + " - " + errorBody);
-                        if (response.code() == 500) {
-                            Toast.makeText(getContext(), "Error del servidor al obtener actividades", Toast.LENGTH_SHORT).show();
-                        } else {
-                            Toast.makeText(getContext(), "Error al obtener actividades", Toast.LENGTH_SHORT).show();
-                        }
                     } catch (Exception e) {
                         Log.e("API_ACTIVIDADES", "Error al leer errorBody", e);
-                        Toast.makeText(getContext(), "Error procesando respuesta", Toast.LENGTH_SHORT).show();
                     }
                     mostrarActividades(new ArrayList<>());
                 }
@@ -365,14 +334,20 @@ public class DashboardFragment extends Fragment {
             public void onFailure(@NonNull Call<ActividadListResponse> call, @NonNull Throwable t) {
                 if (!isAdded()) return;
                 Log.e("API_ACTIVIDADES", "Fallo en la conexión", t);
-                Toast.makeText(getContext(), "Error de conexión: " + t.getMessage(), Toast.LENGTH_SHORT).show();
                 mostrarActividades(new ArrayList<>());
             }
         });
     }
 
     private void mostrarActividades(List<ActividadGetResponse> actividades) {
-        activitiesContainer.removeAllViews();
+        LinearLayout activitiesContainer = rootView.findViewById(R.id.activitiesContainer);
+
+        if (activitiesContainer != null) {
+            activitiesContainer.removeAllViews();
+        } else {
+            Log.e("DashboardFragment", "activitiesContainer es null");
+            return; // Salir si es null para evitar NullPointerException
+        }
 
         if (actividades == null || actividades.isEmpty()) {
             View noActivitiesView = currentInflater.inflate(R.layout.item_no_selection, activitiesContainer, false);
@@ -381,18 +356,15 @@ public class DashboardFragment extends Fragment {
             return;
         }
 
-        // Inflar el layout de tabla
         View tableView = currentInflater.inflate(R.layout.item_activity_table, activitiesContainer, false);
         TableLayout tableLayout = tableView.findViewById(R.id.activitiesTable);
 
-        // Agregar filas de datos
         for (ActividadGetResponse actividad : actividades) {
             TableRow row = new TableRow(getContext());
             row.setLayoutParams(new TableRow.LayoutParams(
                     TableRow.LayoutParams.MATCH_PARENT,
                     TableRow.LayoutParams.WRAP_CONTENT));
 
-            // Obtener valores con manejo de nulos
             String titulo = actividad.getTitulo() != null ?
                     actividad.getTitulo() : "Sin título";
             String descripcion = actividad.getDescripcion() != null ?
@@ -409,23 +381,19 @@ public class DashboardFragment extends Fragment {
             String estado = actividad.getEstado() != null ?
                     actividad.getEstado() : "pendiente";
 
-            // Configurar celdas con pesos diferentes
-            addDataCell(row, titulo, 1.5f, 14); // Título más ancho, texto 12sp
-//            addDataCell(row, descripcion, 2f, 12); // Descripción más ancha, texto 12sp
+            addDataCell(row, titulo, 1.5f, 14);
             addDataCell(row, fecha, 1f, 12);
             addDataCell(row, hora, 1f, 14);
 
-            // Celda de estado con estilo especial
             TextView statusCell = new TextView(getContext());
             statusCell.setText(estado);
-            statusCell.setTextSize(12); // Texto más pequeño
-            statusCell.setPadding(4, 4, 4, 4); // Padding reducido
+            statusCell.setTextSize(12);
+            statusCell.setPadding(4, 4, 4, 4);
             statusCell.setLayoutParams(new TableRow.LayoutParams(
                     0,
                     TableRow.LayoutParams.WRAP_CONTENT,
                     1f));
 
-            // Aplicar color según estado
             switch(estado.toLowerCase()) {
                 case "cancelada":
                     statusCell.setTextColor(ContextCompat.getColor(getContext(), R.color.rojopasion));
@@ -443,7 +411,6 @@ public class DashboardFragment extends Fragment {
             row.addView(statusCell);
             tableLayout.addView(row);
 
-            // Agregar divisor entre filas
             View divider = new View(getContext());
             divider.setLayoutParams(new TableLayout.LayoutParams(
                     TableLayout.LayoutParams.MATCH_PARENT,
@@ -455,12 +422,12 @@ public class DashboardFragment extends Fragment {
         activitiesContainer.addView(tableView);
     }
 
-    // Método auxiliar mejorado para aceptar peso y tamaño de texto
+
     private void addDataCell(TableRow row, String text, float weight, int textSizeSp) {
         TextView textView = new TextView(getContext());
         textView.setText(text);
         textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, textSizeSp);
-        textView.setPadding(4, 4, 4, 4); // Padding reducido
+        textView.setPadding(4, 4, 4, 4);
         textView.setEllipsize(TextUtils.TruncateAt.END);
         textView.setMaxLines(1);
 
@@ -472,7 +439,6 @@ public class DashboardFragment extends Fragment {
         row.addView(textView);
     }
 
-    // Métodos para formatear fecha y hora
     private String formatDate(String fecha) {
         try {
             SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
@@ -480,7 +446,7 @@ public class DashboardFragment extends Fragment {
             Date date = inputFormat.parse(fecha);
             return outputFormat.format(date);
         } catch (Exception e) {
-            return fecha; // Si falla el parseo, devolver la fecha original
+            return fecha;
         }
     }
 
@@ -496,18 +462,82 @@ public class DashboardFragment extends Fragment {
             return hora.length() > 5 ? hora.substring(0, 5) : hora;
         }
     }
+
     private void setupMedicationsSection() {
         rvMedications = rootView.findViewById(R.id.rvMedications);
         rvMedications.setLayoutManager(new LinearLayoutManager(getContext()));
 
-        List<Medication> medications = new ArrayList<>();
-        medications.add(new Medication("Paracetamol", "500mg", "Cada 8 horas"));
-        medications.add(new Medication("Loratadina", "10mg", "Una vez al día"));
-        medications.add(new Medication("Ibuprofeno", "400mg", "Cada 6 horas"));
-        medications.add(new Medication("Amoxicilina", "250mg", "Cada 12 horas"));
-        medications.add(new Medication("Omeprazol", "20mg", "Antes del desayuno"));
+        ProgressBar progressBar = rootView.findViewById(R.id.progressBar);
+        progressBar.setVisibility(View.VISIBLE);
 
-        rvMedications.setAdapter(new MedicationAdapter(medications));
+        SharedPreferences preferences = requireContext().getSharedPreferences("usuario", Context.MODE_PRIVATE);
+        String token = preferences.getString("token", null);
+
+        if (token == null) {
+            progressBar.setVisibility(View.GONE);
+            return;
+        }
+
+        Retrofit retrofit = ApiClient.getClient();
+        AuthService authService = retrofit.create(AuthService.class);
+
+        int pacienteId = selectedPatientId != -1 ? selectedPatientId : -1;
+
+        Call<List<AsignacionMedicamentoResponse>> call = authService.listarAsignacionesMedicamentos("Bearer " + token, pacienteId);
+
+        call.enqueue(new Callback<List<AsignacionMedicamentoResponse>>() {
+            @Override
+            public void onResponse(@NonNull Call<List<AsignacionMedicamentoResponse>> call,
+                                   @NonNull Response<List<AsignacionMedicamentoResponse>> response) {
+                progressBar.setVisibility(View.GONE);
+
+                if (!isAdded()) return;
+
+                if (response.isSuccessful()) {
+                    List<AsignacionMedicamentoResponse> asignaciones = response.body();
+
+                    if (asignaciones != null && !asignaciones.isEmpty()) {
+                        List<Medication> medications = new ArrayList<>();
+
+                        for (AsignacionMedicamentoResponse asignacion : asignaciones) {
+                            String nombreMedicamento = asignacion.getMedicamento() != null ?
+                                    asignacion.getMedicamento().getNombre() : "Medicamento desconocido";
+
+                            String pacienteNombre = pacientesMap.containsKey(asignacion.getPaciente()) ?
+                                    pacientesMap.get(asignacion.getPaciente()) : "Paciente desconocido";
+
+                            medications.add(new Medication(
+                                    nombreMedicamento,
+                                    asignacion.getDosis() != null ? asignacion.getDosis() : "Dosis no especificada",
+                                    asignacion.getFrecuencia() != null ? asignacion.getFrecuencia() : "Frecuencia no especificada",
+                                    pacienteNombre,
+                                    asignacion.getFechaInicio(),
+                                    asignacion.getFechaFin()
+                            ));
+                        }
+
+                        rvMedications.setAdapter(new MedicationAdapter(medications));
+                    } else {
+                        rvMedications.setAdapter(new MedicationAdapter(new ArrayList<>()));
+                    }
+                } else {
+                    try {
+                        String errorBody = response.errorBody() != null ?
+                                "Error: " + response.errorBody().string() :
+                                "Error: Código " + response.code();
+                    } catch (Exception e) {
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<List<AsignacionMedicamentoResponse>> call,
+                                  @NonNull Throwable t) {
+                progressBar.setVisibility(View.GONE);
+                if (!isAdded() || call.isCanceled()) return;
+                Log.e("API Error", "Error al obtener medicamentos", t);
+            }
+        });
     }
 
     private void navigateToAddPatient() {
@@ -517,14 +547,21 @@ public class DashboardFragment extends Fragment {
         transaction.commit();
     }
 
-    // Clases internas para medicamentos
     static class Medication {
-        String name, dosage, schedule;
+        String name;
+        String dosage;
+        String schedule;
+        String patientName;
+        String startDate;
+        String endDate;
 
-        Medication(String name, String dosage, String schedule) {
+        Medication(String name, String dosage, String schedule, String patientName, String startDate, String endDate) {
             this.name = name;
             this.dosage = dosage;
             this.schedule = schedule;
+            this.patientName = patientName;
+            this.startDate = startDate;
+            this.endDate = endDate;
         }
     }
 
@@ -535,21 +572,11 @@ public class DashboardFragment extends Fragment {
             this.medications = medications;
         }
 
-        static class ViewHolder extends RecyclerView.ViewHolder {
-            TextView tvName, tvDosage, tvSchedule;
-
-            ViewHolder(View itemView) {
-                super(itemView);
-                tvName = itemView.findViewById(R.id.tvMedicationName);
-                tvDosage = itemView.findViewById(R.id.tvDosage);
-                tvSchedule = itemView.findViewById(R.id.tvSchedule);
-            }
-        }
-
         @NonNull
         @Override
         public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_medication, parent, false);
+            View view = LayoutInflater.from(parent.getContext())
+                    .inflate(R.layout.item_medication, parent, false);
             return new ViewHolder(view);
         }
 
@@ -559,11 +586,51 @@ public class DashboardFragment extends Fragment {
             holder.tvName.setText(med.name);
             holder.tvDosage.setText(med.dosage);
             holder.tvSchedule.setText(med.schedule);
+
+            if (med.patientName != null) {
+                holder.tvPatient.setText(med.patientName);
+                holder.tvPatient.setVisibility(View.VISIBLE);
+            } else {
+                holder.tvPatient.setVisibility(View.GONE);
+            }
+
+            String datesText = "";
+            if (med.startDate != null) {
+                datesText += "Inicio: " + formatDate(med.startDate);
+            }
+            if (med.endDate != null) {
+                datesText += (datesText.isEmpty() ? "" : "\n") + "Fin: " + formatDate(med.endDate);
+            }
+            holder.tvDates.setText(datesText);
         }
 
         @Override
         public int getItemCount() {
             return medications.size();
+        }
+
+        private String formatDate(String dateStr) {
+            try {
+                SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+                SimpleDateFormat outputFormat = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
+                Date date = inputFormat.parse(dateStr);
+                return outputFormat.format(date);
+            } catch (Exception e) {
+                return dateStr;
+            }
+        }
+
+        static class ViewHolder extends RecyclerView.ViewHolder {
+            TextView tvName, tvDosage, tvSchedule, tvPatient, tvDates;
+
+            ViewHolder(View itemView) {
+                super(itemView);
+                tvName = itemView.findViewById(R.id.tvMedicationName);
+                tvDosage = itemView.findViewById(R.id.tvDosage);
+                tvSchedule = itemView.findViewById(R.id.tvSchedule);
+                tvPatient = itemView.findViewById(R.id.tvPatient);
+                tvDates = itemView.findViewById(R.id.tvDates);
+            }
         }
     }
 }

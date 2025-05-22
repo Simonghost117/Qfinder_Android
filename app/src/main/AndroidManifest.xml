@@ -14,13 +14,15 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.QfinderAndroid"
+        android:usesCleartextTraffic="true"
         tools:targetApi="31">
         <activity
-            android:name=".fragment_registros_cuidados"
+            android:name=".episodios_salud_nota"
             android:exported="false" />
         <activity
-            android:name=".registros_salud"
-            android:exported="false" /> <!-- Configuración para notch y barra de estado -->
+            android:name=".episodios_salud_menu"
+            android:exported="false" />
+        <!-- Configuración para notch y barra de estado -->
         <meta-data
             android:name="android.notch_support"
             android:value="true" />
