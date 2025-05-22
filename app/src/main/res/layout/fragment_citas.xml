@@ -61,8 +61,7 @@
                     app:mcv_weekDayTextAppearance="@style/CalendarWeekDayTextAppearance"
                     app:mcv_selectionColor="#1983ff"
                     app:mcv_showOtherDates="all"
-                    app:mcv_firstDayOfWeek="sunday"
-                    app:mcv_selectionMode="single" />
+                    app:mcv_firstDayOfWeek="sunday" />
 
             </LinearLayout>
 

@@ -5,6 +5,7 @@ import android.app.DatePickerDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,7 +13,6 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Spinner;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -24,19 +24,18 @@ import com.prolificinteractive.materialcalendarview.CalendarDay;
 import com.prolificinteractive.materialcalendarview.MaterialCalendarView;
 import com.prolificinteractive.materialcalendarview.DayViewDecorator;
 import com.prolificinteractive.materialcalendarview.DayViewFacade;
+import com.prolificinteractive.materialcalendarview.spans.DotSpan;
+
 import com.sena.qfinder.R;
-import com.sena.qfinder.ui.home.CitaAdapter;
 import com.sena.qfinder.api.ApiClient;
 import com.sena.qfinder.api.AuthService;
 import com.sena.qfinder.models.CitaMedica;
 
 import android.graphics.Color;
-import android.text.style.ForegroundColorSpan;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
@@ -45,9 +44,6 @@ import java.util.Set;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-import com.prolificinteractive.materialcalendarview.spans.DotSpan;
-
-
 
 public class CitasFragment extends Fragment {
 
@@ -75,6 +71,8 @@ public class CitasFragment extends Fragment {
         calendarView.setSelectedDate(CalendarDay.today());
 
         Button btnAgregar = view.findViewById(R.id.btnAgregarRecordatorio);
+        calendarView.setSelectionMode(MaterialCalendarView.SELECTION_MODE_SINGLE);
+
         btnAgregar.setOnClickListener(v -> mostrarDialogoAgregar());
 
         authService = ApiClient.getClient().create(AuthService.class);
@@ -146,11 +144,11 @@ public class CitasFragment extends Fragment {
             nuevaCita.setTitulo(titulo);
             nuevaCita.setDescripcion(descripcion);
             nuevaCita.setTipo(tipo);
-            nuevaCita.setFecha(fecha);
+            nuevaCita.setFechaCita(fecha);
             nuevaCita.setRecordar_un_dia_antes(recordarUnDiaAntes);
             nuevaCita.setRecordar_mismo_dia(recordarMismoDia);
 
-            authService.crearCita("Bearer " + token, idPacienteSeleccionado, nuevaCita).enqueue(new Callback<CitaMedica>() {
+            authService.crearCitaMedica("Bearer " + token, idPacienteSeleccionado, nuevaCita).enqueue(new Callback<CitaMedica>() {
                 @Override
                 public void onResponse(Call<CitaMedica> call, Response<CitaMedica> response) {
                     if (response.isSuccessful() && response.body() != null) {
@@ -200,10 +198,17 @@ public class CitasFragment extends Fragment {
         for (CitaMedica cita : listaCitas) {
             try {
                 Calendar cal = Calendar.getInstance();
-                cal.setTime(sdf.parse(cita.getFecha()));
-                fechas.add(CalendarDay.from(cal));
+                cal.setTime(sdf.parse(cita.getFechaCita()));
+
+                // ✅ USO SEGURO DEL MÉTODO CalendarDay.from
+                CalendarDay day = CalendarDay.from(
+                        cal.get(Calendar.YEAR),
+                        cal.get(Calendar.MONTH),
+                        cal.get(Calendar.DAY_OF_MONTH)
+                );
+                fechas.add(day);
             } catch (Exception e) {
-                e.printStackTrace();
+                Log.e("CalendarParseError", "Fecha inválida: " + cita.getFechaCita(), e);
             }
         }
 
