@@ -86,6 +86,7 @@ dependencies {
     implementation(libs.retrofit)
     implementation(libs.retrofit2.converter.gson)
     implementation(libs.gson)
+
     // Para logging de las peticiones HTTP (opcional pero útil para debug)
     implementation(libs.logging.interceptor)
     implementation (libs.material.v170)
