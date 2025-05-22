@@ -4,6 +4,7 @@ import com.sena.qfinder.models.ActividadGetResponse;
 import com.sena.qfinder.models.ActividadListResponse;
 import com.sena.qfinder.models.ActividadRequest;
 import com.sena.qfinder.models.ActividadResponse;
+import com.sena.qfinder.models.CitaMedica;
 import com.sena.qfinder.models.CodeVerificationRequest;
 import com.sena.qfinder.models.CodeVerificationResponse;
 import com.sena.qfinder.models.PacienteListResponse;
