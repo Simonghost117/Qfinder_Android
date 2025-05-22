@@ -146,6 +146,12 @@ public class Login extends Fragment {
                     }
 
                     guardarDatosUsuario(email, response.body().getToken());
+                    // Guardar el userId de forma adicional (sin tocar el otro método)
+                    SharedPreferences preferences = requireContext().getSharedPreferences("usuario", Context.MODE_PRIVATE);
+                    SharedPreferences.Editor editor = preferences.edit();
+                    editor.putString("userId", response.body().getUserId()); // <-- Aquí se guarda el ID
+                    editor.apply();
+
                     iniciarSesionExitoso();
                 } else {
                     Toast.makeText(getContext(), "Credenciales incorrectas", Toast.LENGTH_SHORT).show();

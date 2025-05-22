@@ -107,27 +107,27 @@ public interface AuthService {
     );
 
 
-    @POST("/crearCita/:id_paciente")
+    @POST("crearCita/{id_paciente}")
     Call<CitaMedica> crearCitaMedica(
             @Header("Authorization") String token,
             @Path("id_paciente") int idPaciente,
             @Body CitaMedica cita
     );
 
-    @GET("/listarCitas/:id_paciente")
+    @GET("listarCitas/{id_paciente}")
     Call<List<CitaMedica>> listarCitasMedicas(
             @Header("Authorization") String token,
             @Path("id_paciente") int idPaciente
     );
 
-    @GET("/listarCitasId/:id_paciente/:id_cita")
+    @GET("listarCitasId/{id_paciente}/{id_cita}")
     Call<List<CitaMedica>> obtenerCitaPorId(
             @Header("Authorization") String token,
             @Path("id_paciente") int idPaciente,
             @Path("id_cita") int idCita
     );
 
-    @PUT("/actualizarCita/:id_paciente/:id_cita")
+    @PUT("actualizarCita/{id_paciente}/{id_cita}")
     Call<Void> actualizarCita(
             @Header("Authorization") String token,
             @Path("id_paciente") int idPaciente,
@@ -135,12 +135,13 @@ public interface AuthService {
             @Body CitaMedica cita
     );
 
-    @DELETE("/eliminarCita/:id_paciente/:id_cita")
+    @DELETE("eliminarCita/{id_paciente}/{id_cita}")
     Call<Void> eliminarCita(
             @Header("Authorization") String token,
             @Path("id_paciente") int idPaciente,
             @Path("id_cita") int idCita
     );
+
 }
 
 
