@@ -5,6 +5,8 @@ import com.sena.qfinder.models.ActividadResponse;
 import com.sena.qfinder.models.CodeVerificationRequest;
 import com.sena.qfinder.models.CodeVerificationResponse;
 import com.sena.qfinder.models.NotaEpisodio;
+import com.sena.qfinder.models.NotaEpisodioRequest;
+import com.sena.qfinder.models.NotaEpisodioResponse;
 import com.sena.qfinder.models.PacienteListResponse;
 import com.sena.qfinder.models.PacienteRequest;
 import com.sena.qfinder.models.PacienteResponse;
@@ -97,20 +99,20 @@ public interface AuthService {
 // EPISODIOS DE SALUD
 // -------------------------------
 
-    @GET("episodioSalud/{id_paciente}")
+    @GET("api/episodios/episodioSalud/{id_paciente}")
     Call<List<NotaEpisodio>> obtenerEpisodios(
             @Header("Authorization") String token,
             @Path("id_paciente") int pacienteId
     );
 
-    @POST("episodioSalud/{id_paciente}")
-    Call<NotaEpisodio> crearEpisodio(
+    @POST("api/episodios/episodioSalud/{id_paciente}")
+    Call<NotaEpisodioResponse> crearEpisodio(
             @Header("Authorization") String token,
-            @Path("id_paciente") int pacienteId,
-            @Body NotaEpisodio episodio
+            @Path("id_paciente") int idPaciente,
+            @Body NotaEpisodioRequest notaRequest
     );
 
-    @PUT("pacientes/{id_paciente}/episodioSalud/{id_episodio}")
+    @PUT("api/episodios/pacientes/{id_paciente}/episodioSalud/{id_episodio}")
     Call<NotaEpisodio> actualizarEpisodio(
             @Header("Authorization") String token,
             @Path("id_paciente") int pacienteId,
@@ -118,12 +120,13 @@ public interface AuthService {
             @Body NotaEpisodio episodio
     );
 
-    @DELETE("eliminarEpis/{id_paciente}/{id_episodio}")
+    @DELETE("api/episodios/eliminarEpis/{id_paciente}/{id_episodio}")
     Call<Void> eliminarEpisodio(
             @Header("Authorization") String token,
             @Path("id_paciente") int pacienteId,
             @Path("id_episodio") int idEpisodio
     );
+
 
 
 
