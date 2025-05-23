@@ -46,6 +46,7 @@
     <string name="txtIdent">Identificación:</string>
     <string name="txtDirreccion">Dirección:</string>
     <string name="txtContra">Contraseña:</string>
+    <string name="txtCondiciones">Al registrarte aceptas nuestros términos y condiciones de privacidad y manejo de datos.</string>
     <string name="txtContra2">Confirmación de contraseña:</string>
 
     <string name="terminos_completos">Términos y Condiciones de Privacidad y Uso de Datos</string>
