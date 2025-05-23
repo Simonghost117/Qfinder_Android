@@ -16,6 +16,9 @@ import com.sena.qfinder.models.MedicamentosResponse;
 import com.sena.qfinder.models.PacienteListResponse;
 import com.sena.qfinder.models.PacienteRequest;
 import com.sena.qfinder.models.PacienteResponse;
+import com.sena.qfinder.models.RedListResponse;
+import com.sena.qfinder.models.RedRequest;
+import com.sena.qfinder.models.RedResponse;
 import com.sena.qfinder.models.RegisterPacienteRequest;
 import com.sena.qfinder.models.RegisterPacienteResponse;
 import com.sena.qfinder.models.LoginRequest;
@@ -126,5 +129,27 @@ public interface AuthService {
     Call<List<AsignacionMedicamentoResponse>> listarAsignacionesMedicamentos(
             @Header("Authorization") String token,
             @Path("id_paciente") int pacienteId
+    );
+    // Añadir estos métodos en tu AuthService
+    @GET("api/redes/listarRedes")
+    Call<RedListResponse> listarRedes(@Header("Authorization") String token);
+
+    @POST("api/redes/crear")
+    Call<RedResponse> crearRed(
+            @Header("Authorization") String token,
+            @Body RedRequest request
+    );
+
+    @PUT("api/redes/actualizar/{id}")
+    Call<RedResponse> actualizarRed(
+            @Header("Authorization") String token,
+            @Path("id") int idRed,
+            @Body RedRequest request
+    );
+
+    @DELETE("api/redes/eliminar/{id}")
+    Call<Void> eliminarRed(
+            @Header("Authorization") String token,
+            @Path("id") int idRed
     );
 }
