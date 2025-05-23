@@ -9,6 +9,7 @@ import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -55,6 +56,8 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class DashboardFragment extends Fragment {
 
     private LinearLayout patientsContainer, activitiesContainer;
+
+    private ImageButton boton1,boton2;
     private RecyclerView rvMedications;
     private SharedPreferences sharedPreferences;
     private TextView tvUserName;
