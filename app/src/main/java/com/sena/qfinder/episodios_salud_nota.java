@@ -4,6 +4,7 @@ import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -30,7 +31,7 @@ import retrofit2.Response;
 
 public class episodios_salud_nota extends AppCompatActivity {
 
-    private String nivelGravedadActual = "baja"; // coincide con backend ('baja', 'media', 'alta')
+    private String nivelGravedadActual = "baja";
     private int idPacienteSeleccionado = -1;
 
     private EditText editTextDescripcion, editTextIntervenciones;
@@ -64,7 +65,14 @@ public class episodios_salud_nota extends AppCompatActivity {
         editTextFechaInicio.setFocusable(false);
         editTextFechaFin.setFocusable(false);
 
-        final int[] estadoGravedad = {0}; // 0=baja, 1=media, 2=alta
+        // --------- RELLENAR AUTOMÁTICAMENTE FECHA INICIO ----------
+        calendarInicio.setTimeInMillis(System.currentTimeMillis());
+        calendarInicio.add(Calendar.SECOND, -10); // restar 10 segundos para evitar error de fecha futura
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault());
+        editTextFechaInicio.setText(sdf.format(calendarInicio.getTime()));
+        // ----------------------------------------------------------
+
+        final int[] estadoGravedad = {0};
         actualizarBotonGravedad(estadoGravedad[0]);
 
         btnGravedad.setOnClickListener(v -> {
@@ -112,6 +120,9 @@ public class episodios_salud_nota extends AppCompatActivity {
                                 calendar.set(Calendar.MINUTE, minute);
                                 calendar.set(Calendar.SECOND, 0);
 
+                                // Ajuste para evitar error con fecha "ligeramente futura"
+                                calendar.add(Calendar.MINUTE, -2);
+
                                 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault());
                                 campo.setText(sdf.format(calendar.getTime()));
                             },
@@ -134,10 +145,44 @@ public class episodios_salud_nota extends AppCompatActivity {
         String fechaInicio = editTextFechaInicio.getText().toString().trim();
         String fechaFin = editTextFechaFin.getText().toString().trim();
 
-        if (descripcion.isEmpty()) {
-            Toast.makeText(this, "Ingrese una descripción", Toast.LENGTH_SHORT).show();
+        // Validaciones
+        if (descripcion.length() < 10) {
+            Toast.makeText(this, "La descripción debe tener al menos 10 caracteres", Toast.LENGTH_SHORT).show();
             return;
         }
+
+        if (fechaInicio.isEmpty()) {
+            Toast.makeText(this, "Seleccione la fecha y hora de inicio", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        try {
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault());
+            Calendar ahora = Calendar.getInstance();
+            Calendar inicioSeleccionado = Calendar.getInstance();
+            inicioSeleccionado.setTime(sdf.parse(fechaInicio));
+
+            if (inicioSeleccionado.after(ahora)) {
+                Toast.makeText(this, "La fecha de inicio no puede ser en el futuro", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            if (!fechaFin.isEmpty()) {
+                Calendar finSeleccionado = Calendar.getInstance();
+                finSeleccionado.setTime(sdf.parse(fechaFin));
+
+                if (finSeleccionado.before(inicioSeleccionado)) {
+                    Toast.makeText(this, "La fecha de fin no puede ser antes de la fecha de inicio", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+            }
+
+        } catch (Exception e) {
+            Toast.makeText(this, "Error al validar fechas", Toast.LENGTH_SHORT).show();
+            e.printStackTrace();
+            return;
+        }
+
         if (idPacienteSeleccionado == -1) {
             Toast.makeText(this, "Error: paciente no seleccionado", Toast.LENGTH_SHORT).show();
             return;
@@ -150,15 +195,12 @@ public class episodios_salud_nota extends AppCompatActivity {
         }
         String token = "Bearer " + tokenGuardado;
 
-        // Aquí debes obtener el id y rol del usuario que registra la nota.
-        // Por ejemplo, podrías guardarlo en SharedPreferences o recibirlo como extra.
-        int registradoPor = obtenerIdUsuarioRegistrado(); // IMPLEMENTA este método
-        String registradoPorRole = obtenerRolUsuarioRegistrado(); // IMPLEMENTA este método
+        int registradoPor = obtenerIdUsuarioRegistrado();
+        String registradoPorRole = obtenerRolUsuarioRegistrado();
 
-        // Tipo y origen podrían ser fijos o parametrizados, aquí pongo valores de ejemplo:
         String tipo = "nota";
-        String origen = "usuario"; // o "cuidador", "medico", etc.
-        String fuenteDatos = "app_android"; // opcional
+        String origen = "usuario";
+        String fuenteDatos = "app_android";
 
         NotaEpisodioRequest nuevaNota = new NotaEpisodioRequest(
                 idPacienteSeleccionado,
@@ -177,7 +219,6 @@ public class episodios_salud_nota extends AppCompatActivity {
         AuthService authService = ApiClient.getClient().create(AuthService.class);
         Call<NotaEpisodioResponse> call = authService.crearEpisodio(token, idPacienteSeleccionado, nuevaNota);
 
-
         call.enqueue(new Callback<NotaEpisodioResponse>() {
             @Override
             public void onResponse(Call<NotaEpisodioResponse> call, Response<NotaEpisodioResponse> response) {
@@ -192,16 +233,20 @@ public class episodios_salud_nota extends AppCompatActivity {
                         }
                     } catch (Exception e) {
                         e.printStackTrace();
+                        Log.e("API_ERROR", "Excepción al leer errorBody", e);
                     }
-                    Toast.makeText(episodios_salud_nota.this,
-                            "Error al guardar la nota. Código: " + response.code() + " " + response.message() + "\n" + errorBody,
-                            Toast.LENGTH_LONG).show();
+
+                    String mensajeError = "Error al guardar la nota. Código: " + response.code() + " " + response.message() + "\n" + errorBody;
+                    Toast.makeText(episodios_salud_nota.this, mensajeError, Toast.LENGTH_LONG).show();
+                    Log.e("API_ERROR", mensajeError);
                 }
             }
 
             @Override
             public void onFailure(Call<NotaEpisodioResponse> call, Throwable t) {
-                Toast.makeText(episodios_salud_nota.this, "Error: " + t.getMessage(), Toast.LENGTH_LONG).show();
+                String mensajeError = "Error de red o fallo inesperado: " + t.getMessage();
+                Toast.makeText(episodios_salud_nota.this, mensajeError, Toast.LENGTH_LONG).show();
+                Log.e("API_FAILURE", mensajeError, t);
             }
         });
     }
@@ -211,15 +256,13 @@ public class episodios_salud_nota extends AppCompatActivity {
         return prefs.getString("token", null);
     }
 
-    // TODO: Implementar la obtención del id del usuario que registra la nota
     private int obtenerIdUsuarioRegistrado() {
         SharedPreferences prefs = getSharedPreferences("usuario", MODE_PRIVATE);
-        return prefs.getInt("id_usuario", -1); // o como tengas almacenado el id
+        return prefs.getInt("id_usuario", -1);
     }
 
-    // TODO: Implementar la obtención del rol del usuario que registra la nota
     private String obtenerRolUsuarioRegistrado() {
         SharedPreferences prefs = getSharedPreferences("usuario", MODE_PRIVATE);
-        return prefs.getString("rol_usuario", "Usuario"); // valores posibles: Medico, Familiar, Administrador, Usuario
+        return prefs.getString("rol_usuario", "Usuario");
     }
 }

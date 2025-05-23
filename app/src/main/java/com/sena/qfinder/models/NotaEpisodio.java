@@ -4,41 +4,32 @@ import com.google.gson.annotations.SerializedName;
 
 public class NotaEpisodio {
 
-    @SerializedName("id_paciente")
-    private int idPaciente;
+    @SerializedName("idPaciente")
+    private Integer idPaciente;
 
-    @SerializedName("fecha_hora_inicio")
+    @SerializedName("fechaHoraInicio")
     private String fechaHoraInicio;
 
-    @SerializedName("fecha_hora_fin")
+    @SerializedName("fechaHoraFin")
     private String fechaHoraFin;
 
+    @SerializedName("severidad")
     private String severidad;
+
+    @SerializedName("descripcion")
     private String descripcion;
+
+    @SerializedName("intervenciones")
     private String intervenciones;
 
-    @SerializedName("registrado_por")
+    @SerializedName("registradoPor")
     private String registradoPor;
 
-    public NotaEpisodio(int idPaciente, String fechaHoraInicio, String fechaHoraFin,
-                        String severidad, String descripcion, String intervenciones,
-                        String registradoPor) {
-        this.idPaciente = idPaciente;
-        this.fechaHoraInicio = fechaHoraInicio;
-        this.fechaHoraFin = fechaHoraFin;
-        this.severidad = severidad;
-        this.descripcion = descripcion;
-        this.intervenciones = intervenciones;
-        this.registradoPor = registradoPor;
-    }
-
-    // Getters y setters
-
-    public int getIdPaciente() {
+    public Integer getIdPaciente() {
         return idPaciente;
     }
 
-    public void setIdPaciente(int idPaciente) {
+    public void setIdPaciente(Integer idPaciente) {
         this.idPaciente = idPaciente;
     }
 

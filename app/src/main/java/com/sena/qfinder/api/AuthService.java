@@ -5,6 +5,7 @@ import com.sena.qfinder.models.ActividadResponse;
 import com.sena.qfinder.models.CodeVerificationRequest;
 import com.sena.qfinder.models.CodeVerificationResponse;
 import com.sena.qfinder.models.NotaEpisodio;
+import com.sena.qfinder.models.NotaEpisodioListResponse;
 import com.sena.qfinder.models.NotaEpisodioRequest;
 import com.sena.qfinder.models.NotaEpisodioResponse;
 import com.sena.qfinder.models.PacienteListResponse;
@@ -100,10 +101,11 @@ public interface AuthService {
 // -------------------------------
 
     @GET("api/episodios/episodioSalud/{id_paciente}")
-    Call<List<NotaEpisodio>> obtenerEpisodios(
+    Call<NotaEpisodioListResponse> obtenerEpisodios(
             @Header("Authorization") String token,
             @Path("id_paciente") int pacienteId
     );
+
 
     @POST("api/episodios/episodioSalud/{id_paciente}")
     Call<NotaEpisodioResponse> crearEpisodio(
