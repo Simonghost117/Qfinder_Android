@@ -56,8 +56,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Unirme"
+            android:textColor="#4E9EFB"
             android:layout_gravity="center_vertical"
             android:layout_marginStart="12dp"
+            android:backgroundTint="#594E9EFB"
             android:paddingHorizontal="16dp" />
 
         <!-- Icono de opciones -->
