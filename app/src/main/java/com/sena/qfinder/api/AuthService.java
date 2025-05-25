@@ -77,6 +77,8 @@ public interface AuthService {
     );
     @GET("api/paciente/listarPacientes")
     Call<PacienteListResponse> listarPacientes(@Header("Authorization") String token);
+    @GET("api/paciente/listarPacientes")
+    Call<PacienteListResponse> obtenerPacientes(@Header("Authorization") String token);
     @POST("api/auth/logout")
     Call<Void> logout();
 

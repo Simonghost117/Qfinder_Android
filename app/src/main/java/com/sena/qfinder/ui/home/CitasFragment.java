@@ -9,6 +9,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
@@ -30,6 +32,9 @@ import com.sena.qfinder.R;
 import com.sena.qfinder.api.ApiClient;
 import com.sena.qfinder.api.AuthService;
 import com.sena.qfinder.models.CitaMedica;
+import com.sena.qfinder.models.PacienteListResponse;
+import com.sena.qfinder.models.PacienteListResponse;
+import com.sena.qfinder.models.PacienteResponse;
 
 import android.graphics.Color;
 
@@ -51,10 +56,13 @@ public class CitasFragment extends Fragment {
     private CitaAdapter citaAdapter;
     private List<CitaMedica> listaCitas = new ArrayList<>();
     private MaterialCalendarView calendarView;
+    private Spinner spinnerPacientes;
 
     private AuthService authService;
     private String token;
     private int idPacienteSeleccionado;
+
+    private List<PacienteListResponse> listaPacientes = new ArrayList<>();
 
     public CitasFragment() {}
 
@@ -69,26 +77,66 @@ public class CitasFragment extends Fragment {
 
         calendarView = view.findViewById(R.id.calendarView);
         calendarView.setSelectedDate(CalendarDay.today());
-
-        Button btnAgregar = view.findViewById(R.id.btnAgregarRecordatorio);
         calendarView.setSelectionMode(MaterialCalendarView.SELECTION_MODE_SINGLE);
 
+        Button btnAgregar = view.findViewById(R.id.btnAgregarRecordatorio);
         btnAgregar.setOnClickListener(v -> mostrarDialogoAgregar());
+
+        spinnerPacientes = view.findViewById(R.id.spinnerPacientes);
 
         authService = ApiClient.getClient().create(AuthService.class);
 
         SharedPreferences prefs = requireContext().getSharedPreferences("user_prefs", Context.MODE_PRIVATE);
         token = prefs.getString("token", null);
-        idPacienteSeleccionado = prefs.getInt("id_paciente", -1);
 
-        if (token != null && idPacienteSeleccionado != -1) {
-            obtenerCitasDesdeApi();
+        if (token != null) {
+            obtenerPacientes();
         } else {
-            Toast.makeText(getContext(), "No se encontró el token o ID del paciente", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), "No se encontró el token", Toast.LENGTH_SHORT).show();
         }
 
         return view;
     }
+
+    private void obtenerPacientes() {
+        authService.obtenerPacientes("Bearer " + token).enqueue(new Callback<PacienteListResponse>() {
+            @Override
+            public void onResponse(Call<PacienteListResponse> call, Response<PacienteListResponse> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    // Obtén la lista de pacientes desde el objeto de respuesta
+                    List<PacienteResponse> listaPacientes = response.body().getData(); // Cambia esto para obtener la lista de pacientes
+                    List<String> nombres = new ArrayList<>();
+                    for (PacienteResponse paciente : listaPacientes) {
+                        nombres.add(paciente.getNombre()); // Asegúrate de que PacienteResponse tenga el método getNombre()
+                    }
+                    ArrayAdapter<String> adapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_item, nombres);
+                    adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                    spinnerPacientes.setAdapter(adapter);
+
+                    spinnerPacientes.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                        @Override
+                        public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                            // Accede al paciente seleccionado
+                            PacienteResponse pacienteSeleccionado = listaPacientes.get(position);
+                            idPacienteSeleccionado = pacienteSeleccionado.getId(); // Asegúrate de que PacienteResponse tenga el método getId()
+                            obtenerCitasDesdeApi();
+                        }
+
+                        @Override
+                        public void onNothingSelected(AdapterView<?> parent) {}
+                    });
+                } else {
+                    Toast.makeText(getContext(), "Error al obtener pacientes", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<PacienteListResponse> call, Throwable t) {
+                Toast.makeText(getContext(), "Error: " + t.getMessage(), Toast.LENGTH_LONG).show();
+            }
+        });
+    }
+
 
     private void mostrarDialogoAgregar() {
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
