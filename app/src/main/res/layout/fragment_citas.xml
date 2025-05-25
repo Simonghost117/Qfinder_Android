@@ -38,7 +38,7 @@
             android:padding="16dp">
 
             <Spinner
-                android:id="@+id/spinnerPacientes"
+                android:id="@+id/spinnerPacientesalejo"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="16dp"/>

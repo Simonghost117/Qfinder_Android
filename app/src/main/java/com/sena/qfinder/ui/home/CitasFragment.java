@@ -56,7 +56,8 @@ public class CitasFragment extends Fragment {
     private CitaAdapter citaAdapter;
     private List<CitaMedica> listaCitas = new ArrayList<>();
     private MaterialCalendarView calendarView;
-    private Spinner spinnerPacientes;
+    private Spinner spinnerPacientesalejo;
+
 
     private AuthService authService;
     private String token;
@@ -82,7 +83,7 @@ public class CitasFragment extends Fragment {
         Button btnAgregar = view.findViewById(R.id.btnAgregarRecordatorio);
         btnAgregar.setOnClickListener(v -> mostrarDialogoAgregar());
 
-        spinnerPacientes = view.findViewById(R.id.spinnerPacientes);
+        spinnerPacientesalejo = view.findViewById(R.id.spinnerPacientesalejo);
 
         authService = ApiClient.getClient().create(AuthService.class);
 
@@ -111,9 +112,9 @@ public class CitasFragment extends Fragment {
                     }
                     ArrayAdapter<String> adapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_item, nombres);
                     adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-                    spinnerPacientes.setAdapter(adapter);
+                    spinnerPacientesalejo.setAdapter(adapter);
 
-                    spinnerPacientes.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                    spinnerPacientesalejo.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                         @Override
                         public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                             // Accede al paciente seleccionado
