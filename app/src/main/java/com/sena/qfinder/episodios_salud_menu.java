@@ -62,7 +62,7 @@ public class episodios_salud_menu extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_episodios_salud_menu);
 
-        spinnerPacientes = findViewById(R.id.SeleccionarPaciente);
+        spinnerPacientes = findViewById(R.id.SeleccionarPacientes);
         spinnerOrganizar = findViewById(R.id.spinner_organizar);
         listViewNotas = findViewById(R.id.listViewNotas);
         cantidadRegistros = findViewById(R.id.cantidadRegistros);
