@@ -69,7 +69,7 @@
             android:background="?android:attr/listDivider" />
 
         <Spinner
-            android:id="@+id/SeleccionarPacientes"
+            android:id="@+id/SeleccionarPaciente"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:spinnerMode="dropdown"
