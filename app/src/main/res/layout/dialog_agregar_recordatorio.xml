@@ -63,6 +63,6 @@
         android:layout_height="wrap_content"
         android:text="Guardar"
         android:layout_gravity="center"
-        android:backgroundTint="#1983ff"
+        android:backgroundTint="@color/Botones"
         android:textColor="#fff"/>
 </LinearLayout>

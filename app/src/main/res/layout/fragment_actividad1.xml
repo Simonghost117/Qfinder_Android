@@ -29,7 +29,7 @@
             android:textStyle="bold"
             android:layout_centerInParent="true"
             android:layout_alignParentTop="true"
-            android:layout_marginTop="33dp"/>
+            android:layout_marginTop="35dp"/>
     </RelativeLayout>
 
     <!-- Spinner para seleccionar paciente -->
@@ -54,7 +54,7 @@
         android:textStyle="bold"
         android:layout_gravity="center"
         android:layout_marginTop="16dp"
-        android:backgroundTint="#216AF4"
+        android:backgroundTint="@color/Botones"
         android:textColor="#fff"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
