@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "943234700783",
+    "firebase_url": "https://qfinder-comunity-default-rtdb.firebaseio.com",
+    "project_id": "qfinder-comunity",
+    "storage_bucket": "qfinder-comunity.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:943234700783:android:63a9059d4f25737428521a",
+        "android_client_info": {
+          "package_name": "com.sena.qfinder"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDWsifL9DrQkUSqSmaVstQ7Cr9dhAPoPZg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
