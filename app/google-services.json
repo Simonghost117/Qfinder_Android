@@ -13,7 +13,12 @@
           "package_name": "com.sena.qfinder"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "943234700783-k746sid750mu250gnl1c66uale2fl72r.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyDWsifL9DrQkUSqSmaVstQ7Cr9dhAPoPZg"
@@ -21,7 +26,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "943234700783-k746sid750mu250gnl1c66uale2fl72r.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }
